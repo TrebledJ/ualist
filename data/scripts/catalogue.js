@@ -31,9 +31,15 @@ function crawlDirectory(directory) {
             const value = loadText(filePath);
             return value;
         }
-        return 0;
+        return new Set();
     });
-    return entries.reduce((a, b) => a + b, 0);
+    // return entries.reduce((a, b) => a + b, 0);
+    return entries.reduce((a, b) => {
+        const c = new Set();
+        a.forEach(e => c.add(e));
+        b.forEach(e => c.add(e));
+        return c;
+    }, new Set());
 }
 
 function loadJson(filePath) {
@@ -42,10 +48,11 @@ function loadJson(filePath) {
         const jsonData = JSON.parse(data);
         // console.log(`Extracted data from ${filePath}:`, jsonData.length, 'entries');
         // console.log(jsonData.length);
-        return jsonData.length;
+        return new Set(jsonData.map(e => e.ua));
+        // return jsonData.length;
     } catch (err) {
         console.error(`Error parsing JSON from ${filePath}: ${err}`);
-        return 0;
+        return new Set();
     }
 }
 
@@ -53,10 +60,14 @@ function loadText(filePath) {
     const data = fs.readFileSync(filePath, 'utf8');
     const lines = data.split(/[\r\n]+/);
     // console.log(lines.length);
-    return lines.length;
+    // return lines.length;
+    return new Set(lines);
 }
 
 // Example usage
 const directoryPath = __dirname + "/../raw";
 const total = crawlDirectory(directoryPath);
-console.log(total, 'total entries')
+console.log(total.size, 'total entries');
+
+fs.writeFileSync(__dirname + '/processed2.txt', [...total].filter(e => !e.startsWith('Mozilla')).join('\n'));
+
