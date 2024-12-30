@@ -9,32 +9,43 @@
 </head>
 
 <body>
-    <div id="myapp"></div>
+    <div id="view-app"></div>
     <script>
-        var app = Elm.Main.init({
-            node: document.getElementById('myapp')
-        });
+        var app = Elm.View.init({
+            node: document.getElementById('view-app')
+        }); 
 
         const uap = new UAParser();
 
-        app.ports.fetchUaDeets.subscribe(function(uas) {
-            console.log("got data in js:", uas.length, "user agents");
-            const results = [];
-            for (const ua of uas) {
-                console.log("parsing:", ua);
-                uap.setUA(ua);
-                const res = uap.getResult();
-                results.push({
-                    ua: ua,
-                    browserName: res.browser.name || '-',
-                    deviceModel: res.device.model || '-',
-                    deviceVendor: res.device.vendor || '-',
-                    osName: res.os.name || '-'
-                });
-            }
-            app.ports.recvUaDeets.send(JSON.stringify(results));
+        function processUserAgent(ua) {
+            uap.setUA(ua);
+            const res = uap.getResult();
+            return {
+                ua: ua,
+                browserName: res.browser.name || '-',
+                deviceModel: res.device.model || '-',
+                deviceVendor: res.device.vendor || '-',
+                osName: res.os.name || '-',
+            };
+        }
+
+        function processUserAgentBatch(uas) {
+            return uas.map(processUserAgent);
+        }
+
+        app.ports.fetchUserAgent.subscribe(function (ua) {
+            const data = processUserAgent(ua);
+            app.ports.recvUserAgent.send(JSON.stringify(data));
         });
-        // app.ports.recvUaDeets.send(JSON.stringify({__proto__:{foo:'123'}, browser:"Firefox", device:'Windows'}));
+
+        app.ports.fetchUserAgentBatch.subscribe(function (ua) {
+            const data = processUserAgentBatch(ua);
+            app.ports.recvUserAgentBatch.send(JSON.stringify(data));
+        });
+
+        // app.ports.jsonConsole.subscribe(function(json) {
+        //     console.log(json)
+        // });
     </script>
 </body>
 

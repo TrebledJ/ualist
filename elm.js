@@ -5371,292 +5371,11 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$TableMsg = function (a) {
+var $author$project$View$TableMsg = function (a) {
 	return {$: 'TableMsg', a: a};
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $author$project$MyTable$OnTableInternal = function (a) {
-	return {$: 'OnTableInternal', a: a};
-};
-var $author$project$MyTable$OnTableRefresh = function (a) {
-	return {$: 'OnTableRefresh', a: a};
-};
-var $gribouille$elm_table$Internal$Config$ConfTable = F3(
-	function (columns, getID, expand) {
-		return {columns: columns, expand: expand, getID: getID};
-	});
-var $gribouille$elm_table$Internal$Config$Config = function (a) {
-	return {$: 'Config', a: a};
-};
-var $gribouille$elm_table$Table$Types$Disable = {$: 'Disable'};
-var $gribouille$elm_table$Table$Types$Dynamic = {$: 'Dynamic'};
-var $gribouille$elm_table$Internal$Config$None = {$: 'None'};
-var $gribouille$elm_table$Table$Types$SearchEnter = {$: 'SearchEnter'};
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $gribouille$elm_table$Internal$Config$errorView = function (msg) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('table-data-error')
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(msg)
-			]));
-};
-var $gribouille$elm_table$Internal$Config$dynamic = F4(
-	function (onChangeExt, onChangeInt, getID, columns) {
-		return $gribouille$elm_table$Internal$Config$Config(
-			{
-				actions: _List_fromArray(
-					[$gribouille$elm_table$Table$Types$SearchEnter]),
-				errorView: $gribouille$elm_table$Internal$Config$errorView,
-				onChangeExt: onChangeExt,
-				onChangeInt: onChangeInt,
-				pagination: $gribouille$elm_table$Internal$Config$None,
-				selection: $gribouille$elm_table$Table$Types$Disable,
-				subtable: $elm$core$Maybe$Nothing,
-				table: A3($gribouille$elm_table$Internal$Config$ConfTable, columns, getID, $elm$core$Maybe$Nothing),
-				toolbar: _List_Nil,
-				type_: $gribouille$elm_table$Table$Types$Dynamic
-			});
-	});
-var $gribouille$elm_table$Table$dynamic = $gribouille$elm_table$Internal$Config$dynamic;
-var $gribouille$elm_table$Internal$Column$Column = function (a) {
-	return {$: 'Column', a: a};
-};
-var $elm$core$Basics$compare = _Utils_compare;
-var $gribouille$elm_table$Table$Types$Ascending = {$: 'Ascending'};
-var $gribouille$elm_table$Table$Types$SortColumn = {$: 'SortColumn'};
-var $elm$html$Html$a = _VirtualDom_node('a');
-var $elm$html$Html$abbr = _VirtualDom_node('abbr');
-var $gribouille$elm_table$Internal$Util$iff = F3(
-	function (cond, a, b) {
-		return cond ? a : b;
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $gribouille$elm_table$Table$Types$Descending = {$: 'Descending'};
-var $gribouille$elm_table$Internal$State$next = function (status) {
-	switch (status.$) {
-		case 'StandBy':
-			return $gribouille$elm_table$Table$Types$Descending;
-		case 'Descending':
-			return $gribouille$elm_table$Table$Types$Ascending;
-		default:
-			return $gribouille$elm_table$Table$Types$Descending;
-	}
-};
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $elm$html$Html$span = _VirtualDom_node('span');
-var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
-var $gribouille$elm_table$Internal$Column$viewHeader = F3(
-	function (_v0, pipe, state) {
-		var col = _v0.a;
-		return _List_fromArray(
-			[
-				A3(
-				$gribouille$elm_table$Internal$Util$iff,
-				$elm$core$String$isEmpty(col.abbrev),
-				A2(
-					$elm$html$Html$span,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(col.name)
-						])),
-				A2(
-					$elm$html$Html$abbr,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$title(col.name)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text(col.abbrev)
-						]))),
-				A3(
-				$gribouille$elm_table$Internal$Util$iff,
-				!_Utils_eq(col.sortable, $elm$core$Maybe$Nothing),
-				A3(
-					$gribouille$elm_table$Internal$Util$iff,
-					_Utils_eq(
-						state.orderBy,
-						$elm$core$Maybe$Just(col.name)),
-					A2(
-						$elm$html$Html$a,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('sort'),
-								$elm$html$Html$Events$onClick(
-								A2(
-									pipe,
-									$gribouille$elm_table$Table$Types$SortColumn,
-									function (s) {
-										return _Utils_update(
-											s,
-											{
-												order: $gribouille$elm_table$Internal$State$next(s.order)
-											});
-									}))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text(
-								function () {
-									var _v1 = state.order;
-									switch (_v1.$) {
-										case 'Ascending':
-											return '↿';
-										case 'Descending':
-											return '⇂';
-										default:
-											return '⇅';
-									}
-								}())
-							])),
-					A2(
-						$elm$html$Html$a,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('sort'),
-								$elm$html$Html$Events$onClick(
-								A2(
-									pipe,
-									$gribouille$elm_table$Table$Types$SortColumn,
-									function (s) {
-										return _Utils_update(
-											s,
-											{
-												order: $gribouille$elm_table$Table$Types$Ascending,
-												orderBy: $elm$core$Maybe$Just(col.name)
-											});
-									}))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('⇅')
-							]))),
-				$elm$html$Html$text(''))
-			]);
-	});
-var $gribouille$elm_table$Internal$Column$string = F3(
-	function (get, name, abbrev) {
-		return $gribouille$elm_table$Internal$Column$Column(
-			{
-				abbrev: abbrev,
-				_class: '',
-				_default: true,
-				hiddable: true,
-				name: name,
-				searchable: $elm$core$Maybe$Just(get),
-				sortable: $elm$core$Maybe$Just(
-					F2(
-						function (a, b) {
-							return A2(
-								$elm$core$Basics$compare,
-								get(a),
-								get(b));
-						})),
-				viewCell: F3(
-					function (x, _v0, _v1) {
-						return _List_fromArray(
-							[
-								$elm$html$Html$text(
-								get(x))
-							]);
-					}),
-				viewHeader: $gribouille$elm_table$Internal$Column$viewHeader,
-				visible: true,
-				width: ''
-			});
-	});
-var $gribouille$elm_table$Table$Column$string = $gribouille$elm_table$Internal$Column$string;
-var $author$project$MyTable$config = A4(
-	$gribouille$elm_table$Table$dynamic,
-	$author$project$MyTable$OnTableRefresh,
-	$author$project$MyTable$OnTableInternal,
-	function ($) {
-		return $.ua;
-	},
-	_List_fromArray(
-		[
-			A3(
-			$gribouille$elm_table$Table$Column$string,
-			function ($) {
-				return $.ua;
-			},
-			'User Agent',
-			''),
-			A3(
-			$gribouille$elm_table$Table$Column$string,
-			function ($) {
-				return $.browserName;
-			},
-			'Browser',
-			''),
-			A3(
-			$gribouille$elm_table$Table$Column$string,
-			function ($) {
-				return $.deviceModel;
-			},
-			'Model',
-			''),
-			A3(
-			$gribouille$elm_table$Table$Column$string,
-			function ($) {
-				return $.deviceVendor;
-			},
-			'Vendor',
-			''),
-			A3(
-			$gribouille$elm_table$Table$Column$string,
-			function ($) {
-				return $.osName;
-			},
-			'OS',
-			'')
-		]));
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
-var $author$project$MyTable$fetchUaDeets = _Platform_outgoingPort(
-	'fetchUaDeets',
-	$elm$json$Json$Encode$list($elm$json$Json$Encode$string));
-var $author$project$MyTable$OnData = function (a) {
+var $author$project$UaTable$OnData = function (a) {
 	return {$: 'OnData', a: a};
 };
 var $elm$http$Http$BadStatus_ = F2(
@@ -5688,6 +5407,7 @@ var $elm$core$Maybe$isJust = function (maybe) {
 	}
 };
 var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -6437,15 +6157,280 @@ var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
 		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
-var $elm$core$Debug$log = _Debug_log;
-var $author$project$MyTable$get = function (page) {
-	var _v0 = A2($elm$core$Debug$log, 'fetching data.txt', '');
-	return $elm$http$Http$get(
-		{
-			expect: $elm$http$Http$expectString($author$project$MyTable$OnData),
-			url: '../data/data.txt'
-		});
+var $author$project$UaTable$fetchData = $elm$http$Http$get(
+	{
+		expect: $elm$http$Http$expectString($author$project$UaTable$OnData),
+		url: 'data/data.txt'
+	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$UaTable$fetchUserAgent = _Platform_outgoingPort('fetchUserAgent', $elm$json$Json$Encode$string);
+var $author$project$UaTable$OnTableInternal = function (a) {
+	return {$: 'OnTableInternal', a: a};
 };
+var $author$project$UaTable$OnTableRefresh = function (a) {
+	return {$: 'OnTableRefresh', a: a};
+};
+var $gribouille$elm_table$Internal$Config$ConfTable = F3(
+	function (columns, getID, expand) {
+		return {columns: columns, expand: expand, getID: getID};
+	});
+var $gribouille$elm_table$Internal$Config$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var $gribouille$elm_table$Table$Types$Disable = {$: 'Disable'};
+var $gribouille$elm_table$Table$Types$Dynamic = {$: 'Dynamic'};
+var $gribouille$elm_table$Internal$Config$None = {$: 'None'};
+var $gribouille$elm_table$Table$Types$SearchEnter = {$: 'SearchEnter'};
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $gribouille$elm_table$Internal$Config$errorView = function (msg) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('table-data-error')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(msg)
+			]));
+};
+var $gribouille$elm_table$Internal$Config$dynamic = F4(
+	function (onChangeExt, onChangeInt, getID, columns) {
+		return $gribouille$elm_table$Internal$Config$Config(
+			{
+				actions: _List_fromArray(
+					[$gribouille$elm_table$Table$Types$SearchEnter]),
+				errorView: $gribouille$elm_table$Internal$Config$errorView,
+				onChangeExt: onChangeExt,
+				onChangeInt: onChangeInt,
+				pagination: $gribouille$elm_table$Internal$Config$None,
+				selection: $gribouille$elm_table$Table$Types$Disable,
+				subtable: $elm$core$Maybe$Nothing,
+				table: A3($gribouille$elm_table$Internal$Config$ConfTable, columns, getID, $elm$core$Maybe$Nothing),
+				toolbar: _List_Nil,
+				type_: $gribouille$elm_table$Table$Types$Dynamic
+			});
+	});
+var $gribouille$elm_table$Table$dynamic = $gribouille$elm_table$Internal$Config$dynamic;
+var $gribouille$elm_table$Internal$Column$Column = function (a) {
+	return {$: 'Column', a: a};
+};
+var $gribouille$elm_table$Table$Types$Ascending = {$: 'Ascending'};
+var $gribouille$elm_table$Table$Types$SortColumn = {$: 'SortColumn'};
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$html$Html$abbr = _VirtualDom_node('abbr');
+var $gribouille$elm_table$Internal$Util$iff = F3(
+	function (cond, a, b) {
+		return cond ? a : b;
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $gribouille$elm_table$Table$Types$Descending = {$: 'Descending'};
+var $gribouille$elm_table$Internal$State$next = function (status) {
+	switch (status.$) {
+		case 'StandBy':
+			return $gribouille$elm_table$Table$Types$Descending;
+		case 'Descending':
+			return $gribouille$elm_table$Table$Types$Ascending;
+		default:
+			return $gribouille$elm_table$Table$Types$Descending;
+	}
+};
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
+var $gribouille$elm_table$Internal$Column$viewHeader = F3(
+	function (_v0, pipe, state) {
+		var col = _v0.a;
+		return _List_fromArray(
+			[
+				A3(
+				$gribouille$elm_table$Internal$Util$iff,
+				$elm$core$String$isEmpty(col.abbrev),
+				A2(
+					$elm$html$Html$span,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(col.name)
+						])),
+				A2(
+					$elm$html$Html$abbr,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$title(col.name)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(col.abbrev)
+						]))),
+				A3(
+				$gribouille$elm_table$Internal$Util$iff,
+				!_Utils_eq(col.sortable, $elm$core$Maybe$Nothing),
+				A3(
+					$gribouille$elm_table$Internal$Util$iff,
+					_Utils_eq(
+						state.orderBy,
+						$elm$core$Maybe$Just(col.name)),
+					A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('sort'),
+								$elm$html$Html$Events$onClick(
+								A2(
+									pipe,
+									$gribouille$elm_table$Table$Types$SortColumn,
+									function (s) {
+										return _Utils_update(
+											s,
+											{
+												order: $gribouille$elm_table$Internal$State$next(s.order)
+											});
+									}))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								function () {
+									var _v1 = state.order;
+									switch (_v1.$) {
+										case 'Ascending':
+											return '↿';
+										case 'Descending':
+											return '⇂';
+										default:
+											return '⇅';
+									}
+								}())
+							])),
+					A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('sort'),
+								$elm$html$Html$Events$onClick(
+								A2(
+									pipe,
+									$gribouille$elm_table$Table$Types$SortColumn,
+									function (s) {
+										return _Utils_update(
+											s,
+											{
+												order: $gribouille$elm_table$Table$Types$Ascending,
+												orderBy: $elm$core$Maybe$Just(col.name)
+											});
+									}))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('⇅')
+							]))),
+				$elm$html$Html$text(''))
+			]);
+	});
+var $gribouille$elm_table$Internal$Column$string = F3(
+	function (get, name, abbrev) {
+		return $gribouille$elm_table$Internal$Column$Column(
+			{
+				abbrev: abbrev,
+				_class: '',
+				_default: true,
+				hiddable: true,
+				name: name,
+				searchable: $elm$core$Maybe$Just(get),
+				sortable: $elm$core$Maybe$Just(
+					F2(
+						function (a, b) {
+							return A2(
+								$elm$core$Basics$compare,
+								get(a),
+								get(b));
+						})),
+				viewCell: F3(
+					function (x, _v0, _v1) {
+						return _List_fromArray(
+							[
+								$elm$html$Html$text(
+								get(x))
+							]);
+					}),
+				viewHeader: $gribouille$elm_table$Internal$Column$viewHeader,
+				visible: true,
+				width: ''
+			});
+	});
+var $gribouille$elm_table$Table$Column$string = $gribouille$elm_table$Internal$Column$string;
+var $author$project$UaTable$config = A4(
+	$gribouille$elm_table$Table$dynamic,
+	$author$project$UaTable$OnTableRefresh,
+	$author$project$UaTable$OnTableInternal,
+	function ($) {
+		return $.ua;
+	},
+	_List_fromArray(
+		[
+			A3(
+			$gribouille$elm_table$Table$Column$string,
+			function ($) {
+				return $.ua;
+			},
+			'User Agent',
+			''),
+			A3(
+			$gribouille$elm_table$Table$Column$string,
+			function ($) {
+				return $.browserName;
+			},
+			'Browser',
+			''),
+			A3(
+			$gribouille$elm_table$Table$Column$string,
+			function ($) {
+				return $.deviceModel;
+			},
+			'Model',
+			''),
+			A3(
+			$gribouille$elm_table$Table$Column$string,
+			function ($) {
+				return $.deviceVendor;
+			},
+			'Vendor',
+			''),
+			A3(
+			$gribouille$elm_table$Table$Column$string,
+			function ($) {
+				return $.osName;
+			},
+			'OS',
+			'')
+		]));
 var $gribouille$elm_table$Table$Types$Loading = {$: 'Loading'};
 var $gribouille$elm_table$Internal$Data$Model = function (a) {
 	return {$: 'Model', a: a};
@@ -6528,56 +6513,45 @@ var $gribouille$elm_table$Internal$Table$init = function (_v0) {
 		});
 };
 var $gribouille$elm_table$Table$init = $gribouille$elm_table$Internal$Table$init;
+var $author$project$UaTable$init = $gribouille$elm_table$Table$init($author$project$UaTable$config);
 var $elm$core$Platform$Cmd$map = _Platform_map;
-var $author$project$Main$init = function (_v0) {
+var $author$project$View$init = function (_v0) {
 	return _Utils_Tuple2(
-		{
-			filterBrowser: 'firefox',
-			filterHost: '',
-			filterLimit: 10,
-			filterOsDevice: 'linux',
-			tableModel: $gribouille$elm_table$Table$init($author$project$MyTable$config)
-		},
+		{filterBrowser: 'firefox', filterHost: '', filterLimit: 10, filterOsDevice: 'linux', tableModel: $author$project$UaTable$init},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
-					A2(
-					$elm$core$Platform$Cmd$map,
-					$author$project$Main$TableMsg,
-					$author$project$MyTable$get(1)),
-					$author$project$MyTable$fetchUaDeets(
-					_List_fromArray(
-						['curl/1.0.0']))
+					A2($elm$core$Platform$Cmd$map, $author$project$View$TableMsg, $author$project$UaTable$fetchData),
+					$author$project$UaTable$fetchUserAgent('curl/1.0.0')
 				])));
 };
-var $author$project$MyTable$RecvUaDeets = function (a) {
-	return {$: 'RecvUaDeets', a: a};
+var $author$project$UaTable$RecvUserAgent = function (a) {
+	return {$: 'RecvUserAgent', a: a};
 };
+var $author$project$UaTable$RecvUserAgentBatch = function (a) {
+	return {$: 'RecvUserAgentBatch', a: a};
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$map = _Platform_map;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$MyTable$recvUaDeets = _Platform_incomingPort('recvUaDeets', $elm$json$Json$Decode$string);
-var $author$project$Main$subscriptions = function (_v0) {
-	return A2(
-		$elm$core$Platform$Sub$map,
-		$author$project$Main$TableMsg,
-		$author$project$MyTable$recvUaDeets($author$project$MyTable$RecvUaDeets));
+var $author$project$UaTable$recvUserAgent = _Platform_incomingPort('recvUserAgent', $elm$json$Json$Decode$string);
+var $author$project$UaTable$recvUserAgentBatch = _Platform_incomingPort('recvUserAgentBatch', $elm$json$Json$Decode$string);
+var $author$project$View$subscriptions = function (_v0) {
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				A2(
+				$elm$core$Platform$Sub$map,
+				$author$project$View$TableMsg,
+				$author$project$UaTable$recvUserAgent($author$project$UaTable$RecvUserAgent)),
+				A2(
+				$elm$core$Platform$Sub$map,
+				$author$project$View$TableMsg,
+				$author$project$UaTable$recvUserAgentBatch($author$project$UaTable$RecvUserAgentBatch))
+			]));
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$MyTable$UaParsedData = F5(
-	function (ua, browserName, deviceModel, deviceVendor, osName) {
-		return {browserName: browserName, deviceModel: deviceModel, deviceVendor: deviceVendor, osName: osName, ua: ua};
-	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$map5 = _Json_map5;
-var $author$project$MyTable$dataDecoder = A6(
-	$elm$json$Json$Decode$map5,
-	$author$project$MyTable$UaParsedData,
-	A2($elm$json$Json$Decode$field, 'ua', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'browserName', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'deviceModel', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'deviceVendor', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'osName', $elm$json$Json$Decode$string));
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $gribouille$elm_table$Internal$Data$get = function (_v0) {
 	var model = _v0.a;
 	var _v1 = model.rows;
@@ -6595,7 +6569,6 @@ var $gribouille$elm_table$Internal$Data$get = function (_v0) {
 	}
 };
 var $gribouille$elm_table$Table$get = $gribouille$elm_table$Internal$Data$get;
-var $elm$json$Json$Decode$list = _Json_decodeList;
 var $gribouille$elm_table$Table$Types$Loaded = function (a) {
 	return {$: 'Loaded', a: a};
 };
@@ -6621,24 +6594,52 @@ var $gribouille$elm_table$Table$loadedDynamic = F3(
 	function (rows, total, model) {
 		return A3($gribouille$elm_table$Internal$Data$loaded, model, rows, total);
 	});
-var $gribouille$elm_table$Internal$State$Pagination = F5(
-	function (search, orderBy, order, page, byPage) {
-		return {byPage: byPage, order: order, orderBy: orderBy, page: page, search: search};
+var $author$project$UaTable$appendRowsToModel = F2(
+	function (x, model) {
+		if (x.$ === 'Ok') {
+			var res = x.a;
+			return A3(
+				$gribouille$elm_table$Table$loadedDynamic,
+				_Utils_ap(
+					$gribouille$elm_table$Table$get(model),
+					res),
+				$elm$core$List$length(res),
+				model);
+		} else {
+			var err = x.a;
+			var _v1 = A2($elm$core$Debug$log, 'failed to get rows', err);
+			return model;
+		}
 	});
-var $gribouille$elm_table$Internal$State$pagination = function (state) {
-	return A5(
-		$gribouille$elm_table$Internal$State$Pagination,
-		state.search,
-		A2($elm$core$Maybe$withDefault, '', state.orderBy),
-		state.order,
-		state.page,
-		state.byPage);
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$UaTable$fetchUserAgentBatch = _Platform_outgoingPort(
+	'fetchUserAgentBatch',
+	$elm$json$Json$Encode$list($elm$json$Json$Encode$string));
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $elm$core$Result$map = F2(
+	function (func, ra) {
+		if (ra.$ === 'Ok') {
+			var a = ra.a;
+			return $elm$core$Result$Ok(
+				func(a));
+		} else {
+			var e = ra.a;
+			return $elm$core$Result$Err(e);
+		}
+	});
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
 };
-var $gribouille$elm_table$Internal$Data$pagination = function (_v0) {
-	var state = _v0.a.state;
-	return $gribouille$elm_table$Internal$State$pagination(state);
-};
-var $gribouille$elm_table$Table$pagination = $gribouille$elm_table$Internal$Data$pagination;
 var $elm$core$List$takeReverse = F3(
 	function (n, list, kept) {
 		takeReverse:
@@ -6765,15 +6766,26 @@ var $elm$core$List$take = F2(
 	function (n, list) {
 		return A3($elm$core$List$takeFast, 0, n, list);
 	});
-var $author$project$MyTable$update = F2(
+var $author$project$UaTable$UserAgent = F5(
+	function (ua, browserName, deviceModel, deviceVendor, osName) {
+		return {browserName: browserName, deviceModel: deviceModel, deviceVendor: deviceVendor, osName: osName, ua: ua};
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $author$project$UaTable$uaDecoder = A6(
+	$elm$json$Json$Decode$map5,
+	$author$project$UaTable$UserAgent,
+	A2($elm$json$Json$Decode$field, 'ua', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'browserName', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'deviceModel', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'deviceVendor', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'osName', $elm$json$Json$Decode$string));
+var $author$project$UaTable$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'OnTableRefresh':
 				var m = msg.a;
-				var p = $gribouille$elm_table$Table$pagination(m);
-				return _Utils_Tuple2(
-					m,
-					$author$project$MyTable$get(1));
+				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
 			case 'OnTableInternal':
 				var m = msg.a;
 				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
@@ -6790,37 +6802,34 @@ var $author$project$MyTable$update = F2(
 							A2($elm$core$List$take, 5, lines)));
 					return _Utils_Tuple2(
 						model,
-						$author$project$MyTable$fetchUaDeets(
+						$author$project$UaTable$fetchUserAgentBatch(
 							A2($elm$core$List$take, 10, lines)));
 				} else {
 					var e = msg.a.a;
 					var _v2 = A2($elm$core$Debug$log, 'fetch error', e);
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
+			case 'RecvUserAgent':
+				var val = msg.a;
+				var decoded = A2($elm$json$Json$Decode$decodeString, $author$project$UaTable$uaDecoder, val);
+				return _Utils_Tuple2(
+					A2(
+						$author$project$UaTable$appendRowsToModel,
+						A2($elm$core$Result$map, $elm$core$List$singleton, decoded),
+						model),
+					$elm$core$Platform$Cmd$none);
 			default:
 				var val = msg.a;
 				var decoded = A2(
 					$elm$json$Json$Decode$decodeString,
-					$elm$json$Json$Decode$list($author$project$MyTable$dataDecoder),
+					$elm$json$Json$Decode$list($author$project$UaTable$uaDecoder),
 					val);
-				var _v3 = A2($elm$core$Debug$log, 'Received data from elm', decoded);
-				if (decoded.$ === 'Ok') {
-					var res = decoded.a;
-					return _Utils_Tuple2(
-						A3(
-							$gribouille$elm_table$Table$loadedDynamic,
-							_Utils_ap(
-								$gribouille$elm_table$Table$get(model),
-								res),
-							$elm$core$List$length(res),
-							model),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-				}
+				return _Utils_Tuple2(
+					A2($author$project$UaTable$appendRowsToModel, decoded, model),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$Main$update = F2(
+var $author$project$View$update = F2(
 	function (msg, model) {
 		if (msg.$ === 'ChangeFilter') {
 			if (msg.a.$ === 'Browser') {
@@ -6837,7 +6846,7 @@ var $author$project$Main$update = F2(
 			}
 		} else {
 			var m = msg.a;
-			var _v1 = A2($author$project$MyTable$update, m, model.tableModel);
+			var _v1 = A2($author$project$UaTable$update, m, model.tableModel);
 			var newTableModel = _v1.a;
 			var cmd = _v1.b;
 			var _v2 = A2($elm$core$Debug$log, 'TableMsg called', '');
@@ -6845,7 +6854,7 @@ var $author$project$Main$update = F2(
 				_Utils_update(
 					model,
 					{tableModel: newTableModel}),
-				A2($elm$core$Platform$Cmd$map, $author$project$Main$TableMsg, cmd));
+				A2($elm$core$Platform$Cmd$map, $author$project$View$TableMsg, cmd));
 		}
 	});
 var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
@@ -8945,7 +8954,7 @@ var $gribouille$elm_table$Internal$Table$view = F2(
 			}());
 	});
 var $gribouille$elm_table$Table$view = $gribouille$elm_table$Internal$Table$view;
-var $author$project$MyTable$view = function (model) {
+var $author$project$UaTable$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -8954,25 +8963,25 @@ var $author$project$MyTable$view = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A2($gribouille$elm_table$Table$view, $author$project$MyTable$config, model)
+				A2($gribouille$elm_table$Table$view, $author$project$UaTable$config, model)
 			]));
 };
-var $author$project$Main$viewMain = function (model) {
+var $author$project$View$viewMain = function (model) {
 	return A2(
 		$elm$html$Html$map,
-		$author$project$Main$TableMsg,
-		$author$project$MyTable$view(model.tableModel));
+		$author$project$View$TableMsg,
+		$author$project$UaTable$view(model.tableModel));
 };
-var $author$project$Main$Browser = function (a) {
+var $author$project$View$Browser = function (a) {
 	return {$: 'Browser', a: a};
 };
-var $author$project$Main$ChangeFilter = function (a) {
+var $author$project$View$ChangeFilter = function (a) {
 	return {$: 'ChangeFilter', a: a};
 };
-var $author$project$Main$Limit = function (a) {
+var $author$project$View$Limit = function (a) {
 	return {$: 'Limit', a: a};
 };
-var $author$project$Main$OSDevice = function (a) {
+var $author$project$View$OSDevice = function (a) {
 	return {$: 'OSDevice', a: a};
 };
 var $elm$core$Basics$composeL = F3(
@@ -8980,7 +8989,7 @@ var $elm$core$Basics$composeL = F3(
 		return g(
 			f(x));
 	});
-var $author$project$Main$viewSelectors = function (model) {
+var $author$project$View$viewSelectors = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -9005,7 +9014,7 @@ var $author$project$Main$viewSelectors = function (model) {
 								$elm$html$Html$Attributes$placeholder('firefox'),
 								$elm$html$Html$Attributes$value(model.filterBrowser),
 								$elm$html$Html$Events$onInput(
-								A2($elm$core$Basics$composeL, $author$project$Main$ChangeFilter, $author$project$Main$Browser))
+								A2($elm$core$Basics$composeL, $author$project$View$ChangeFilter, $author$project$View$Browser))
 							]),
 						_List_Nil)
 					])),
@@ -9028,7 +9037,7 @@ var $author$project$Main$viewSelectors = function (model) {
 								$elm$html$Html$Attributes$placeholder('linux'),
 								$elm$html$Html$Attributes$value(model.filterOsDevice),
 								$elm$html$Html$Events$onInput(
-								A2($elm$core$Basics$composeL, $author$project$Main$ChangeFilter, $author$project$Main$OSDevice))
+								A2($elm$core$Basics$composeL, $author$project$View$ChangeFilter, $author$project$View$OSDevice))
 							]),
 						_List_Nil)
 					])),
@@ -9052,23 +9061,23 @@ var $author$project$Main$viewSelectors = function (model) {
 								$elm$html$Html$Attributes$value(
 								$elm$core$String$fromInt(model.filterLimit)),
 								$elm$html$Html$Events$onInput(
-								A2($elm$core$Basics$composeL, $author$project$Main$ChangeFilter, $author$project$Main$Limit))
+								A2($elm$core$Basics$composeL, $author$project$View$ChangeFilter, $author$project$View$Limit))
 							]),
 						_List_Nil)
 					]))
 			]));
 };
-var $author$project$Main$view = function (model) {
+var $author$project$View$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
 			[
-				$author$project$Main$viewSelectors(model),
-				$author$project$Main$viewMain(model)
+				$author$project$View$viewSelectors(model),
+				$author$project$View$viewMain(model)
 			]));
 };
-var $author$project$Main$main = $elm$browser$Browser$element(
-	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
-_Platform_export({'Main':{'init':$author$project$Main$main(
+var $author$project$View$main = $elm$browser$Browser$element(
+	{init: $author$project$View$init, subscriptions: $author$project$View$subscriptions, update: $author$project$View$update, view: $author$project$View$view});
+_Platform_export({'View':{'init':$author$project$View$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));

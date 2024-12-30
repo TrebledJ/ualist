@@ -1,4 +1,4 @@
-module Main exposing (main)
+module View exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, input, text)
@@ -6,8 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as Decode exposing (Decoder, Value)
-import MyTable
-import Table
+import UaTable
 import Task
 
 
@@ -20,10 +19,6 @@ main =
 
 
 
-
-
-
-
 -- MODEL
 
 
@@ -32,7 +27,7 @@ type alias Model =
     , filterOsDevice : String
     , filterHost : String
     , filterLimit : Int
-    , tableModel : MyTable.Model
+    , tableModel : UaTable.Model
     }
 
 
@@ -42,14 +37,10 @@ init _ =
       , filterOsDevice = "linux"
       , filterHost = ""
       , filterLimit = 10
-      , tableModel = Table.init MyTable.config
+      , tableModel = UaTable.init
       }
-      -- , Cmd.none
-    , Cmd.batch [MyTable.get 1 |> Cmd.map TableMsg, MyTable.fetchUaDeets ["curl/1.0.0"]]
-    -- , Cmd.batch [fetchUaDeets "test ua"]
+      , Cmd.batch [ UaTable.fetchData |> Cmd.map TableMsg, UaTable.fetchUserAgent "curl/1.0.0" ]
     )
-
-
 
 -- UPDATE
 
@@ -63,17 +54,7 @@ type FilterType
 
 type Msg
     = ChangeFilter FilterType
-    | TableMsg MyTable.Msg
-    -- | RecvUaDeets String
-
-
-
--- type alias UaParsedData =
---     { browserName : String
---     , deviceModel : String
---     , deviceVendor : String
---     , osName : String
---     }
+    | TableMsg UaTable.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -87,18 +68,13 @@ update msg model =
 
         TableMsg m ->
             let
-                _ = Debug.log "TableMsg called" ""
+                _ =
+                    Debug.log "TableMsg called" ""
+
                 ( newTableModel, cmd ) =
-                    MyTable.update m model.tableModel
+                    UaTable.update m model.tableModel
             in
             ( { model | tableModel = newTableModel }, Cmd.map TableMsg cmd )
-
-        -- RecvUaDeets val ->
-        --     let
-        --         _ =
-        --             Debug.log "Received data from elm" <| Decode.decodeString dataDecoder val
-        --     in
-        --     ( model, Cmd.none )
 
 
 
@@ -108,7 +84,10 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     -- Sub.none
-    MyTable.recvUaDeets MyTable.RecvUaDeets |> Sub.map TableMsg
+    Sub.batch
+        [ UaTable.recvUserAgent UaTable.RecvUserAgent |> Sub.map TableMsg
+        , UaTable.recvUserAgentBatch UaTable.RecvUserAgentBatch |> Sub.map TableMsg
+        ]
 
 
 
@@ -148,4 +127,4 @@ viewSelectors model =
 
 viewMain : Model -> Html Msg
 viewMain model =
-    MyTable.view model.tableModel |> Html.map TableMsg
+    UaTable.view model.tableModel |> Html.map TableMsg
