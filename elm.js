@@ -6164,11 +6164,8 @@ var $author$project$UaTable$fetchData = $elm$http$Http$get(
 	});
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$UaTable$fetchUserAgent = _Platform_outgoingPort('fetchUserAgent', $elm$json$Json$Encode$string);
-var $author$project$UaTable$OnTableInternal = function (a) {
-	return {$: 'OnTableInternal', a: a};
-};
-var $author$project$UaTable$OnTableRefresh = function (a) {
-	return {$: 'OnTableRefresh', a: a};
+var $author$project$UaTable$OnTable = function (a) {
+	return {$: 'OnTable', a: a};
 };
 var $gribouille$elm_table$Internal$Config$ConfTable = F3(
 	function (columns, getID, expand) {
@@ -6178,9 +6175,8 @@ var $gribouille$elm_table$Internal$Config$Config = function (a) {
 	return {$: 'Config', a: a};
 };
 var $gribouille$elm_table$Table$Types$Disable = {$: 'Disable'};
-var $gribouille$elm_table$Table$Types$Dynamic = {$: 'Dynamic'};
 var $gribouille$elm_table$Internal$Config$None = {$: 'None'};
-var $gribouille$elm_table$Table$Types$SearchEnter = {$: 'SearchEnter'};
+var $gribouille$elm_table$Table$Types$Static = {$: 'Static'};
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -6204,24 +6200,23 @@ var $gribouille$elm_table$Internal$Config$errorView = function (msg) {
 				$elm$html$Html$text(msg)
 			]));
 };
-var $gribouille$elm_table$Internal$Config$dynamic = F4(
-	function (onChangeExt, onChangeInt, getID, columns) {
+var $gribouille$elm_table$Internal$Config$static = F3(
+	function (onChange, getID, columns) {
 		return $gribouille$elm_table$Internal$Config$Config(
 			{
-				actions: _List_fromArray(
-					[$gribouille$elm_table$Table$Types$SearchEnter]),
+				actions: _List_Nil,
 				errorView: $gribouille$elm_table$Internal$Config$errorView,
-				onChangeExt: onChangeExt,
-				onChangeInt: onChangeInt,
+				onChangeExt: onChange,
+				onChangeInt: onChange,
 				pagination: $gribouille$elm_table$Internal$Config$None,
 				selection: $gribouille$elm_table$Table$Types$Disable,
 				subtable: $elm$core$Maybe$Nothing,
 				table: A3($gribouille$elm_table$Internal$Config$ConfTable, columns, getID, $elm$core$Maybe$Nothing),
 				toolbar: _List_Nil,
-				type_: $gribouille$elm_table$Table$Types$Dynamic
+				type_: $gribouille$elm_table$Table$Types$Static
 			});
 	});
-var $gribouille$elm_table$Table$dynamic = $gribouille$elm_table$Internal$Config$dynamic;
+var $gribouille$elm_table$Table$static = $gribouille$elm_table$Internal$Config$static;
 var $gribouille$elm_table$Internal$Column$Column = function (a) {
 	return {$: 'Column', a: a};
 };
@@ -6386,22 +6381,33 @@ var $gribouille$elm_table$Internal$Column$string = F3(
 			});
 	});
 var $gribouille$elm_table$Table$Column$string = $gribouille$elm_table$Internal$Column$string;
-var $author$project$UaTable$config = A4(
-	$gribouille$elm_table$Table$dynamic,
-	$author$project$UaTable$OnTableRefresh,
-	$author$project$UaTable$OnTableInternal,
+var $gribouille$elm_table$Internal$Column$withSearchable = F2(
+	function (value, _v0) {
+		var col = _v0.a;
+		return $gribouille$elm_table$Internal$Column$Column(
+			_Utils_update(
+				col,
+				{searchable: value}));
+	});
+var $gribouille$elm_table$Table$Column$withSearchable = $gribouille$elm_table$Internal$Column$withSearchable;
+var $author$project$UaTable$config = A3(
+	$gribouille$elm_table$Table$static,
+	$author$project$UaTable$OnTable,
 	function ($) {
 		return $.ua;
 	},
 	_List_fromArray(
 		[
+			A2(
+			$gribouille$elm_table$Table$Column$withSearchable,
+			$elm$core$Maybe$Nothing,
 			A3(
-			$gribouille$elm_table$Table$Column$string,
-			function ($) {
-				return $.ua;
-			},
-			'User Agent',
-			''),
+				$gribouille$elm_table$Table$Column$string,
+				function ($) {
+					return $.ua;
+				},
+				'User Agent',
+				'')),
 			A3(
 			$gribouille$elm_table$Table$Column$string,
 			function ($) {
@@ -6522,32 +6528,381 @@ var $author$project$View$init = function (_v0) {
 			_List_fromArray(
 				[
 					A2($elm$core$Platform$Cmd$map, $author$project$View$TableMsg, $author$project$UaTable$fetchData),
-					$author$project$UaTable$fetchUserAgent('curl/1.0.0')
+					$author$project$UaTable$fetchUserAgent('curl/2.0.0')
 				])));
 };
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$map = _Platform_map;
 var $author$project$UaTable$RecvUserAgent = function (a) {
 	return {$: 'RecvUserAgent', a: a};
 };
 var $author$project$UaTable$RecvUserAgentBatch = function (a) {
 	return {$: 'RecvUserAgentBatch', a: a};
 };
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$map = _Platform_map;
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$UaTable$recvUserAgent = _Platform_incomingPort('recvUserAgent', $elm$json$Json$Decode$string);
 var $author$project$UaTable$recvUserAgentBatch = _Platform_incomingPort('recvUserAgentBatch', $elm$json$Json$Decode$string);
-var $author$project$View$subscriptions = function (_v0) {
+var $gribouille$elm_table$Internal$Subscription$isModal = function (_v0) {
+	var state = _v0.a.state;
+	return state.btColumns || state.btPagination;
+};
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $elm$browser$Browser$Events$Document = {$: 'Document'};
+var $elm$browser$Browser$Events$MySub = F3(
+	function (a, b, c) {
+		return {$: 'MySub', a: a, b: b, c: c};
+	});
+var $elm$browser$Browser$Events$State = F2(
+	function (subs, pids) {
+		return {pids: pids, subs: subs};
+	});
+var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
+	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
+var $elm$browser$Browser$Events$nodeToKey = function (node) {
+	if (node.$ === 'Document') {
+		return 'd_';
+	} else {
+		return 'w_';
+	}
+};
+var $elm$browser$Browser$Events$addKey = function (sub) {
+	var node = sub.a;
+	var name = sub.b;
+	return _Utils_Tuple2(
+		_Utils_ap(
+			$elm$browser$Browser$Events$nodeToKey(node),
+			name),
+		sub);
+};
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $elm$core$Dict$foldl = F3(
+	function (func, acc, dict) {
+		foldl:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$func = func,
+					$temp$acc = A3(
+					func,
+					key,
+					value,
+					A3($elm$core$Dict$foldl, func, acc, left)),
+					$temp$dict = right;
+				func = $temp$func;
+				acc = $temp$acc;
+				dict = $temp$dict;
+				continue foldl;
+			}
+		}
+	});
+var $elm$core$Dict$merge = F6(
+	function (leftStep, bothStep, rightStep, leftDict, rightDict, initialResult) {
+		var stepState = F3(
+			function (rKey, rValue, _v0) {
+				stepState:
+				while (true) {
+					var list = _v0.a;
+					var result = _v0.b;
+					if (!list.b) {
+						return _Utils_Tuple2(
+							list,
+							A3(rightStep, rKey, rValue, result));
+					} else {
+						var _v2 = list.a;
+						var lKey = _v2.a;
+						var lValue = _v2.b;
+						var rest = list.b;
+						if (_Utils_cmp(lKey, rKey) < 0) {
+							var $temp$rKey = rKey,
+								$temp$rValue = rValue,
+								$temp$_v0 = _Utils_Tuple2(
+								rest,
+								A3(leftStep, lKey, lValue, result));
+							rKey = $temp$rKey;
+							rValue = $temp$rValue;
+							_v0 = $temp$_v0;
+							continue stepState;
+						} else {
+							if (_Utils_cmp(lKey, rKey) > 0) {
+								return _Utils_Tuple2(
+									list,
+									A3(rightStep, rKey, rValue, result));
+							} else {
+								return _Utils_Tuple2(
+									rest,
+									A4(bothStep, lKey, lValue, rValue, result));
+							}
+						}
+					}
+				}
+			});
+		var _v3 = A3(
+			$elm$core$Dict$foldl,
+			stepState,
+			_Utils_Tuple2(
+				$elm$core$Dict$toList(leftDict),
+				initialResult),
+			rightDict);
+		var leftovers = _v3.a;
+		var intermediateResult = _v3.b;
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v4, result) {
+					var k = _v4.a;
+					var v = _v4.b;
+					return A3(leftStep, k, v, result);
+				}),
+			intermediateResult,
+			leftovers);
+	});
+var $elm$browser$Browser$Events$Event = F2(
+	function (key, event) {
+		return {event: event, key: key};
+	});
+var $elm$browser$Browser$Events$spawn = F3(
+	function (router, key, _v0) {
+		var node = _v0.a;
+		var name = _v0.b;
+		var actualNode = function () {
+			if (node.$ === 'Document') {
+				return _Browser_doc;
+			} else {
+				return _Browser_window;
+			}
+		}();
+		return A2(
+			$elm$core$Task$map,
+			function (value) {
+				return _Utils_Tuple2(key, value);
+			},
+			A3(
+				_Browser_on,
+				actualNode,
+				name,
+				function (event) {
+					return A2(
+						$elm$core$Platform$sendToSelf,
+						router,
+						A2($elm$browser$Browser$Events$Event, key, event));
+				}));
+	});
+var $elm$core$Dict$union = F2(
+	function (t1, t2) {
+		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
+	});
+var $elm$browser$Browser$Events$onEffects = F3(
+	function (router, subs, state) {
+		var stepRight = F3(
+			function (key, sub, _v6) {
+				var deads = _v6.a;
+				var lives = _v6.b;
+				var news = _v6.c;
+				return _Utils_Tuple3(
+					deads,
+					lives,
+					A2(
+						$elm$core$List$cons,
+						A3($elm$browser$Browser$Events$spawn, router, key, sub),
+						news));
+			});
+		var stepLeft = F3(
+			function (_v4, pid, _v5) {
+				var deads = _v5.a;
+				var lives = _v5.b;
+				var news = _v5.c;
+				return _Utils_Tuple3(
+					A2($elm$core$List$cons, pid, deads),
+					lives,
+					news);
+			});
+		var stepBoth = F4(
+			function (key, pid, _v2, _v3) {
+				var deads = _v3.a;
+				var lives = _v3.b;
+				var news = _v3.c;
+				return _Utils_Tuple3(
+					deads,
+					A3($elm$core$Dict$insert, key, pid, lives),
+					news);
+			});
+		var newSubs = A2($elm$core$List$map, $elm$browser$Browser$Events$addKey, subs);
+		var _v0 = A6(
+			$elm$core$Dict$merge,
+			stepLeft,
+			stepBoth,
+			stepRight,
+			state.pids,
+			$elm$core$Dict$fromList(newSubs),
+			_Utils_Tuple3(_List_Nil, $elm$core$Dict$empty, _List_Nil));
+		var deadPids = _v0.a;
+		var livePids = _v0.b;
+		var makeNewPids = _v0.c;
+		return A2(
+			$elm$core$Task$andThen,
+			function (pids) {
+				return $elm$core$Task$succeed(
+					A2(
+						$elm$browser$Browser$Events$State,
+						newSubs,
+						A2(
+							$elm$core$Dict$union,
+							livePids,
+							$elm$core$Dict$fromList(pids))));
+			},
+			A2(
+				$elm$core$Task$andThen,
+				function (_v1) {
+					return $elm$core$Task$sequence(makeNewPids);
+				},
+				$elm$core$Task$sequence(
+					A2($elm$core$List$map, $elm$core$Process$kill, deadPids))));
+	});
+var $elm$browser$Browser$Events$onSelfMsg = F3(
+	function (router, _v0, state) {
+		var key = _v0.key;
+		var event = _v0.event;
+		var toMessage = function (_v2) {
+			var subKey = _v2.a;
+			var _v3 = _v2.b;
+			var node = _v3.a;
+			var name = _v3.b;
+			var decoder = _v3.c;
+			return _Utils_eq(subKey, key) ? A2(_Browser_decodeEvent, decoder, event) : $elm$core$Maybe$Nothing;
+		};
+		var messages = A2($elm$core$List$filterMap, toMessage, state.subs);
+		return A2(
+			$elm$core$Task$andThen,
+			function (_v1) {
+				return $elm$core$Task$succeed(state);
+			},
+			$elm$core$Task$sequence(
+				A2(
+					$elm$core$List$map,
+					$elm$core$Platform$sendToApp(router),
+					messages)));
+	});
+var $elm$browser$Browser$Events$subMap = F2(
+	function (func, _v0) {
+		var node = _v0.a;
+		var name = _v0.b;
+		var decoder = _v0.c;
+		return A3(
+			$elm$browser$Browser$Events$MySub,
+			node,
+			name,
+			A2($elm$json$Json$Decode$map, func, decoder));
+	});
+_Platform_effectManagers['Browser.Events'] = _Platform_createManager($elm$browser$Browser$Events$init, $elm$browser$Browser$Events$onEffects, $elm$browser$Browser$Events$onSelfMsg, 0, $elm$browser$Browser$Events$subMap);
+var $elm$browser$Browser$Events$subscription = _Platform_leaf('Browser.Events');
+var $elm$browser$Browser$Events$on = F3(
+	function (node, name, decoder) {
+		return $elm$browser$Browser$Events$subscription(
+			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
+	});
+var $elm$browser$Browser$Events$onMouseDown = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'mousedown');
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$fail = _Json_fail;
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		thunk,
+		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
+};
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $gribouille$elm_table$Internal$Subscription$isOutsideDropdown = function (dropdownId) {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$json$Json$Decode$andThen,
+				function (id) {
+					return _Utils_eq(dropdownId, id) ? $elm$json$Json$Decode$succeed(false) : $elm$json$Json$Decode$fail('continue');
+				},
+				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string)),
+				$elm$json$Json$Decode$lazy(
+				function (_v0) {
+					return A2(
+						$elm$json$Json$Decode$field,
+						'parentNode',
+						$gribouille$elm_table$Internal$Subscription$isOutsideDropdown(dropdownId));
+				}),
+				$elm$json$Json$Decode$succeed(true)
+			]));
+};
+var $gribouille$elm_table$Internal$Subscription$outsideTarget = F2(
+	function (pipe, dropdownId) {
+		return A2(
+			$elm$json$Json$Decode$andThen,
+			function (isOutside) {
+				return isOutside ? $elm$json$Json$Decode$succeed(
+					pipe(
+						function (state) {
+							return _Utils_update(
+								state,
+								{btColumns: false, btPagination: false});
+						})) : $elm$json$Json$Decode$fail('inside dropdown');
+			},
+			A2(
+				$elm$json$Json$Decode$field,
+				'target',
+				$gribouille$elm_table$Internal$Subscription$isOutsideDropdown(dropdownId)));
+	});
+var $gribouille$elm_table$Internal$Config$pipeInt = F3(
+	function (_v0, _v1, fn) {
+		var onChangeInt = _v0.a.onChangeInt;
+		var rows = _v1.a.rows;
+		var state = _v1.a.state;
+		return onChangeInt(
+			$gribouille$elm_table$Internal$Data$Model(
+				{
+					rows: rows,
+					state: fn(state)
+				}));
+	});
+var $gribouille$elm_table$Internal$Subscription$subscriptions = F2(
+	function (config, model) {
+		return $gribouille$elm_table$Internal$Subscription$isModal(model) ? $elm$browser$Browser$Events$onMouseDown(
+			A2(
+				$gribouille$elm_table$Internal$Subscription$outsideTarget,
+				A2($gribouille$elm_table$Internal$Config$pipeInt, config, model),
+				'dropdown')) : $elm$core$Platform$Sub$none;
+	});
+var $gribouille$elm_table$Table$subscriptions = $gribouille$elm_table$Internal$Subscription$subscriptions;
+var $author$project$UaTable$subscriptions = function (model) {
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				A2($gribouille$elm_table$Table$subscriptions, $author$project$UaTable$config, model),
+				$author$project$UaTable$recvUserAgent($author$project$UaTable$RecvUserAgent),
+				$author$project$UaTable$recvUserAgentBatch($author$project$UaTable$RecvUserAgentBatch)
+			]));
+};
+var $author$project$View$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
 				A2(
 				$elm$core$Platform$Sub$map,
 				$author$project$View$TableMsg,
-				$author$project$UaTable$recvUserAgent($author$project$UaTable$RecvUserAgent)),
-				A2(
-				$elm$core$Platform$Sub$map,
-				$author$project$View$TableMsg,
-				$author$project$UaTable$recvUserAgentBatch($author$project$UaTable$RecvUserAgentBatch))
+				$author$project$UaTable$subscriptions(model.tableModel))
 			]));
 };
 var $elm$core$Debug$log = _Debug_log;
@@ -6640,170 +6995,33 @@ var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
 };
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
 var $author$project$UaTable$UserAgent = F5(
 	function (ua, browserName, deviceModel, deviceVendor, osName) {
 		return {browserName: browserName, deviceModel: deviceModel, deviceVendor: deviceVendor, osName: osName, ua: ua};
 	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$map5 = _Json_map5;
 var $author$project$UaTable$uaDecoder = A6(
 	$elm$json$Json$Decode$map5,
 	$author$project$UaTable$UserAgent,
 	A2($elm$json$Json$Decode$field, 'ua', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'browserName', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'deviceModel', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'deviceVendor', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'osName', $elm$json$Json$Decode$string));
+	A2($elm$json$Json$Decode$field, 'browser', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'model', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'vendor', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'os', $elm$json$Json$Decode$string));
 var $author$project$UaTable$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'OnTableRefresh':
+			case 'OnTable':
 				var m = msg.a;
-				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
-			case 'OnTableInternal':
-				var m = msg.a;
+				var _v1 = A2($elm$core$Debug$log, 'OnTable', '');
 				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
 			case 'OnData':
 				if (msg.a.$ === 'Ok') {
 					var res = msg.a.a;
 					var lines = A2($elm$core$String$split, '\n', res);
-					var _v1 = A2(
-						$elm$core$Debug$log,
-						'fetch success',
-						A2(
-							$elm$core$String$join,
-							', ',
-							A2($elm$core$List$take, 5, lines)));
 					return _Utils_Tuple2(
 						model,
-						$author$project$UaTable$fetchUserAgentBatch(
-							A2($elm$core$List$take, 10, lines)));
+						$author$project$UaTable$fetchUserAgentBatch(lines));
 				} else {
 					var e = msg.a.a;
 					var _v2 = A2($elm$core$Debug$log, 'fetch error', e);
@@ -6907,7 +7125,6 @@ var $gribouille$elm_table$Internal$Config$pipeFn = F4(
 					state: fn(state)
 				}));
 	});
-var $gribouille$elm_table$Table$Types$Static = {$: 'Static'};
 var $gribouille$elm_table$Table$Types$Expand = {$: 'Expand'};
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -8507,6 +8724,7 @@ var $gribouille$elm_table$Internal$Table$tableFooter = F4(
 		var cfg = _v0.a;
 		return _Utils_eq(cfg.pagination, $gribouille$elm_table$Internal$Config$None) ? $elm$html$Html$text('') : A4($gribouille$elm_table$Internal$Pagination$tableFooterContent, pipe, state.byPage, state.page, total);
 	});
+var $gribouille$elm_table$Table$Types$SearchEnter = {$: 'SearchEnter'};
 var $gribouille$elm_table$Table$Types$SearchInput = {$: 'SearchInput'};
 var $elm$html$Html$i = _VirtualDom_node('i');
 var $elm$html$Html$Events$alwaysStop = function (x) {

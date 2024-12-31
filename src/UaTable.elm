@@ -25,13 +25,12 @@ init =
 
 config : Table.Config UserAgent () Msg
 config =
-    Table.dynamic
-        OnTableRefresh
-        OnTableInternal
+    Table.static
+        OnTable
         .ua
         -- [Column.string (\x -> x) "Agent" ""]
         -- (String.fromInt << .id)
-        [ Column.string .ua "User Agent" "" -- |> Column.withWidth "10px"
+        [ Column.string .ua "User Agent" "" |> Column.withSearchable Nothing
         , Column.string .browserName "Browser" ""
         , Column.string .deviceModel "Model" ""
         , Column.string .deviceVendor "Vendor" ""
@@ -72,15 +71,14 @@ uaDecoder : Decoder UserAgent
 uaDecoder =
     Decode.map5 UserAgent
         (Decode.field "ua" Decode.string)
-        (Decode.field "browserName" Decode.string)
-        (Decode.field "deviceModel" Decode.string)
-        (Decode.field "deviceVendor" Decode.string)
-        (Decode.field "osName" Decode.string)
+        (Decode.field "browser" Decode.string)
+        (Decode.field "model" Decode.string)
+        (Decode.field "vendor" Decode.string)
+        (Decode.field "os" Decode.string)
 
 
 type Msg
-    = OnTableInternal Model
-    | OnTableRefresh Model
+    = OnTable Model
     | OnData (Result Error String)
     | RecvUserAgent String
     | RecvUserAgentBatch String
@@ -126,7 +124,11 @@ view model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnTableRefresh m ->
+        OnTable m ->
+            let
+                _ =
+                    Debug.log "OnTable" ""
+            in
             ( m, Cmd.none )
 
         -- let
@@ -134,18 +136,15 @@ update msg model =
         --         Table.pagination m
         -- in
         -- ( m, get 1 )
-        OnTableInternal m ->
-            ( m, Cmd.none )
-
+        -- OnTableInternal m ->
+        --     let _ = Debug.log "OnTableInternal" "" in
+        --     ( m, Cmd.none )
         OnData (Ok res) ->
             let
                 lines =
                     String.split "\n" res
-
-                _ =
-                    Debug.log "fetch success" (String.join ", " <| List.take 5 lines)
             in
-            ( model, fetchUserAgentBatch (List.take 10 lines) )
+            ( model, fetchUserAgentBatch lines )
 
         OnData (Err e) ->
             let
@@ -181,3 +180,12 @@ appendRowsToModel x model =
                     Debug.log "failed to get rows" err
             in
             model
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ Table.subscriptions config model
+        , recvUserAgent RecvUserAgent
+        , recvUserAgentBatch RecvUserAgentBatch
+        ]

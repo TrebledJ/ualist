@@ -20,13 +20,23 @@
         function processUserAgent(ua) {
             uap.setUA(ua);
             const res = uap.getResult();
-            return {
+            const data = {
                 ua: ua,
-                browserName: res.browser.name || '-',
-                deviceModel: res.device.model || '-',
-                deviceVendor: res.device.vendor || '-',
-                osName: res.os.name || '-',
+                browser: res.browser.name || (ua.includes('/') ? ua.split('/', 1)[0] : '-'),
+                model: res.device.model || '-',
+                vendor: res.device.vendor || '-',
+                os: res.os.name || '-',
             };
+            if (data.model !== '-' && data.model.startsWith("KF") && data.vendor === 'Amazon') {
+                data.model += ' (Kindle)'
+            }
+            if (data.os === 'Windows') {
+                data.os += ' ' + res.os.version;
+                data.vendor = 'Microsoft';
+            } else if (data.os !== '-' && !data.os.includes('OS')) {
+                data.os += ' (Linux)'
+            }
+            return data;
         }
 
         function processUserAgentBatch(uas) {

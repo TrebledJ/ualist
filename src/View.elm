@@ -1,13 +1,12 @@
 module View exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, input, text)
+import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (..)
 import Http
-import Json.Decode as Decode exposing (Decoder, Value)
-import UaTable
 import Task
+import UaTable
 
 
 
@@ -39,8 +38,10 @@ init _ =
       , filterLimit = 10
       , tableModel = UaTable.init
       }
-      , Cmd.batch [ UaTable.fetchData |> Cmd.map TableMsg, UaTable.fetchUserAgent "curl/1.0.0" ]
+    , Cmd.batch [ UaTable.fetchData |> Cmd.map TableMsg, UaTable.fetchUserAgent "curl/2.0.0" ]
     )
+
+
 
 -- UPDATE
 
@@ -82,11 +83,9 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    -- Sub.none
+subscriptions model =
     Sub.batch
-        [ UaTable.recvUserAgent UaTable.RecvUserAgent |> Sub.map TableMsg
-        , UaTable.recvUserAgentBatch UaTable.RecvUserAgentBatch |> Sub.map TableMsg
+        [ UaTable.subscriptions model.tableModel |> Sub.map TableMsg
         ]
 
 
