@@ -5,7 +5,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Function to read JSON files from a directory
-function crawlDirectory(directory) {
+function crawlDirectory(directory, type) {
+    type = type || 1;
     const files = fs.readdirSync(directory);
         // if (err) {
         //     console.error(`Error reading directory: ${err}`);
@@ -24,10 +25,10 @@ function crawlDirectory(directory) {
         if (stat.isDirectory()) {
             // Recursively crawl the directory
             return crawlDirectory(filePath);
-        } else if (path.extname(file) === '.json') {
+        } else if (path.extname(file) === '.json' && !(filePath).includes('extension') && type === 1) {
             const value = loadJson(filePath);
             return value;
-        } else if (path.extname(file) === '.txt') {
+        } else if (path.extname(file) === '.txt' && type === 2) {
             const value = loadText(filePath);
             return value;
         }
@@ -69,5 +70,6 @@ const directoryPath = __dirname + "/../raw";
 const total = crawlDirectory(directoryPath);
 console.log(total.size, 'total entries');
 
-fs.writeFileSync(__dirname + '/processed2.txt', [...total].filter(e => !e.startsWith('Mozilla')).join('\n'));
+fs.writeFileSync(__dirname + '/processed3.txt', [...total].join('\n'));
+// fs.writeFileSync(__dirname + '/processed2.txt', [...total].filter(e => !e.startsWith('Mozilla')).join('\n'));
 

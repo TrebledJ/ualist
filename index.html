@@ -29,11 +29,15 @@
             };
             if (data.model !== '-' && data.model.startsWith("KF") && data.vendor === 'Amazon') {
                 data.model += ' (Kindle)'
+            } else if (res.device.type) {
+                var titlecase = res.device.type.charAt(0).toUpperCase() + res.device.type.substring(1).toLowerCase();
+                titlecase = titlecase.replace('tv', 'TV')
+                data.model += ' (' + titlecase + ')';
             }
             if (data.os === 'Windows') {
                 data.os += ' ' + res.os.version;
                 data.vendor = 'Microsoft';
-            } else if (data.os !== '-' && !data.os.includes('OS')) {
+            } else if (ua.includes('Linux') && data.os !== 'Linux') {
                 data.os += ' (Linux)'
             }
             return data;
