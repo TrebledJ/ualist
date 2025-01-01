@@ -30,12 +30,13 @@ config =
         .ua
         -- [Column.string (\x -> x) "Agent" ""]
         -- (String.fromInt << .id)
-        [ Column.string .ua "User Agent" "" |> Column.withSearchable Nothing
+        [ Column.string .ua "User Agent" "" -- |> Column.withSearchable Nothing
         , Column.string .browserName "Browser" ""
         , Column.string .deviceModel "Model" ""
         , Column.string .deviceVendor "Vendor" ""
         , Column.string .osName "OS" ""
         ]
+        |> Config.withPagination [20, 50, 100, 200] 20
 
 
 
@@ -92,6 +93,8 @@ fetchData =
         , expect = Http.expectString OnData
         }
 
+-- TODO: modify table by updating css directly. Refer to designs elsewhere.
+-- Reuse UaTable for Generate UA App
 
 run : msg -> Cmd msg
 run m =
