@@ -4487,10 +4487,20 @@ var $elm$core$Set$toList = function (_v0) {
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
-var $elm$core$Basics$False = {$: 'False'};
-var $author$project$UaDropdown$init = function (items) {
-	return {items: items, myDropdownIsOpen: false};
+var $elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
+	return {$: 'Unstyled', a: a};
 };
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = $rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
+var $rtfeldman$elm_css$Svg$Styled$fromUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
+var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
+	function (a, b, c) {
+		return {$: 'Attribute', a: a, b: b, c: c};
+	});
+var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4751,10 +4761,6 @@ var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var $elm$core$Array$Leaf = function (a) {
 	return {$: 'Leaf', a: a};
 };
-var $elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
-	});
 var $elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
@@ -4900,14 +4906,382 @@ var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$attribute = F2(
+	function (key, value) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$attribute, key, value),
+			false,
+			'');
+	});
+var $rtfeldman$elm_css$Svg$Styled$Attributes$style = $rtfeldman$elm_css$VirtualDom$Styled$attribute('style');
+var $rtfeldman$elm_css$VirtualDom$Styled$NodeNS = F4(
+	function (a, b, c, d) {
+		return {$: 'NodeNS', a: a, b: b, c: c, d: d};
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$nodeNS = $rtfeldman$elm_css$VirtualDom$Styled$NodeNS;
+var $rtfeldman$elm_css$Svg$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$nodeNS('http://www.w3.org/2000/svg');
+var $rtfeldman$elm_css$Svg$Styled$svg = $rtfeldman$elm_css$Svg$Styled$node('svg');
+var $elm$core$Basics$identity = function (x) {
+	return x;
+};
+var $lattyware$elm_fontawesome$FontAwesome$Internal$Icon = function (a) {
+	return {$: 'Icon', a: a};
+};
+var $lattyware$elm_fontawesome$FontAwesome$present = function (icon) {
+	return $lattyware$elm_fontawesome$FontAwesome$Internal$Icon(
+		{attributes: _List_Nil, icon: icon, id: $elm$core$Maybe$Nothing, outer: $elm$core$Maybe$Nothing, role: 'img', title: $elm$core$Maybe$Nothing, transforms: _List_Nil});
+};
+var $lattyware$elm_fontawesome$FontAwesome$IconDef = F4(
+	function (prefix, name, size, paths) {
+		return {name: name, paths: paths, prefix: prefix, size: size};
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns = A4(
+	$lattyware$elm_fontawesome$FontAwesome$IconDef,
+	'fas',
+	'table-columns',
+	_Utils_Tuple2(512, 512),
+	_Utils_Tuple2('M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm64 64l0 256 160 0 0-256L64 160zm384 0l-160 0 0 256 160 0 0-256z', $elm$core$Maybe$Nothing));
+var $lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns);
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var $lattyware$elm_fontawesome$FontAwesome$Svg$fill = _List_fromArray(
+	[
+		$elm$svg$Svg$Attributes$x('0'),
+		$elm$svg$Svg$Attributes$y('0'),
+		$elm$svg$Svg$Attributes$width('100%'),
+		$elm$svg$Svg$Attributes$height('100%')
+	]);
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
+var $elm$svg$Svg$mask = $elm$svg$Svg$trustedNode('mask');
+var $elm$svg$Svg$Attributes$mask = _VirtualDom_attribute('mask');
+var $elm$svg$Svg$Attributes$maskContentUnits = _VirtualDom_attribute('maskContentUnits');
+var $elm$svg$Svg$Attributes$maskUnits = _VirtualDom_attribute('maskUnits');
+var $elm$core$Basics$not = _Basics_not;
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add = F2(
+	function (transform, combined) {
+		switch (transform.$) {
+			case 'Scale':
+				var by = transform.a;
+				return _Utils_update(
+					combined,
+					{size: combined.size + by});
+			case 'Reposition':
+				var axis = transform.a;
+				var by = transform.b;
+				var _v1 = function () {
+					if (axis.$ === 'Vertical') {
+						return _Utils_Tuple2(0, by);
+					} else {
+						return _Utils_Tuple2(by, 0);
+					}
+				}();
+				var x = _v1.a;
+				var y = _v1.b;
+				return _Utils_update(
+					combined,
+					{x: combined.x + x, y: combined.y + y});
+			case 'Rotate':
+				var rotation = transform.a;
+				return _Utils_update(
+					combined,
+					{rotate: combined.rotate + rotation});
+			default:
+				var axis = transform.a;
+				if (axis.$ === 'Vertical') {
+					return _Utils_update(
+						combined,
+						{flipY: !combined.flipY});
+				} else {
+					return _Utils_update(
+						combined,
+						{flipX: !combined.flipX});
+				}
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize = 16;
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform = {flipX: false, flipY: false, rotate: 0, size: $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize, x: 0, y: 0};
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine = function (transforms) {
+	return A3($elm$core$List$foldl, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform, transforms);
+};
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform = function (transforms) {
+	var combined = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine(transforms);
+	return _Utils_eq(combined, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(combined);
+};
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions = function (_v1) {
+	var icon = _v1.a.icon;
+	var outer = _v1.a.outer;
+	return A2(
+		$elm$core$Maybe$withDefault,
+		icon.size,
+		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal, outer));
+};
+var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal = function (_v0) {
+	var icon = _v0.a.icon;
+	var outer = _v0.a.outer;
+	return A2(
+		$elm$core$Maybe$withDefault,
+		icon.size,
+		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions, outer));
+};
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg = F3(
+	function (containerWidth, iconWidth, transform) {
+		var path = 'translate(' + ($elm$core$String$fromFloat((iconWidth / 2) * (-1)) + ' -256)');
+		var outer = 'translate(' + ($elm$core$String$fromFloat(containerWidth / 2) + ' 256)');
+		var innerTranslate = 'translate(' + ($elm$core$String$fromFloat(transform.x * 32) + (',' + ($elm$core$String$fromFloat(transform.y * 32) + ') ')));
+		var innerRotate = 'rotate(' + ($elm$core$String$fromFloat(transform.rotate) + ' 0 0)');
+		var flipY = transform.flipY ? (-1) : 1;
+		var scaleY = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipY;
+		var flipX = transform.flipX ? (-1) : 1;
+		var scaleX = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipX;
+		var innerScale = 'scale(' + ($elm$core$String$fromFloat(scaleX) + (', ' + ($elm$core$String$fromFloat(scaleY) + ') ')));
+		return {
+			inner: $elm$svg$Svg$Attributes$transform(
+				_Utils_ap(
+					innerTranslate,
+					_Utils_ap(innerScale, innerRotate))),
+			outer: $elm$svg$Svg$Attributes$transform(outer),
+			path: $elm$svg$Svg$Attributes$transform(path)
+		};
+	});
+var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPath = F2(
+	function (attrs, d) {
+		return A2(
+			$elm$svg$Svg$path,
+			A2(
+				$elm$core$List$cons,
+				$elm$svg$Svg$Attributes$d(d),
+				attrs),
+			_List_Nil);
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths = F2(
+	function (attrs, _v0) {
+		var paths = _v0.paths;
+		if (paths.b.$ === 'Nothing') {
+			var only = paths.a;
+			var _v2 = paths.b;
+			return A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewPath, attrs, only);
+		} else {
+			var secondary = paths.a;
+			var primary = paths.b.a;
+			return A2(
+				$elm$svg$Svg$g,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$class('fa-group')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
+						A2(
+							$elm$core$List$cons,
+							$elm$svg$Svg$Attributes$class('fa-secondary'),
+							attrs),
+						secondary),
+						A2(
+						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
+						A2(
+							$elm$core$List$cons,
+							$elm$svg$Svg$Attributes$class('fa-primary'),
+							attrs),
+						primary)
+					]));
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform = F3(
+	function (color, _v0, icon) {
+		var outer = _v0.outer;
+		var inner = _v0.inner;
+		var path = _v0.path;
+		return A2(
+			$elm$svg$Svg$g,
+			_List_fromArray(
+				[outer]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$g,
+					_List_fromArray(
+						[inner]),
+					_List_fromArray(
+						[
+							A2(
+							$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
+							_List_fromArray(
+								[
+									$elm$svg$Svg$Attributes$fill(color),
+									path
+								]),
+							icon)
+						]))
+				]));
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor = F2(
+	function (color, fullIcon) {
+		var icon = fullIcon.a.icon;
+		var transforms = fullIcon.a.transforms;
+		var id = fullIcon.a.id;
+		var outer = fullIcon.a.outer;
+		var combinedTransforms = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform(transforms);
+		var _v0 = icon.size;
+		var width = _v0.a;
+		var _v1 = $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions(fullIcon);
+		var topLevelWidth = _v1.a;
+		if (combinedTransforms.$ === 'Just') {
+			var meaningfulTransform = combinedTransforms.a;
+			var svgTransform = A3($lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg, topLevelWidth, width, meaningfulTransform);
+			if (outer.$ === 'Just') {
+				var outerIcon = outer.a;
+				return A4($lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform, color, svgTransform, icon, outerIcon);
+			} else {
+				return A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, color, svgTransform, icon);
+			}
+		} else {
+			return A2(
+				$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$fill(color)
+					]),
+				icon);
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform = F4(
+	function (color, transforms, exclude, include) {
+		var id = include.a.id;
+		var alwaysId = A2($elm$core$Maybe$withDefault, '', id);
+		var clipId = 'clip-' + alwaysId;
+		var maskId = 'mask-' + alwaysId;
+		var maskTag = A2(
+			$elm$svg$Svg$mask,
+			A2(
+				$elm$core$List$cons,
+				$elm$svg$Svg$Attributes$id(maskId),
+				A2(
+					$elm$core$List$cons,
+					$elm$svg$Svg$Attributes$maskUnits('userSpaceOnUse'),
+					A2(
+						$elm$core$List$cons,
+						$elm$svg$Svg$Attributes$maskContentUnits('userSpaceOnUse'),
+						$lattyware$elm_fontawesome$FontAwesome$Svg$fill))),
+			_List_fromArray(
+				[
+					A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor, 'white', include),
+					A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, 'black', transforms, exclude)
+				]));
+		var defs = A2(
+			$elm$svg$Svg$defs,
+			_List_Nil,
+			_List_fromArray(
+				[maskTag]));
+		var rect = A2(
+			$elm$svg$Svg$rect,
+			A2(
+				$elm$core$List$cons,
+				$elm$svg$Svg$Attributes$fill(color),
+				A2(
+					$elm$core$List$cons,
+					$elm$svg$Svg$Attributes$mask('url(#' + (maskId + ')')),
+					$lattyware$elm_fontawesome$FontAwesome$Svg$fill)),
+			_List_Nil);
+		return A2(
+			$elm$svg$Svg$g,
+			_List_Nil,
+			_List_fromArray(
+				[defs, rect]));
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$view = $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor('currentColor');
+var $rtfeldman$elm_css$Svg$Styled$Attributes$viewBox = $rtfeldman$elm_css$VirtualDom$Styled$attribute('viewBox');
+var $author$project$DropdownTest$faTableColumnsIcon = A2(
+	$rtfeldman$elm_css$Svg$Styled$svg,
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Svg$Styled$Attributes$viewBox('0 0 512 512'),
+			$rtfeldman$elm_css$Svg$Styled$Attributes$style('width: 20px; height: 20px;')
+		]),
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
+			$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns))
+		]));
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $author$project$UaDropdownMultiSelect$init = function (items) {
+	return {
+		items: items,
+		myDropdownIsOpen: false,
+		selecteds: A2(
+			$elm$core$List$repeat,
+			$elm$core$List$length(items),
+			false)
+	};
+};
 var $elm$browser$Browser$External = function (a) {
 	return {$: 'External', a: a};
 };
 var $elm$browser$Browser$Internal = function (a) {
 	return {$: 'Internal', a: a};
-};
-var $elm$core$Basics$identity = function (x) {
-	return x;
 };
 var $elm$browser$Browser$Dom$NotFound = function (a) {
 	return {$: 'NotFound', a: a};
@@ -5220,8 +5594,173 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
 var $elm$core$Debug$log = _Debug_log;
-var $author$project$UaDropdown$update = F2(
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$UaDropdownMultiSelect$nth = F2(
+	function (n, xs) {
+		if (!n) {
+			return $elm$core$List$head(xs);
+		} else {
+			return $elm$core$List$head(
+				A2($elm$core$List$drop, n, xs));
+		}
+	});
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $author$project$UaDropdownMultiSelect$update = F2(
 	function (msg, model) {
 		if (msg.$ === 'ToggleDropdown') {
 			var newState = msg.a;
@@ -5229,19 +5768,30 @@ var $author$project$UaDropdown$update = F2(
 				model,
 				{myDropdownIsOpen: newState});
 		} else {
-			var str = msg.a;
-			var _v1 = A2($elm$core$Debug$log, 'clicked', str);
-			return model;
+			var idx = msg.a;
+			var isSelected = A2($author$project$UaDropdownMultiSelect$nth, idx, model.selecteds);
+			var front = A2($elm$core$List$take, idx, model.selecteds);
+			var back = A2($elm$core$List$drop, idx + 1, model.selecteds);
+			var _v1 = A2($elm$core$Debug$log, 'clicked', idx);
+			var _v2 = A2($elm$core$Debug$log, 'sel', model.selecteds);
+			if (isSelected.$ === 'Nothing') {
+				return model;
+			} else {
+				var x = isSelected.a;
+				return _Utils_update(
+					model,
+					{
+						selecteds: _Utils_ap(
+							front,
+							A2($elm$core$List$cons, !x, back))
+					});
+			}
 		}
 	});
 var $author$project$Dropdown$OnClick = {$: 'OnClick'};
-var $author$project$UaDropdown$ToggleDropdown = function (a) {
+var $author$project$UaDropdownMultiSelect$ToggleDropdown = function (a) {
 	return {$: 'ToggleDropdown', a: a};
 };
-var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
-	function (a, b, c) {
-		return {$: 'Attribute', a: a, b: b, c: c};
-	});
 var $elm$virtual_dom$VirtualDom$property = F2(
 	function (key, value) {
 		return A2(
@@ -5340,15 +5890,6 @@ var $elm$json$Json$Decode$maybe = function (decoder) {
 			]));
 };
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $elm_community$json_extra$Json$Decode$Extra$withDefault = F2(
 	function (fallback, decoder) {
 		return A2(
@@ -5411,10 +5952,6 @@ var $author$project$Dropdown$isFocusOnSelf = function (identifier) {
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $rtfeldman$elm_css$Html$Styled$Events$keyCode = A2($elm$json$Json$Decode$field, 'keyCode', $elm$json$Json$Decode$int);
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$core$Basics$not = _Basics_not;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5435,21 +5972,6 @@ var $rtfeldman$elm_css$Html$Styled$Events$on = F2(
 			$elm$virtual_dom$VirtualDom$Normal(decoder));
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$property = $rtfeldman$elm_css$VirtualDom$Styled$property;
-var $elm$virtual_dom$VirtualDom$attribute = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_attribute,
-			_VirtualDom_noOnOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlUri(value));
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$attribute = F2(
-	function (key, value) {
-		return A3(
-			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2($elm$virtual_dom$VirtualDom$attribute, key, value),
-			false,
-			'');
-	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$tabindex = function (n) {
 	return A2(
 		$rtfeldman$elm_css$VirtualDom$Styled$attribute,
@@ -5678,7 +6200,7 @@ var $matheus23$elm_tailwind_modules_base$Tailwind$Color$Color = F5(
 var $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable = {$: 'ViaVariable'};
 var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '209', '213', '219', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded = A2($rtfeldman$elm_css$Css$property, 'border-radius', '0.25rem');
-var $author$project$UaDropdown$border = _List_fromArray(
+var $author$project$UaDropdownMultiSelect$border = _List_fromArray(
 	[
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_solid,
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border,
@@ -5948,16 +6470,6 @@ var $rtfeldman$elm_css$Css$Structure$compactStylesheet = function (_v0) {
 		namespaces: namespaces
 	};
 };
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $rtfeldman$elm_css$Css$Structure$Output$charsetToString = function (charset) {
 	return A2(
 		$elm$core$Maybe$withDefault,
@@ -6744,15 +7256,6 @@ var $rtfeldman$elm_css$Hash$fromString = function (str) {
 		$rtfeldman$elm_hex$Hex$toString(
 			A2($robinheghan$murmur3$Murmur3$hashString, $rtfeldman$elm_css$Hash$initialSeed, str)));
 };
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $rtfeldman$elm_css$Css$Preprocess$Resolve$last = function (list) {
 	last:
 	while (true) {
@@ -6857,132 +7360,6 @@ var $elm$core$List$tail = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
 var $rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule = F5(
 	function (str1, str2, str3, str4, declaration) {
 		if (declaration.$ === 'StyleBlockDeclaration') {
@@ -7463,12 +7840,21 @@ var $rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
 	return A3($rtfeldman$elm_css$VirtualDom$Styled$Attribute, classProperty, true, cssTemplate);
 };
 var $rtfeldman$elm_css$Html$Styled$Attributes$css = $rtfeldman$elm_css$Html$Styled$Internal$css;
-var $author$project$UaDropdown$Clicked = function (a) {
+var $author$project$UaDropdownMultiSelect$Clicked = function (a) {
 	return {$: 'Clicked', a: a};
 };
 var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$align_baseline = A2($rtfeldman$elm_css$Css$property, 'vertical-align', 'baseline');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$box_border = A2($rtfeldman$elm_css$Css$property, 'box-sizing', 'border-box');
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$cursor_pointer = A2($rtfeldman$elm_css$Css$property, 'cursor', 'pointer');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$float_right = A2($rtfeldman$elm_css$Css$property, 'float', 'right');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '229', '231', '235', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
@@ -7505,9 +7891,6 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_1 = $rtfeldman
 			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.25rem'),
 			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.25rem')
 		]));
-var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
-};
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
@@ -7518,8 +7901,10 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_ellipsis = A
 var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full = A2($rtfeldman$elm_css$Css$property, 'width', '100%');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$whitespace_nowrap = A2($rtfeldman$elm_css$Css$property, 'white-space', 'nowrap');
-var $author$project$UaDropdown$dropdownItem = F3(
-	function (selectedIdx, idx, str) {
+var $author$project$UaDropdownMultiSelect$dropdownItem = F2(
+	function (idx, _v0) {
+		var selected = _v0.a;
+		var str = _v0.b;
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$a,
 			_List_fromArray(
@@ -7543,7 +7928,7 @@ var $author$project$UaDropdown$dropdownItem = F3(
 								]))
 						])),
 					$rtfeldman$elm_css$Html$Styled$Events$onClick(
-					$author$project$UaDropdown$Clicked(str))
+					$author$project$UaDropdownMultiSelect$Clicked(idx))
 				]),
 			_List_fromArray(
 				[
@@ -7555,7 +7940,8 @@ var $author$project$UaDropdown$dropdownItem = F3(
 							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_List_fromArray(
 								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$float_right, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$align_baseline])),
-							$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox')
+							$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$checked(selected)
 						]),
 					_List_Nil)
 				]));
@@ -7567,372 +7953,78 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2 = $rtfeldman
 			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.5rem'),
 			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.5rem')
 		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_lg = $rtfeldman$elm_css$Css$batch(
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_md = $rtfeldman$elm_css$Css$batch(
 	_List_fromArray(
 		[
-			A2($rtfeldman$elm_css$Css$property, '--tw-shadow', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'),
-			A2($rtfeldman$elm_css$Css$property, '--tw-shadow-colored', '0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color)'),
+			A2($rtfeldman$elm_css$Css$property, '--tw-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'),
+			A2($rtfeldman$elm_css$Css$property, '--tw-shadow-colored', '0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color)'),
 			A2($rtfeldman$elm_css$Css$property, 'box-shadow', 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)')
 		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_48 = A2($rtfeldman$elm_css$Css$property, 'width', '12rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_56 = A2($rtfeldman$elm_css$Css$property, 'width', '14rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$white = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '255', '255', '255', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10 = A2($rtfeldman$elm_css$Css$property, 'z-index', '10');
-var $author$project$UaDropdown$dropdownMenu = function (items) {
-	return A2(
-		$rtfeldman$elm_css$Html$Styled$div,
-		_List_fromArray(
-			[
-				$rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_Utils_ap(
-					_List_fromArray(
-						[
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_1,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$white),
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_lg,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_48,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2
-						]),
-					$author$project$UaDropdown$border))
-			]),
-		A2(
-			$elm$core$List$indexedMap,
-			$author$project$UaDropdown$dropdownItem(0),
-			items));
-};
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$UaDropdownMultiSelect$zip = $elm$core$List$map2($elm$core$Tuple$pair);
+var $author$project$UaDropdownMultiSelect$dropdownMenu = F2(
+	function (items, selected) {
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_Utils_ap(
+						_List_fromArray(
+							[
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_1,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$white),
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_md,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_56,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2
+							]),
+						$author$project$UaDropdownMultiSelect$border))
+				]),
+			A2(
+				$elm$core$List$indexedMap,
+				$author$project$UaDropdownMultiSelect$dropdownItem,
+				A2($author$project$UaDropdownMultiSelect$zip, selected, items)));
+	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block = A2($rtfeldman$elm_css$Css$property, 'display', 'block');
-var $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = $rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
-var $rtfeldman$elm_css$Svg$Styled$fromUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10 = A2($rtfeldman$elm_css$Css$property, 'height', '2.5rem');
 var $rtfeldman$elm_css$Html$Styled$i = $rtfeldman$elm_css$Html$Styled$node('i');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex = A2($rtfeldman$elm_css$Css$property, 'display', 'inline-flex');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto = A2($rtfeldman$elm_css$Css$property, 'margin', 'auto');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative = A2($rtfeldman$elm_css$Css$property, 'position', 'relative');
-var $rtfeldman$elm_css$Svg$Styled$Attributes$style = $rtfeldman$elm_css$VirtualDom$Styled$attribute('style');
-var $rtfeldman$elm_css$VirtualDom$Styled$NodeNS = F4(
-	function (a, b, c, d) {
-		return {$: 'NodeNS', a: a, b: b, c: c, d: d};
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$nodeNS = $rtfeldman$elm_css$VirtualDom$Styled$NodeNS;
-var $rtfeldman$elm_css$Svg$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$nodeNS('http://www.w3.org/2000/svg');
-var $rtfeldman$elm_css$Svg$Styled$svg = $rtfeldman$elm_css$Svg$Styled$node('svg');
-var $lattyware$elm_fontawesome$FontAwesome$Internal$Icon = function (a) {
-	return {$: 'Icon', a: a};
-};
-var $lattyware$elm_fontawesome$FontAwesome$present = function (icon) {
-	return $lattyware$elm_fontawesome$FontAwesome$Internal$Icon(
-		{attributes: _List_Nil, icon: icon, id: $elm$core$Maybe$Nothing, outer: $elm$core$Maybe$Nothing, role: 'img', title: $elm$core$Maybe$Nothing, transforms: _List_Nil});
-};
-var $lattyware$elm_fontawesome$FontAwesome$IconDef = F4(
-	function (prefix, name, size, paths) {
-		return {name: name, paths: paths, prefix: prefix, size: size};
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns = A4(
-	$lattyware$elm_fontawesome$FontAwesome$IconDef,
-	'fas',
-	'table-columns',
-	_Utils_Tuple2(512, 512),
-	_Utils_Tuple2('M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm64 64l0 256 160 0 0-256L64 160zm384 0l-160 0 0 256 160 0 0-256z', $elm$core$Maybe$Nothing));
-var $lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns);
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
-var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $lattyware$elm_fontawesome$FontAwesome$Svg$fill = _List_fromArray(
-	[
-		$elm$svg$Svg$Attributes$x('0'),
-		$elm$svg$Svg$Attributes$y('0'),
-		$elm$svg$Svg$Attributes$width('100%'),
-		$elm$svg$Svg$Attributes$height('100%')
-	]);
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
-var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
-var $elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
-var $elm$svg$Svg$mask = $elm$svg$Svg$trustedNode('mask');
-var $elm$svg$Svg$Attributes$mask = _VirtualDom_attribute('mask');
-var $elm$svg$Svg$Attributes$maskContentUnits = _VirtualDom_attribute('maskContentUnits');
-var $elm$svg$Svg$Attributes$maskUnits = _VirtualDom_attribute('maskUnits');
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add = F2(
-	function (transform, combined) {
-		switch (transform.$) {
-			case 'Scale':
-				var by = transform.a;
-				return _Utils_update(
-					combined,
-					{size: combined.size + by});
-			case 'Reposition':
-				var axis = transform.a;
-				var by = transform.b;
-				var _v1 = function () {
-					if (axis.$ === 'Vertical') {
-						return _Utils_Tuple2(0, by);
-					} else {
-						return _Utils_Tuple2(by, 0);
-					}
-				}();
-				var x = _v1.a;
-				var y = _v1.b;
-				return _Utils_update(
-					combined,
-					{x: combined.x + x, y: combined.y + y});
-			case 'Rotate':
-				var rotation = transform.a;
-				return _Utils_update(
-					combined,
-					{rotate: combined.rotate + rotation});
-			default:
-				var axis = transform.a;
-				if (axis.$ === 'Vertical') {
-					return _Utils_update(
-						combined,
-						{flipY: !combined.flipY});
-				} else {
-					return _Utils_update(
-						combined,
-						{flipX: !combined.flipX});
-				}
-		}
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize = 16;
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform = {flipX: false, flipY: false, rotate: 0, size: $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize, x: 0, y: 0};
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine = function (transforms) {
-	return A3($elm$core$List$foldl, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform, transforms);
-};
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform = function (transforms) {
-	var combined = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine(transforms);
-	return _Utils_eq(combined, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(combined);
-};
-var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
-var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions = function (_v1) {
-	var icon = _v1.a.icon;
-	var outer = _v1.a.outer;
-	return A2(
-		$elm$core$Maybe$withDefault,
-		icon.size,
-		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal, outer));
-};
-var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal = function (_v0) {
-	var icon = _v0.a.icon;
-	var outer = _v0.a.outer;
-	return A2(
-		$elm$core$Maybe$withDefault,
-		icon.size,
-		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions, outer));
-};
-var $elm$core$String$fromFloat = _String_fromNumber;
-var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg = F3(
-	function (containerWidth, iconWidth, transform) {
-		var path = 'translate(' + ($elm$core$String$fromFloat((iconWidth / 2) * (-1)) + ' -256)');
-		var outer = 'translate(' + ($elm$core$String$fromFloat(containerWidth / 2) + ' 256)');
-		var innerTranslate = 'translate(' + ($elm$core$String$fromFloat(transform.x * 32) + (',' + ($elm$core$String$fromFloat(transform.y * 32) + ') ')));
-		var innerRotate = 'rotate(' + ($elm$core$String$fromFloat(transform.rotate) + ' 0 0)');
-		var flipY = transform.flipY ? (-1) : 1;
-		var scaleY = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipY;
-		var flipX = transform.flipX ? (-1) : 1;
-		var scaleX = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipX;
-		var innerScale = 'scale(' + ($elm$core$String$fromFloat(scaleX) + (', ' + ($elm$core$String$fromFloat(scaleY) + ') ')));
-		return {
-			inner: $elm$svg$Svg$Attributes$transform(
-				_Utils_ap(
-					innerTranslate,
-					_Utils_ap(innerScale, innerRotate))),
-			outer: $elm$svg$Svg$Attributes$transform(outer),
-			path: $elm$svg$Svg$Attributes$transform(path)
-		};
-	});
-var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
-var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
-var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPath = F2(
-	function (attrs, d) {
-		return A2(
-			$elm$svg$Svg$path,
-			A2(
-				$elm$core$List$cons,
-				$elm$svg$Svg$Attributes$d(d),
-				attrs),
-			_List_Nil);
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths = F2(
-	function (attrs, _v0) {
-		var paths = _v0.paths;
-		if (paths.b.$ === 'Nothing') {
-			var only = paths.a;
-			var _v2 = paths.b;
-			return A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewPath, attrs, only);
-		} else {
-			var secondary = paths.a;
-			var primary = paths.b.a;
-			return A2(
-				$elm$svg$Svg$g,
-				_List_fromArray(
-					[
-						$elm$svg$Svg$Attributes$class('fa-group')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
-						A2(
-							$elm$core$List$cons,
-							$elm$svg$Svg$Attributes$class('fa-secondary'),
-							attrs),
-						secondary),
-						A2(
-						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
-						A2(
-							$elm$core$List$cons,
-							$elm$svg$Svg$Attributes$class('fa-primary'),
-							attrs),
-						primary)
-					]));
-		}
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform = F3(
-	function (color, _v0, icon) {
-		var outer = _v0.outer;
-		var inner = _v0.inner;
-		var path = _v0.path;
-		return A2(
-			$elm$svg$Svg$g,
-			_List_fromArray(
-				[outer]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$svg$Svg$g,
-					_List_fromArray(
-						[inner]),
-					_List_fromArray(
-						[
-							A2(
-							$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
-							_List_fromArray(
-								[
-									$elm$svg$Svg$Attributes$fill(color),
-									path
-								]),
-							icon)
-						]))
-				]));
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor = F2(
-	function (color, fullIcon) {
-		var icon = fullIcon.a.icon;
-		var transforms = fullIcon.a.transforms;
-		var id = fullIcon.a.id;
-		var outer = fullIcon.a.outer;
-		var combinedTransforms = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform(transforms);
-		var _v0 = icon.size;
-		var width = _v0.a;
-		var _v1 = $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions(fullIcon);
-		var topLevelWidth = _v1.a;
-		if (combinedTransforms.$ === 'Just') {
-			var meaningfulTransform = combinedTransforms.a;
-			var svgTransform = A3($lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg, topLevelWidth, width, meaningfulTransform);
-			if (outer.$ === 'Just') {
-				var outerIcon = outer.a;
-				return A4($lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform, color, svgTransform, icon, outerIcon);
-			} else {
-				return A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, color, svgTransform, icon);
-			}
-		} else {
-			return A2(
-				$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
-				_List_fromArray(
-					[
-						$elm$svg$Svg$Attributes$fill(color)
-					]),
-				icon);
-		}
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform = F4(
-	function (color, transforms, exclude, include) {
-		var id = include.a.id;
-		var alwaysId = A2($elm$core$Maybe$withDefault, '', id);
-		var clipId = 'clip-' + alwaysId;
-		var maskId = 'mask-' + alwaysId;
-		var maskTag = A2(
-			$elm$svg$Svg$mask,
-			A2(
-				$elm$core$List$cons,
-				$elm$svg$Svg$Attributes$id(maskId),
-				A2(
-					$elm$core$List$cons,
-					$elm$svg$Svg$Attributes$maskUnits('userSpaceOnUse'),
-					A2(
-						$elm$core$List$cons,
-						$elm$svg$Svg$Attributes$maskContentUnits('userSpaceOnUse'),
-						$lattyware$elm_fontawesome$FontAwesome$Svg$fill))),
-			_List_fromArray(
-				[
-					A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor, 'white', include),
-					A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, 'black', transforms, exclude)
-				]));
-		var defs = A2(
-			$elm$svg$Svg$defs,
-			_List_Nil,
-			_List_fromArray(
-				[maskTag]));
-		var rect = A2(
-			$elm$svg$Svg$rect,
-			A2(
-				$elm$core$List$cons,
-				$elm$svg$Svg$Attributes$fill(color),
-				A2(
-					$elm$core$List$cons,
-					$elm$svg$Svg$Attributes$mask('url(#' + (maskId + ')')),
-					$lattyware$elm_fontawesome$FontAwesome$Svg$fill)),
-			_List_Nil);
-		return A2(
-			$elm$svg$Svg$g,
-			_List_Nil,
-			_List_fromArray(
-				[defs, rect]));
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$view = $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor('currentColor');
-var $rtfeldman$elm_css$Svg$Styled$Attributes$viewBox = $rtfeldman$elm_css$VirtualDom$Styled$attribute('viewBox');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10 = A2($rtfeldman$elm_css$Css$property, 'width', '2.5rem');
-var $author$project$UaDropdown$dropdownToggle = A2(
-	$rtfeldman$elm_css$Html$Styled$a,
-	_List_fromArray(
-		[
-			$rtfeldman$elm_css$Html$Styled$Attributes$css(
-			_Utils_ap(
+var $author$project$UaDropdownMultiSelect$dropdownToggle = function (icon) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$a,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_Utils_ap(
+					_List_fromArray(
+						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10]),
+					$author$project$UaDropdownMultiSelect$border))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$i,
 				_List_fromArray(
-					[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10]),
-				$author$project$UaDropdown$border))
-		]),
-	_List_fromArray(
-		[
-			A2(
-			$rtfeldman$elm_css$Html$Styled$i,
-			_List_fromArray(
-				[
-					$rtfeldman$elm_css$Html$Styled$Attributes$css(
-					_List_fromArray(
-						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto]))
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$rtfeldman$elm_css$Svg$Styled$svg,
-					_List_fromArray(
-						[
-							$rtfeldman$elm_css$Svg$Styled$Attributes$viewBox('0 0 512 512'),
-							$rtfeldman$elm_css$Svg$Styled$Attributes$style('width: 20px; height: 20px;')
-						]),
-					_List_fromArray(
-						[
-							$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
-							$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns))
-						]))
-				]))
-		]));
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto]))
+					]),
+				_List_fromArray(
+					[icon]))
+			]));
+};
 var $rtfeldman$elm_css$VirtualDom$Styled$UnscopedStyles = function (a) {
 	return {$: 'UnscopedStyles', a: a};
 };
@@ -8565,58 +8657,62 @@ var $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
 	}
 };
 var $rtfeldman$elm_css$Html$Styled$toUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
-var $author$project$UaDropdown$view = function (_v0) {
-	var items = _v0.items;
-	var myDropdownIsOpen = _v0.myDropdownIsOpen;
-	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
-		A2(
-			$rtfeldman$elm_css$Html$Styled$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					$author$project$Dropdown$dropdown(
-					{
-						drawerVisibleAttribute: $rtfeldman$elm_css$Html$Styled$Attributes$class('visible'),
-						identifier: 'my-dropdown',
-						isToggled: myDropdownIsOpen,
-						layout: function (_v1) {
-							var toDropdown = _v1.toDropdown;
-							var toToggle = _v1.toToggle;
-							var toDrawer = _v1.toDrawer;
-							return A3(
-								toDropdown,
-								$rtfeldman$elm_css$Html$Styled$div,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A3(
-										toToggle,
-										$rtfeldman$elm_css$Html$Styled$div,
-										_List_Nil,
-										_List_fromArray(
-											[$author$project$UaDropdown$dropdownToggle])),
-										A3(
-										toDrawer,
-										$rtfeldman$elm_css$Html$Styled$div,
-										_List_Nil,
-										_List_fromArray(
-											[
-												$author$project$UaDropdown$dropdownMenu(items)
-											]))
-									]));
-						},
-						onToggle: $author$project$UaDropdown$ToggleDropdown,
-						toggleEvent: $author$project$Dropdown$OnClick
-					})
-				])));
-};
+var $author$project$UaDropdownMultiSelect$view = F2(
+	function (icon, _v0) {
+		var items = _v0.items;
+		var selecteds = _v0.selecteds;
+		var myDropdownIsOpen = _v0.myDropdownIsOpen;
+		return $rtfeldman$elm_css$Html$Styled$toUnstyled(
+			A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$author$project$Dropdown$dropdown(
+						{
+							drawerVisibleAttribute: $rtfeldman$elm_css$Html$Styled$Attributes$class('visible'),
+							identifier: 'my-dropdown',
+							isToggled: myDropdownIsOpen,
+							layout: function (_v1) {
+								var toDropdown = _v1.toDropdown;
+								var toToggle = _v1.toToggle;
+								var toDrawer = _v1.toDrawer;
+								return A3(
+									toDropdown,
+									$rtfeldman$elm_css$Html$Styled$div,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A3(
+											toToggle,
+											$rtfeldman$elm_css$Html$Styled$div,
+											_List_Nil,
+											_List_fromArray(
+												[
+													$author$project$UaDropdownMultiSelect$dropdownToggle(icon)
+												])),
+											A3(
+											toDrawer,
+											$rtfeldman$elm_css$Html$Styled$div,
+											_List_Nil,
+											_List_fromArray(
+												[
+													A2($author$project$UaDropdownMultiSelect$dropdownMenu, items, selecteds)
+												]))
+										]));
+							},
+							onToggle: $author$project$UaDropdownMultiSelect$ToggleDropdown,
+							toggleEvent: $author$project$Dropdown$OnClick
+						})
+					])));
+	});
 var $author$project$DropdownTest$main = $elm$browser$Browser$sandbox(
 	{
-		init: $author$project$UaDropdown$init(
+		init: $author$project$UaDropdownMultiSelect$init(
 			_List_fromArray(
-				['A', 'B', 'C'])),
-		update: $author$project$UaDropdown$update,
-		view: $author$project$UaDropdown$view
+				['A', 'B', 'C', 'oasdlf ajd fklaj sdklfa lkdjf alkjdf klaj dfklajd lfkja dklf'])),
+		update: $author$project$UaDropdownMultiSelect$update,
+		view: $author$project$UaDropdownMultiSelect$view($author$project$DropdownTest$faTableColumnsIcon)
 	});
 _Platform_export({'DropdownTest':{'init':$author$project$DropdownTest$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
