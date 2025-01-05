@@ -1,8 +1,8 @@
 module Internal.Column exposing (..)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onClick)
 import Internal.Data exposing (..)
 import Internal.State exposing (..)
 import Internal.Util exposing (..)

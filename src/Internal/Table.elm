@@ -1,9 +1,23 @@
 module Internal.Table exposing (..)
 
+-- import Html exposing (..)
+-- import Attributes exposing (..)
+-- import Events exposing (onInput)
+-- import FontAwesome.Attributes as Icon
+-- import FontAwesome.Brands as Icon
+-- import FontAwesome.Layering as Icon
+-- import FontAwesome.Styles as Icon
+-- import FontAwesome.Transforms as IconT
+
 import Array
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Css
+import Css.Global
+import FontAwesome as Icon exposing (Icon)
+import FontAwesome.Solid as Icon
+import FontAwesome.Svg as SvgIcon
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onInput)
 import Internal.Column exposing (..)
 import Internal.Config exposing (..)
 import Internal.Data exposing (..)
@@ -12,7 +26,11 @@ import Internal.Selection exposing (..)
 import Internal.State exposing (..)
 import Internal.Toolbar
 import Internal.Util exposing (..)
+import Svg.Styled
+import Svg.Styled.Attributes as SvgA
 import Table.Types exposing (..)
+import Tailwind.Theme as Tw
+import Tailwind.Utilities as Tw
 
 
 
@@ -63,9 +81,7 @@ init (Config cfg) =
 
 
 
---
 -- View
---
 
 
 view : Config a b msg -> Model a -> Html msg
@@ -77,11 +93,12 @@ view config ((Model m) as model) =
         pipeExt =
             pipeExternal config model
     in
-    div [ class "grt-main" ] <|
+    div [ css [] ] <|
         case m.rows of
             Rows Loading ->
                 [ tableHeader config pipeExt pipeInt m.state
-                , div [ class "grt-spinner" ] [ span [ class "grt-icon-spinner" ] [] ]
+                , div [ css [ Tw.flex, Tw.justify_center, Tw.items_center, Tw.h_32 ] ]
+                    [ span [ css [ Tw.text_2xl ] ] [ text "Loading..." ] ]
                 ]
 
             Rows (Loaded { total, rows }) ->
@@ -95,24 +112,32 @@ view config ((Model m) as model) =
 
 
 
---
 -- Header
---
 
 
 tableHeader : Config a b msg -> Pipe msg -> Pipe msg -> State -> Html msg
 tableHeader ((Config cfg) as config) pipeExt pipeInt state =
-    div [ class "grt-table-header" ]
-        [ div [ class "header-search" ] <| headerSearch pipeExt pipeInt
-        , div [ class "header-custom" ] cfg.toolbar
-        , div [ class "header-toolbar" ] <| Internal.Toolbar.view config pipeExt pipeInt state
+    div [ css [ Tw.mb_4, Tw.p_4, Tw.bg_color Tw.gray_100, Tw.rounded ] ]
+        [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between ] ] <| headerSearch pipeExt pipeInt
+        , div [ css [ Tw.flex, Tw.items_center ] ] cfg.toolbar
+        , div [ css [ Tw.flex, Tw.items_center ] ] <| Internal.Toolbar.view config pipeExt pipeInt state
         ]
 
 
 headerSearch : Pipe msg -> Pipe msg -> List (Html msg)
 headerSearch pipeExt pipeInt =
     [ input
-        [ class "input"
+        [ css
+            [ Tw.relative
+            , Tw.inline_flex
+            , Tw.border
+            , Tw.rounded
+            , Tw.pl_1
+            , Tw.py_1
+            , Tw.pr_20
+            , Tw.w_full
+            , Tw.h_10
+            ]
         , type_ "text"
         , placeholder "Search..."
         , onInput
@@ -133,14 +158,31 @@ headerSearch pipeExt pipeInt =
             )
         ]
         []
-    , span [ class "icon is-right" ] [ i [ class "gg-search" ] [] ]
+    , span
+        [ css
+            [ Tw.absolute
+            , Tw.right_0
+            , Tw.top_0
+            , Tw.w_10
+            , Tw.h_10
+            , Tw.z_10
+            , Tw.inline_flex
+            , Tw.justify_center
+            , Tw.items_center
+            , Tw.pointer_events_none
+            , Tw.text_color Tw.gray_300
+            ]
+        ]
+        [ i []
+            [ Svg.Styled.svg [ SvgA.viewBox "0 0 512 512", SvgA.style "width: 24px; height: 24px;" ]
+                [ Svg.Styled.fromUnstyled <| SvgIcon.view Icon.magnifyingGlass ]
+            ]
+        ]
     ]
 
 
 
---
 -- Content
---
 
 
 tableContent : Config a b msg -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
@@ -210,8 +252,8 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
         prows =
             iff (cfg.type_ == Static && cfg.pagination /= None) (cut frows) frows
     in
-    div [ class "table-content" ]
-        [ table []
+    div [ css [ Tw.overflow_auto ] ]
+        [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.shadow, Tw.rounded ] ]
             [ tableContentHead (cfg.selection /= Disable) pipeExt pipeInt columns state
             , tableContentBody config pipeExt pipeInt columns state prows
             ]
@@ -230,13 +272,15 @@ tableContentHead hasSelection pipeExt pipeInt columns state =
         [ tr [] <|
             List.indexedMap
                 (\i ((Column c) as col) ->
-                    if i == 0 && hasSelection then
-                        th [ style "width" c.width ] <|
-                            c.viewHeader col ( state, pipeInt )
+                    th [ css [ Tw.p_2, Tw.text_left, Tw.bg_color Tw.gray_200 ] ] <|
+                        c.viewHeader col
+                            ( state
+                            , if i == 0 && hasSelection then
+                                pipeInt
 
-                    else
-                        th [ style "width" c.width ] <|
-                            c.viewHeader col ( state, pipeExt )
+                              else
+                                pipeExt
+                            )
                 )
                 columns
         ]
@@ -263,10 +307,10 @@ tableContentBodyRow :
     -> Row a
     -> List (Html msg)
 tableContentBodyRow ((Config cfg) as config) pipeExt pipeInt columns state (Row r) =
-    [ tr [] <|
+    [ tr [ css [ Css.hover [ Tw.bg_color Tw.gray_100 ] ] ] <|
         List.map
             (\(Column c) ->
-                td [ class c.class, style "width" c.width ] <|
+                td [ css [ Tw.p_2, Tw.border_b, Tw.border_color Tw.gray_300 ] ] <|
                     c.viewCell r ( state, pipeExt )
             )
             columns
@@ -336,6 +380,11 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
         ]
 
 
+
+
+-- Subtable Content
+
+
 subtableContentBody :
     Pipe msg
     -> ConfTable a msg
@@ -358,13 +407,15 @@ subtableContentBodyRow pipeExt cfg columns state (Row r) =
     [ tr [] <|
         List.map
             (\(Column c) ->
-                td [ class c.class, style "width" c.width ] <| c.viewCell r ( state, pipeExt )
+                td [ css [ Tw.p_2, Tw.border_b, Tw.border_color Tw.gray_300 ], class c.class, style "width" c.width ] <|
+                    c.viewCell r ( state, pipeExt )
             )
             columns
     , case ( cfg.expand, List.member (cfg.getID r) state.subtable.expanded ) of
         ( Just (Column c), True ) ->
             tr []
-                [ td [ colspan (List.length columns) ] <| c.viewCell r ( state, pipeExt )
+                [ td [ css [ Tw.p_2, Tw.bg_color Tw.gray_50 ], colspan (List.length columns) ] <|
+                    c.viewCell r ( state, pipeExt )
                 ]
 
         _ ->
@@ -373,9 +424,7 @@ subtableContentBodyRow pipeExt cfg columns state (Row r) =
 
 
 
---
 -- Footer
---
 
 
 tableFooter : Config a b msg -> Pipe msg -> Pipe msg -> State -> Int -> Html msg

@@ -1,8 +1,8 @@
 module Internal.Selection exposing (..)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onCheck)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onCheck)
 import Internal.Column exposing (..)
 import Internal.Config exposing (..)
 import Internal.Data exposing (..)

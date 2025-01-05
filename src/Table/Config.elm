@@ -26,7 +26,7 @@ module Table.Config exposing
 
 -}
 
-import Html exposing (Html)
+import Html.Styled exposing (Html)
 import Internal.Config
 import Internal.Data exposing (Model)
 import Table.Column exposing (..)

@@ -1,10 +1,19 @@
 module View exposing (main)
 
+-- import Html.Attributes exposing (..)
+-- import Html.Events exposing (..)
+
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Css
+import Css.Global
+import Html
+import Html.Styled as HtmlS exposing (..)
+import Html.Styled.Attributes as Attr
+import Html.Styled.Events as Events
 import Http
+import Tailwind.Breakpoints as Breakpoints
+import Tailwind.Theme as Tw
+import Tailwind.Utilities as Tw
 import Task
 import UaTable
 
@@ -93,9 +102,15 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
-    div [] [ viewSelectors model, viewMain model ]
+    HtmlS.toUnstyled <|
+        div
+            [ Attr.css [ Tw.container, Tw.mx_auto, Tw.p_4 ]
+            ]
+            [ viewSelectors model
+            , viewMain model
+            ]
 
 
 
@@ -108,22 +123,43 @@ view model =
 
 viewSelectors : Model -> Html Msg
 viewSelectors model =
-    div []
-        [ div []
-            [ div [] [ text "Browser" ]
-            , input [ placeholder "firefox", value model.filterBrowser, onInput <| ChangeFilter << Browser ] []
+    div [ Attr.css [ Tw.grid, Tw.grid_cols_1, Breakpoints.md [ Tw.grid_cols_3 ], Tw.gap_4, Tw.mb_4 ] ]
+        [ viewSelector "Browser" model.filterBrowser (ChangeFilter << Browser)
+        , viewSelector "OS/Device" model.filterOsDevice (ChangeFilter << OSDevice)
+        , viewSelector "Limit" (String.fromInt model.filterLimit) (ChangeFilter << Limit)
+        ]
+
+
+
+-- [ div []
+--     [ div [] [ text "Browser" ]
+--     , input [ placeholder "firefox", value model.filterBrowser, onInput <| ChangeFilter << Browser ] []
+--     ]
+-- , div []
+--     [ div [] [ text "OS/Device" ]
+--     , input [ placeholder "linux", value model.filterOsDevice, onInput <| ChangeFilter << OSDevice ] []
+--     ]
+-- , div []
+--     [ div [] [ text "Limit" ]
+--     , input [ placeholder "10", value (String.fromInt model.filterLimit), onInput <| ChangeFilter << Limit ] []
+--     ]
+-- ]
+
+
+viewSelector : String -> String -> (String -> Msg) -> Html Msg
+viewSelector label value onChange =
+    div [ Attr.css [ Tw.flex, Tw.flex_col ] ]
+        [ div [ Attr.css [ Tw.font_semibold, Tw.mb_1 ] ] [ text label ]
+        , input
+            [ Attr.css [ Tw.border, Tw.rounded, Tw.p_2 ]
+            , Attr.placeholder label
+            , Attr.value value
+            , Events.onInput onChange
             ]
-        , div []
-            [ div [] [ text "OS/Device" ]
-            , input [ placeholder "linux", value model.filterOsDevice, onInput <| ChangeFilter << OSDevice ] []
-            ]
-        , div []
-            [ div [] [ text "Limit" ]
-            , input [ placeholder "10", value (String.fromInt model.filterLimit), onInput <| ChangeFilter << Limit ] []
-            ]
+            []
         ]
 
 
 viewMain : Model -> Html Msg
 viewMain model =
-    UaTable.view model.tableModel |> Html.map TableMsg
+    UaTable.view model.tableModel |> HtmlS.map TableMsg

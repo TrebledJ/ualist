@@ -1,8 +1,8 @@
 module Internal.Pagination exposing (..)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onClick)
 import Internal.Column exposing (Pipe)
 import Internal.Config exposing (..)
 import Internal.Data exposing (..)

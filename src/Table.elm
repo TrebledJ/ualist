@@ -29,7 +29,7 @@ module Table exposing
 
 -}
 
-import Html exposing (Html)
+import Html.Styled exposing (Html)
 import Internal.Column
 import Internal.Config
 import Internal.Data

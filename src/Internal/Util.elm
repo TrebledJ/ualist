@@ -1,7 +1,7 @@
 module Internal.Util exposing (..)
 
-import Html exposing (Attribute, Html, b, text)
-import Html.Events exposing (keyCode, on)
+import Html.Styled exposing (Attribute, Html, b, text)
+import Html.Styled.Events exposing (keyCode, on)
 import Json.Decode as Json
 
 

@@ -1,7 +1,7 @@
 module Internal.Config exposing (..)
 
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class)
+import Html.Styled exposing (Html, div, text)
+import Html.Styled.Attributes exposing (class)
 import Internal.Column exposing (..)
 import Internal.Data exposing (..)
 import Internal.State exposing (..)

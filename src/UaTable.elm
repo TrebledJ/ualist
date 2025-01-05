@@ -4,8 +4,8 @@ port module UaTable exposing (..)
 -- import Json.Decode.Pipeline exposing (required)
 
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (class, src)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (class, src)
 import Http exposing (Error)
 import Json.Decode as Decode exposing (Decoder, Value)
 import Table
@@ -36,7 +36,8 @@ config =
         , Column.string .deviceVendor "Vendor" ""
         , Column.string .osName "OS" ""
         ]
-        |> Config.withPagination [20, 50, 100, 200] 20
+        -- |> Config.withPagination [] 20
+        |> Config.withToolbar []
 
 
 
