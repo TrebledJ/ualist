@@ -2,7 +2,6 @@ module UaDropdownMultiSelect exposing (..)
 
 import Css
 import Dropdown exposing (dropdown)
-import Html as Html1
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
@@ -53,9 +52,6 @@ update msg model =
 
         Clicked idx ->
             let
-                _ =
-                    Debug.log "clicked" idx
-
                 isSelected =
                     model.selecteds |> nth idx
 
@@ -63,9 +59,7 @@ update msg model =
                     model.selecteds |> List.take idx
 
                 back =
-                    model.selecteds |> List.drop (idx+1)
-
-                _ = Debug.log "sel" model.selecteds
+                    model.selecteds |> List.drop (idx + 1)
             in
             case isSelected of
                 Nothing ->
@@ -75,25 +69,24 @@ update msg model =
                     { model | selecteds = front ++ not x :: back }
 
 
-view : Html Msg -> Model -> Html1.Html Msg
+view : Html Msg -> Model -> Html Msg
 view icon { items, selecteds, myDropdownIsOpen } =
-    toUnstyled <|
-        div []
-            [ dropdown
-                { identifier = "my-dropdown"
-                , toggleEvent = Dropdown.OnClick
-                , drawerVisibleAttribute = class "visible"
-                , onToggle = ToggleDropdown
-                , layout =
-                    \{ toDropdown, toToggle, toDrawer } ->
-                        toDropdown div
-                            []
-                            [ toToggle div [] [ dropdownToggle icon ]
-                            , toDrawer div [] [ dropdownMenu items selecteds ]
-                            ]
-                , isToggled = myDropdownIsOpen
-                }
-            ]
+    div []
+        [ dropdown
+            { identifier = "my-dropdown"
+            , toggleEvent = Dropdown.OnClick
+            , drawerVisibleAttribute = class "visible"
+            , onToggle = ToggleDropdown
+            , layout =
+                \{ toDropdown, toToggle, toDrawer } ->
+                    toDropdown div
+                        []
+                        [ toToggle div [] [ dropdownToggle icon ]
+                        , toDrawer div [] [ dropdownMenu items selecteds ]
+                        ]
+            , isToggled = myDropdownIsOpen
+            }
+        ]
 
 
 border =
