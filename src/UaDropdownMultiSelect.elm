@@ -1,4 +1,4 @@
-module UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, toggleDropdown, view)
+module UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, init2, toggleDropdown, view)
 
 import Css
 import Dropdown exposing (dropdown)
@@ -10,9 +10,12 @@ import Tailwind.Utilities as Tw
 
 
 init : List String -> State
-init items =
+init items = init2 items (List.repeat (List.length items) False)
+
+init2 : List String -> List Bool -> State
+init2 items selecteds =
     { items = items
-    , selecteds = List.repeat (List.length items) False
+    , selecteds = selecteds
     , isOpen = False
     }
 

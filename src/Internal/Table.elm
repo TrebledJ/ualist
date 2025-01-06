@@ -56,6 +56,9 @@ init (Config cfg) =
                 cfg.subtable
                 |> Maybe.withDefault []
 
+        fnNameSelected = \(Column { name, default }) -> (name, default)
+        (colNames, colSelecteds) = cfg.table.columns |> List.map fnNameSelected |> List.unzip
+        
         ddPaginationInitState =
             case cfg.pagination of
                 ByPage { capabilities } ->
@@ -81,7 +84,7 @@ init (Config cfg) =
                         0
             , search = ""
             , ddPagination = Dropdown.init ddPaginationInitState
-            , ddColumns = Dropdown.init visibleColumns -- TODO: list all columns, and mark visible columns as selected
+            , ddColumns = Dropdown.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
             , ddSubColumns = Dropdown.init visibleSubColumns -- TODO: same as column
             , table = StateTable visibleColumns [] [] []
             , subtable = StateTable visibleSubColumns [] [] []
