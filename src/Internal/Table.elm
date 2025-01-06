@@ -277,7 +277,7 @@ tableContentHead hasSelection pipeExt pipeInt columns state =
         [ tr [] <|
             List.indexedMap
                 (\i ((Column c) as col) ->
-                    th [ css [ Tw.p_2, Tw.text_left, Tw.bg_color Tw.gray_200 ] ] <|
+                    th [ css [ Tw.p_2, Tw.text_center, Tw.bg_color Tw.gray_200 ] ] <|
                         c.viewHeader col
                             ( state
                             , if i == 0 && hasSelection then

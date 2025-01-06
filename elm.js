@@ -10883,7 +10883,7 @@ var $author$project$Internal$Table$subtableContentBody = F5(
 					rows)));
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '229', '231', '235', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_left = A2($rtfeldman$elm_css$Css$property, 'text-align', 'left');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_center = A2($rtfeldman$elm_css$Css$property, 'text-align', 'center');
 var $rtfeldman$elm_css$Html$Styled$th = $rtfeldman$elm_css$Html$Styled$node('th');
 var $rtfeldman$elm_css$Html$Styled$thead = $rtfeldman$elm_css$Html$Styled$node('thead');
 var $author$project$Internal$Table$tableContentHead = F5(
@@ -10909,7 +10909,7 @@ var $author$project$Internal$Table$tableContentHead = F5(
 											_List_fromArray(
 												[
 													$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2,
-													$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_left,
+													$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_center,
 													$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200)
 												]))
 										]),
