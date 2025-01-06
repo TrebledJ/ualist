@@ -1,4 +1,4 @@
-module UaDropdownMultiSelect exposing (..)
+module UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, toggleDropdown, view)
 
 import Css
 import Dropdown exposing (dropdown)
@@ -9,34 +9,35 @@ import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
 
 
-init : List String -> Model
+init : List String -> State
 init items =
     { items = items
     , selecteds = List.repeat (List.length items) False
-    , myDropdownIsOpen = False
+    , isOpen = False
     }
 
 
-type alias Model =
+type alias State =
     { items : List String
     , selecteds : List Bool
-    , myDropdownIsOpen : Dropdown.State
+    , isOpen : Dropdown.State
     }
 
 
-type Msg
-    = ToggleDropdown Bool
-    | Clicked Int
+type Align
+    = Left
+    | Right
+
+
+
+-- type Msg
+--     = ToggleDropdown Bool
+--     | Clicked Int
 
 
 nth : Int -> List a -> Maybe a
 nth n xs =
-    case n of
-        0 ->
-            List.head xs
-
-        _ ->
-            xs |> List.drop n |> List.head
+    xs |> List.drop n |> List.head
 
 
 zip : List a -> List b -> List ( a, b )
@@ -44,47 +45,59 @@ zip =
     List.map2 Tuple.pair
 
 
-update : Msg -> Model -> Model
-update msg model =
-    case msg of
-        ToggleDropdown newState ->
-            { model | myDropdownIsOpen = newState }
-
-        Clicked idx ->
-            let
-                isSelected =
-                    model.selecteds |> nth idx
-
-                front =
-                    model.selecteds |> List.take idx
-
-                back =
-                    model.selecteds |> List.drop (idx + 1)
-            in
-            case isSelected of
-                Nothing ->
-                    model
-
-                Just x ->
-                    { model | selecteds = front ++ not x :: back }
+toggleDropdown : Bool -> State -> State
+toggleDropdown new st =
+    { st | isOpen = new }
 
 
-view : Html Msg -> Model -> Html Msg
-view icon { items, selecteds, myDropdownIsOpen } =
+clickDropdown : Int -> State -> State
+clickDropdown idx st =
+    let
+        isSelected =
+            st.selecteds |> nth idx
+
+        front =
+            st.selecteds |> List.take idx
+
+        back =
+            st.selecteds |> List.drop (idx + 1)
+    in
+    case isSelected of
+        Nothing ->
+            st
+
+        Just x ->
+            { st | selecteds = front ++ not x :: back }
+
+
+
+-- update : Msg -> State -> State
+-- update msg model =
+--     case msg of
+--         ToggleDropdown newState ->
+--             { model | myDropdownIsOpen = newState }
+--         Clicked idx ->
+
+
+view :
+    { onClick : Int -> msg, onToggle : Bool -> msg, icon : Html msg, align : Align }
+    -> State
+    -> Html msg
+view { onClick, onToggle, icon, align } { items, selecteds, isOpen } =
     div []
         [ dropdown
-            { identifier = "my-dropdown"
+            { identifier = ""
             , toggleEvent = Dropdown.OnClick
-            , drawerVisibleAttribute = class "visible"
-            , onToggle = ToggleDropdown
+            , drawerVisibleAttribute = class ""
+            , onToggle = onToggle
             , layout =
                 \{ toDropdown, toToggle, toDrawer } ->
                     toDropdown div
                         []
                         [ toToggle div [] [ dropdownToggle icon ]
-                        , toDrawer div [] [ dropdownMenu items selecteds ]
+                        , dropdownMenu toDrawer align onClick items selecteds
                         ]
-            , isToggled = myDropdownIsOpen
+            , isToggled = isOpen
             }
         ]
 
@@ -104,9 +117,12 @@ dropdownToggle icon =
         ]
 
 
-dropdownMenu : List String -> List Bool -> Html Msg
-dropdownMenu items selected =
-    div
+type alias HtmlBuilder msg =
+    List (Attribute msg) -> List (Html msg) -> Html msg
+
+dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> Align -> (Int -> msg) -> List String -> List Bool -> Html msg
+dropdownMenu toDrawer align onClick items selected =
+    toDrawer div
         [ css <|
             [ Tw.absolute
             , Tw.mt_1
@@ -117,12 +133,18 @@ dropdownMenu items selected =
             , Tw.py_2
             ]
                 ++ border
+                ++ (if align == Left then
+                        [ Tw.left_0, Tw.right_auto ]
+
+                    else
+                        [ Tw.left_auto, Tw.right_0 ]
+                   )
         ]
-        (items |> zip selected |> List.indexedMap dropdownItem)
+        (items |> zip selected |> List.indexedMap (dropdownItem onClick))
 
 
-dropdownItem : Int -> ( Bool, String ) -> Html Msg
-dropdownItem idx ( selected, str ) =
+dropdownItem : (Int -> msg) -> Int -> ( Bool, String ) -> Html msg
+dropdownItem clickMsg idx ( selected, str ) =
     a
         [ css
             [ Tw.inline_block
@@ -136,7 +158,7 @@ dropdownItem idx ( selected, str ) =
             , Tw.cursor_pointer
             , Css.hover [ Tw.bg_color Tw.gray_200 ]
             ]
-        , onClick (Clicked idx)
+        , onClick (clickMsg idx)
         ]
         [ text str
         , input

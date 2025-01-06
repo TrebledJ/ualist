@@ -36,7 +36,7 @@ config =
         , Column.string .deviceVendor "Vendor" ""
         , Column.string .osName "OS" ""
         ]
-        -- |> Config.withPagination [] 20
+        |> Config.withPagination [20, 50, 100] 20
         |> Config.withToolbar []
 
 

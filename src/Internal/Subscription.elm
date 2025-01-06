@@ -6,6 +6,7 @@ import Internal.Config exposing (..)
 import Internal.Data exposing (..)
 import Internal.State exposing (..)
 import Json.Decode as Decode
+import UaDropdownMultiSelect as Dropdown
 
 
 subscriptions : Config a b msg -> Model a -> Sub msg
@@ -19,7 +20,7 @@ subscriptions config model =
 
 isModal : Model a -> Bool
 isModal (Model { state }) =
-    state.btColumns || state.btPagination
+    state.ddColumns.isOpen || state.ddPagination.isOpen
 
 
 outsideTarget : Pipe msg -> String -> Decode.Decoder msg
@@ -30,11 +31,7 @@ outsideTarget pipe dropdownId =
                 if isOutside then
                     Decode.succeed <|
                         pipe <|
-                            \state ->
-                                { state
-                                    | btColumns = False
-                                    , btPagination = False
-                                }
+                            \state -> state
 
                 else
                     Decode.fail "inside dropdown"

@@ -2,6 +2,7 @@ module Internal.State exposing (..)
 
 import Monocle.Lens exposing (Lens, compose)
 import Table.Types exposing (Sort(..))
+import UaDropdownMultiSelect as Dropdown exposing (State)
 
 
 type alias RowID =
@@ -27,9 +28,9 @@ type alias State =
     , page : Int
     , byPage : Int
     , search : String
-    , btPagination : Bool
-    , btColumns : Bool
-    , btSubColumns : Bool
+    , ddPagination : Dropdown.State
+    , ddColumns : Dropdown.State
+    , ddSubColumns : Dropdown.State
     , table : StateTable
     , subtable : StateTable
     }

@@ -8,6 +8,7 @@ module Internal.Table exposing (..)
 -- import FontAwesome.Layering as Icon
 -- import FontAwesome.Styles as Icon
 -- import FontAwesome.Transforms as IconT
+--
 
 import Array
 import Css
@@ -31,6 +32,7 @@ import Svg.Styled.Attributes as SvgA
 import Table.Types exposing (..)
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
+import UaDropdownMultiSelect as Dropdown
 
 
 
@@ -53,6 +55,14 @@ init (Config cfg) =
                 (\(SubTable _ c) -> List.filterMap fnVisible c.columns)
                 cfg.subtable
                 |> Maybe.withDefault []
+
+        ddPaginationInitState =
+            case cfg.pagination of
+                ByPage { capabilities } ->
+                    capabilities |> List.map String.fromInt
+
+                _ ->
+                    []
     in
     Model
         { state =
@@ -70,9 +80,9 @@ init (Config cfg) =
                     _ ->
                         0
             , search = ""
-            , btPagination = False
-            , btColumns = False
-            , btSubColumns = False
+            , ddPagination = Dropdown.init ddPaginationInitState
+            , ddColumns = Dropdown.init visibleColumns -- TODO: list all columns, and mark visible columns as selected
+            , ddSubColumns = Dropdown.init visibleSubColumns -- TODO: same as column
             , table = StateTable visibleColumns [] [] []
             , subtable = StateTable visibleSubColumns [] [] []
             }
@@ -117,10 +127,10 @@ view config ((Model m) as model) =
 
 tableHeader : Config a b msg -> Pipe msg -> Pipe msg -> State -> Html msg
 tableHeader ((Config cfg) as config) pipeExt pipeInt state =
-    div [ css [ Tw.mb_4, Tw.p_4, Tw.bg_color Tw.gray_100, Tw.rounded ] ]
-        [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between ] ] <| headerSearch pipeExt pipeInt
+    div [ css [ Tw.mb_4, Tw.p_4, Tw.bg_color Tw.gray_100, Tw.flex, Tw.gap_2, Tw.rounded ] ]
+        [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
         , div [ css [ Tw.flex, Tw.items_center ] ] cfg.toolbar
-        , div [ css [ Tw.flex, Tw.items_center ] ] <| Internal.Toolbar.view config pipeExt pipeInt state
+        , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Internal.Toolbar.view config pipeExt pipeInt state
         ]
 
 
@@ -143,12 +153,7 @@ headerSearch pipeExt pipeInt =
         , onInput
             (\s ->
                 pipeInt <|
-                    \state ->
-                        { state
-                            | search = s
-                            , btPagination = False
-                            , btColumns = False
-                        }
+                    \state -> { state | search = s }
             )
         , onKeyDown
             (\i ->
@@ -378,7 +383,6 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
             , subtableContentBody pipeExt subConfig columns state rows
             ]
         ]
-
 
 
 

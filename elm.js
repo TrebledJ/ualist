@@ -80,6 +80,271 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
 console.warn('Compiled in DEV mode. Follow the advice at https://elm-lang.org/0.19.1/optimize for better performance and smaller assets.');
 
 
+// EQUALITY
+
+function _Utils_eq(x, y)
+{
+	for (
+		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
+		isEqual && (pair = stack.pop());
+		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
+		)
+	{}
+
+	return isEqual;
+}
+
+function _Utils_eqHelp(x, y, depth, stack)
+{
+	if (x === y)
+	{
+		return true;
+	}
+
+	if (typeof x !== 'object' || x === null || y === null)
+	{
+		typeof x === 'function' && _Debug_crash(5);
+		return false;
+	}
+
+	if (depth > 100)
+	{
+		stack.push(_Utils_Tuple2(x,y));
+		return true;
+	}
+
+	/**/
+	if (x.$ === 'Set_elm_builtin')
+	{
+		x = $elm$core$Set$toList(x);
+		y = $elm$core$Set$toList(y);
+	}
+	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	/**_UNUSED/
+	if (x.$ < 0)
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	for (var key in x)
+	{
+		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+var _Utils_equal = F2(_Utils_eq);
+var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
+
+
+
+// COMPARISONS
+
+// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
+// the particular integer values assigned to LT, EQ, and GT.
+
+function _Utils_cmp(x, y, ord)
+{
+	if (typeof x !== 'object')
+	{
+		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
+	}
+
+	/**/
+	if (x instanceof String)
+	{
+		var a = x.valueOf();
+		var b = y.valueOf();
+		return a === b ? 0 : a < b ? -1 : 1;
+	}
+	//*/
+
+	/**_UNUSED/
+	if (typeof x.$ === 'undefined')
+	//*/
+	/**/
+	if (x.$[0] === '#')
+	//*/
+	{
+		return (ord = _Utils_cmp(x.a, y.a))
+			? ord
+			: (ord = _Utils_cmp(x.b, y.b))
+				? ord
+				: _Utils_cmp(x.c, y.c);
+	}
+
+	// traverse conses until end of a list or a mismatch
+	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
+	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
+}
+
+var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
+var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
+var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
+var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
+
+var _Utils_compare = F2(function(x, y)
+{
+	var n = _Utils_cmp(x, y);
+	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
+});
+
+
+// COMMON VALUES
+
+var _Utils_Tuple0_UNUSED = 0;
+var _Utils_Tuple0 = { $: '#0' };
+
+function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
+
+function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+
+function _Utils_chr_UNUSED(c) { return c; }
+function _Utils_chr(c) { return new String(c); }
+
+
+// RECORDS
+
+function _Utils_update(oldRecord, updatedFields)
+{
+	var newRecord = {};
+
+	for (var key in oldRecord)
+	{
+		newRecord[key] = oldRecord[key];
+	}
+
+	for (var key in updatedFields)
+	{
+		newRecord[key] = updatedFields[key];
+	}
+
+	return newRecord;
+}
+
+
+// APPEND
+
+var _Utils_append = F2(_Utils_ap);
+
+function _Utils_ap(xs, ys)
+{
+	// append Strings
+	if (typeof xs === 'string')
+	{
+		return xs + ys;
+	}
+
+	// append Lists
+	if (!xs.b)
+	{
+		return ys;
+	}
+	var root = _List_Cons(xs.a, ys);
+	xs = xs.b
+	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
+	{
+		curr = curr.b = _List_Cons(xs.a, ys);
+	}
+	return root;
+}
+
+
+
+var _List_Nil_UNUSED = { $: 0 };
+var _List_Nil = { $: '[]' };
+
+function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
+function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
+
+
+var _List_cons = F2(_List_Cons);
+
+function _List_fromArray(arr)
+{
+	var out = _List_Nil;
+	for (var i = arr.length; i--; )
+	{
+		out = _List_Cons(arr[i], out);
+	}
+	return out;
+}
+
+function _List_toArray(xs)
+{
+	for (var out = []; xs.b; xs = xs.b) // WHILE_CONS
+	{
+		out.push(xs.a);
+	}
+	return out;
+}
+
+var _List_map2 = F3(function(f, xs, ys)
+{
+	for (var arr = []; xs.b && ys.b; xs = xs.b, ys = ys.b) // WHILE_CONSES
+	{
+		arr.push(A2(f, xs.a, ys.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_map3 = F4(function(f, xs, ys, zs)
+{
+	for (var arr = []; xs.b && ys.b && zs.b; xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
+	{
+		arr.push(A3(f, xs.a, ys.a, zs.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_map4 = F5(function(f, ws, xs, ys, zs)
+{
+	for (var arr = []; ws.b && xs.b && ys.b && zs.b; ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
+	{
+		arr.push(A4(f, ws.a, xs.a, ys.a, zs.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_map5 = F6(function(f, vs, ws, xs, ys, zs)
+{
+	for (var arr = []; vs.b && ws.b && xs.b && ys.b && zs.b; vs = vs.b, ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
+	{
+		arr.push(A5(f, vs.a, ws.a, xs.a, ys.a, zs.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_sortBy = F2(function(f, xs)
+{
+	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
+		return _Utils_cmp(f(a), f(b));
+	}));
+});
+
+var _List_sortWith = F2(function(f, xs)
+{
+	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
+		var ord = A2(f, a, b);
+		return ord === $elm$core$Basics$EQ ? 0 : ord === $elm$core$Basics$LT ? -1 : 1;
+	}));
+});
+
+
+
 var _JsArray_empty = [];
 
 function _JsArray_singleton(value)
@@ -525,271 +790,6 @@ function _Debug_regionToString(region)
 	}
 	return 'on lines ' + region.start.line + ' through ' + region.end.line;
 }
-
-
-
-// EQUALITY
-
-function _Utils_eq(x, y)
-{
-	for (
-		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
-		isEqual && (pair = stack.pop());
-		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
-		)
-	{}
-
-	return isEqual;
-}
-
-function _Utils_eqHelp(x, y, depth, stack)
-{
-	if (x === y)
-	{
-		return true;
-	}
-
-	if (typeof x !== 'object' || x === null || y === null)
-	{
-		typeof x === 'function' && _Debug_crash(5);
-		return false;
-	}
-
-	if (depth > 100)
-	{
-		stack.push(_Utils_Tuple2(x,y));
-		return true;
-	}
-
-	/**/
-	if (x.$ === 'Set_elm_builtin')
-	{
-		x = $elm$core$Set$toList(x);
-		y = $elm$core$Set$toList(y);
-	}
-	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	/**_UNUSED/
-	if (x.$ < 0)
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	for (var key in x)
-	{
-		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-var _Utils_equal = F2(_Utils_eq);
-var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
-
-
-
-// COMPARISONS
-
-// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
-// the particular integer values assigned to LT, EQ, and GT.
-
-function _Utils_cmp(x, y, ord)
-{
-	if (typeof x !== 'object')
-	{
-		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
-	}
-
-	/**/
-	if (x instanceof String)
-	{
-		var a = x.valueOf();
-		var b = y.valueOf();
-		return a === b ? 0 : a < b ? -1 : 1;
-	}
-	//*/
-
-	/**_UNUSED/
-	if (typeof x.$ === 'undefined')
-	//*/
-	/**/
-	if (x.$[0] === '#')
-	//*/
-	{
-		return (ord = _Utils_cmp(x.a, y.a))
-			? ord
-			: (ord = _Utils_cmp(x.b, y.b))
-				? ord
-				: _Utils_cmp(x.c, y.c);
-	}
-
-	// traverse conses until end of a list or a mismatch
-	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
-	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
-}
-
-var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
-var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
-var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
-var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
-
-var _Utils_compare = F2(function(x, y)
-{
-	var n = _Utils_cmp(x, y);
-	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
-});
-
-
-// COMMON VALUES
-
-var _Utils_Tuple0_UNUSED = 0;
-var _Utils_Tuple0 = { $: '#0' };
-
-function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
-
-function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
-
-function _Utils_chr_UNUSED(c) { return c; }
-function _Utils_chr(c) { return new String(c); }
-
-
-// RECORDS
-
-function _Utils_update(oldRecord, updatedFields)
-{
-	var newRecord = {};
-
-	for (var key in oldRecord)
-	{
-		newRecord[key] = oldRecord[key];
-	}
-
-	for (var key in updatedFields)
-	{
-		newRecord[key] = updatedFields[key];
-	}
-
-	return newRecord;
-}
-
-
-// APPEND
-
-var _Utils_append = F2(_Utils_ap);
-
-function _Utils_ap(xs, ys)
-{
-	// append Strings
-	if (typeof xs === 'string')
-	{
-		return xs + ys;
-	}
-
-	// append Lists
-	if (!xs.b)
-	{
-		return ys;
-	}
-	var root = _List_Cons(xs.a, ys);
-	xs = xs.b
-	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
-	{
-		curr = curr.b = _List_Cons(xs.a, ys);
-	}
-	return root;
-}
-
-
-
-var _List_Nil_UNUSED = { $: 0 };
-var _List_Nil = { $: '[]' };
-
-function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
-function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
-
-
-var _List_cons = F2(_List_Cons);
-
-function _List_fromArray(arr)
-{
-	var out = _List_Nil;
-	for (var i = arr.length; i--; )
-	{
-		out = _List_Cons(arr[i], out);
-	}
-	return out;
-}
-
-function _List_toArray(xs)
-{
-	for (var out = []; xs.b; xs = xs.b) // WHILE_CONS
-	{
-		out.push(xs.a);
-	}
-	return out;
-}
-
-var _List_map2 = F3(function(f, xs, ys)
-{
-	for (var arr = []; xs.b && ys.b; xs = xs.b, ys = ys.b) // WHILE_CONSES
-	{
-		arr.push(A2(f, xs.a, ys.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_map3 = F4(function(f, xs, ys, zs)
-{
-	for (var arr = []; xs.b && ys.b && zs.b; xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
-	{
-		arr.push(A3(f, xs.a, ys.a, zs.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_map4 = F5(function(f, ws, xs, ys, zs)
-{
-	for (var arr = []; ws.b && xs.b && ys.b && zs.b; ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
-	{
-		arr.push(A4(f, ws.a, xs.a, ys.a, zs.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_map5 = F6(function(f, vs, ws, xs, ys, zs)
-{
-	for (var arr = []; vs.b && ws.b && xs.b && ys.b && zs.b; vs = vs.b, ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
-	{
-		arr.push(A5(f, vs.a, ws.a, xs.a, ys.a, zs.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_sortBy = F2(function(f, xs)
-{
-	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
-		return _Utils_cmp(f(a), f(b));
-	}));
-});
-
-var _List_sortWith = F2(function(f, xs)
-{
-	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
-		var ord = A2(f, a, b);
-		return ord === $elm$core$Basics$EQ ? 0 : ord === $elm$core$Basics$LT ? -1 : 1;
-	}));
-});
 
 
 
@@ -4373,6 +4373,181 @@ function _Browser_load(url)
 
 
 
+// SEND REQUEST
+
+var _Http_toTask = F3(function(router, toTask, request)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		function done(response) {
+			callback(toTask(request.expect.a(response)));
+		}
+
+		var xhr = new XMLHttpRequest();
+		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
+		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.expect.b, xhr)); });
+		$elm$core$Maybe$isJust(request.tracker) && _Http_track(router, xhr, request.tracker.a);
+
+		try {
+			xhr.open(request.method, request.url, true);
+		} catch (e) {
+			return done($elm$http$Http$BadUrl_(request.url));
+		}
+
+		_Http_configureRequest(xhr, request);
+
+		request.body.a && xhr.setRequestHeader('Content-Type', request.body.a);
+		xhr.send(request.body.b);
+
+		return function() { xhr.c = true; xhr.abort(); };
+	});
+});
+
+
+// CONFIGURE
+
+function _Http_configureRequest(xhr, request)
+{
+	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
+	{
+		xhr.setRequestHeader(headers.a.a, headers.a.b);
+	}
+	xhr.timeout = request.timeout.a || 0;
+	xhr.responseType = request.expect.d;
+	xhr.withCredentials = request.allowCookiesFromOtherDomains;
+}
+
+
+// RESPONSES
+
+function _Http_toResponse(toBody, xhr)
+{
+	return A2(
+		200 <= xhr.status && xhr.status < 300 ? $elm$http$Http$GoodStatus_ : $elm$http$Http$BadStatus_,
+		_Http_toMetadata(xhr),
+		toBody(xhr.response)
+	);
+}
+
+
+// METADATA
+
+function _Http_toMetadata(xhr)
+{
+	return {
+		url: xhr.responseURL,
+		statusCode: xhr.status,
+		statusText: xhr.statusText,
+		headers: _Http_parseHeaders(xhr.getAllResponseHeaders())
+	};
+}
+
+
+// HEADERS
+
+function _Http_parseHeaders(rawHeaders)
+{
+	if (!rawHeaders)
+	{
+		return $elm$core$Dict$empty;
+	}
+
+	var headers = $elm$core$Dict$empty;
+	var headerPairs = rawHeaders.split('\r\n');
+	for (var i = headerPairs.length; i--; )
+	{
+		var headerPair = headerPairs[i];
+		var index = headerPair.indexOf(': ');
+		if (index > 0)
+		{
+			var key = headerPair.substring(0, index);
+			var value = headerPair.substring(index + 2);
+
+			headers = A3($elm$core$Dict$update, key, function(oldValue) {
+				return $elm$core$Maybe$Just($elm$core$Maybe$isJust(oldValue)
+					? value + ', ' + oldValue.a
+					: value
+				);
+			}, headers);
+		}
+	}
+	return headers;
+}
+
+
+// EXPECT
+
+var _Http_expect = F3(function(type, toBody, toValue)
+{
+	return {
+		$: 0,
+		d: type,
+		b: toBody,
+		a: toValue
+	};
+});
+
+var _Http_mapExpect = F2(function(func, expect)
+{
+	return {
+		$: 0,
+		d: expect.d,
+		b: expect.b,
+		a: function(x) { return func(expect.a(x)); }
+	};
+});
+
+function _Http_toDataView(arrayBuffer)
+{
+	return new DataView(arrayBuffer);
+}
+
+
+// BODY and PARTS
+
+var _Http_emptyBody = { $: 0 };
+var _Http_pair = F2(function(a, b) { return { $: 0, a: a, b: b }; });
+
+function _Http_toFormData(parts)
+{
+	for (var formData = new FormData(); parts.b; parts = parts.b) // WHILE_CONS
+	{
+		var part = parts.a;
+		formData.append(part.a, part.b);
+	}
+	return formData;
+}
+
+var _Http_bytesToBlob = F2(function(mime, bytes)
+{
+	return new Blob([bytes], { type: mime });
+});
+
+
+// PROGRESS
+
+function _Http_track(router, xhr, tracker)
+{
+	// TODO check out lengthComputable on loadstart event
+
+	xhr.upload.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
+			sent: event.loaded,
+			size: event.total
+		}))));
+	});
+	xhr.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
+			received: event.loaded,
+			size: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
+		}))));
+	});
+}
+
+
 var _Bitwise_and = F2(function(a, b)
 {
 	return a & b;
@@ -4407,31 +4582,10 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
+var $elm$core$Basics$EQ = {$: 'EQ'};
+var $elm$core$Basics$GT = {$: 'GT'};
+var $elm$core$Basics$LT = {$: 'LT'};
 var $elm$core$List$cons = _List_cons;
-var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
-var $elm$core$Array$foldr = F3(
-	function (func, baseCase, _v0) {
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = F2(
-			function (node, acc) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
-				} else {
-					var values = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
-				}
-			});
-		return A3(
-			$elm$core$Elm$JsArray$foldr,
-			helper,
-			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
-			tree);
-	});
-var $elm$core$Array$toList = function (array) {
-	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
-};
 var $elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
@@ -4484,23 +4638,30 @@ var $elm$core$Set$toList = function (_v0) {
 	var dict = _v0.a;
 	return $elm$core$Dict$keys(dict);
 };
-var $elm$core$Basics$EQ = {$: 'EQ'};
-var $elm$core$Basics$GT = {$: 'GT'};
-var $elm$core$Basics$LT = {$: 'LT'};
-var $elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
+var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
+var $elm$core$Array$foldr = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldr,
+			helper,
+			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
+			tree);
 	});
-var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
+var $elm$core$Array$toList = function (array) {
+	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
 };
-var $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = $rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
-var $rtfeldman$elm_css$Svg$Styled$fromUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
-var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
-	function (a, b, c) {
-		return {$: 'Attribute', a: a, b: b, c: c};
-	});
-var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4522,6 +4683,7 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
+var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
@@ -4761,6 +4923,10 @@ var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var $elm$core$Array$Leaf = function (a) {
 	return {$: 'Leaf', a: a};
 };
+var $elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
 var $elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
@@ -4906,382 +5072,14 @@ var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var $elm$virtual_dom$VirtualDom$attribute = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_attribute,
-			_VirtualDom_noOnOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlUri(value));
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$attribute = F2(
-	function (key, value) {
-		return A3(
-			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2($elm$virtual_dom$VirtualDom$attribute, key, value),
-			false,
-			'');
-	});
-var $rtfeldman$elm_css$Svg$Styled$Attributes$style = $rtfeldman$elm_css$VirtualDom$Styled$attribute('style');
-var $rtfeldman$elm_css$VirtualDom$Styled$NodeNS = F4(
-	function (a, b, c, d) {
-		return {$: 'NodeNS', a: a, b: b, c: c, d: d};
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$nodeNS = $rtfeldman$elm_css$VirtualDom$Styled$NodeNS;
-var $rtfeldman$elm_css$Svg$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$nodeNS('http://www.w3.org/2000/svg');
-var $rtfeldman$elm_css$Svg$Styled$svg = $rtfeldman$elm_css$Svg$Styled$node('svg');
-var $elm$core$Basics$identity = function (x) {
-	return x;
-};
-var $lattyware$elm_fontawesome$FontAwesome$Internal$Icon = function (a) {
-	return {$: 'Icon', a: a};
-};
-var $lattyware$elm_fontawesome$FontAwesome$present = function (icon) {
-	return $lattyware$elm_fontawesome$FontAwesome$Internal$Icon(
-		{attributes: _List_Nil, icon: icon, id: $elm$core$Maybe$Nothing, outer: $elm$core$Maybe$Nothing, role: 'img', title: $elm$core$Maybe$Nothing, transforms: _List_Nil});
-};
-var $lattyware$elm_fontawesome$FontAwesome$IconDef = F4(
-	function (prefix, name, size, paths) {
-		return {name: name, paths: paths, prefix: prefix, size: size};
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns = A4(
-	$lattyware$elm_fontawesome$FontAwesome$IconDef,
-	'fas',
-	'table-columns',
-	_Utils_Tuple2(512, 512),
-	_Utils_Tuple2('M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm64 64l0 256 160 0 0-256L64 160zm384 0l-160 0 0 256 160 0 0-256z', $elm$core$Maybe$Nothing));
-var $lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns);
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
-var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $lattyware$elm_fontawesome$FontAwesome$Svg$fill = _List_fromArray(
-	[
-		$elm$svg$Svg$Attributes$x('0'),
-		$elm$svg$Svg$Attributes$y('0'),
-		$elm$svg$Svg$Attributes$width('100%'),
-		$elm$svg$Svg$Attributes$height('100%')
-	]);
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
-var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
-var $elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
-var $elm$svg$Svg$mask = $elm$svg$Svg$trustedNode('mask');
-var $elm$svg$Svg$Attributes$mask = _VirtualDom_attribute('mask');
-var $elm$svg$Svg$Attributes$maskContentUnits = _VirtualDom_attribute('maskContentUnits');
-var $elm$svg$Svg$Attributes$maskUnits = _VirtualDom_attribute('maskUnits');
-var $elm$core$Basics$not = _Basics_not;
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add = F2(
-	function (transform, combined) {
-		switch (transform.$) {
-			case 'Scale':
-				var by = transform.a;
-				return _Utils_update(
-					combined,
-					{size: combined.size + by});
-			case 'Reposition':
-				var axis = transform.a;
-				var by = transform.b;
-				var _v1 = function () {
-					if (axis.$ === 'Vertical') {
-						return _Utils_Tuple2(0, by);
-					} else {
-						return _Utils_Tuple2(by, 0);
-					}
-				}();
-				var x = _v1.a;
-				var y = _v1.b;
-				return _Utils_update(
-					combined,
-					{x: combined.x + x, y: combined.y + y});
-			case 'Rotate':
-				var rotation = transform.a;
-				return _Utils_update(
-					combined,
-					{rotate: combined.rotate + rotation});
-			default:
-				var axis = transform.a;
-				if (axis.$ === 'Vertical') {
-					return _Utils_update(
-						combined,
-						{flipY: !combined.flipY});
-				} else {
-					return _Utils_update(
-						combined,
-						{flipX: !combined.flipX});
-				}
-		}
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize = 16;
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform = {flipX: false, flipY: false, rotate: 0, size: $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize, x: 0, y: 0};
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine = function (transforms) {
-	return A3($elm$core$List$foldl, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform, transforms);
-};
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform = function (transforms) {
-	var combined = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine(transforms);
-	return _Utils_eq(combined, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(combined);
-};
-var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions = function (_v1) {
-	var icon = _v1.a.icon;
-	var outer = _v1.a.outer;
-	return A2(
-		$elm$core$Maybe$withDefault,
-		icon.size,
-		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal, outer));
-};
-var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal = function (_v0) {
-	var icon = _v0.a.icon;
-	var outer = _v0.a.outer;
-	return A2(
-		$elm$core$Maybe$withDefault,
-		icon.size,
-		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions, outer));
-};
-var $elm$core$String$fromFloat = _String_fromNumber;
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
-var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg = F3(
-	function (containerWidth, iconWidth, transform) {
-		var path = 'translate(' + ($elm$core$String$fromFloat((iconWidth / 2) * (-1)) + ' -256)');
-		var outer = 'translate(' + ($elm$core$String$fromFloat(containerWidth / 2) + ' 256)');
-		var innerTranslate = 'translate(' + ($elm$core$String$fromFloat(transform.x * 32) + (',' + ($elm$core$String$fromFloat(transform.y * 32) + ') ')));
-		var innerRotate = 'rotate(' + ($elm$core$String$fromFloat(transform.rotate) + ' 0 0)');
-		var flipY = transform.flipY ? (-1) : 1;
-		var scaleY = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipY;
-		var flipX = transform.flipX ? (-1) : 1;
-		var scaleX = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipX;
-		var innerScale = 'scale(' + ($elm$core$String$fromFloat(scaleX) + (', ' + ($elm$core$String$fromFloat(scaleY) + ') ')));
-		return {
-			inner: $elm$svg$Svg$Attributes$transform(
-				_Utils_ap(
-					innerTranslate,
-					_Utils_ap(innerScale, innerRotate))),
-			outer: $elm$svg$Svg$Attributes$transform(outer),
-			path: $elm$svg$Svg$Attributes$transform(path)
-		};
-	});
-var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
-var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
-var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPath = F2(
-	function (attrs, d) {
-		return A2(
-			$elm$svg$Svg$path,
-			A2(
-				$elm$core$List$cons,
-				$elm$svg$Svg$Attributes$d(d),
-				attrs),
-			_List_Nil);
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths = F2(
-	function (attrs, _v0) {
-		var paths = _v0.paths;
-		if (paths.b.$ === 'Nothing') {
-			var only = paths.a;
-			var _v2 = paths.b;
-			return A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewPath, attrs, only);
-		} else {
-			var secondary = paths.a;
-			var primary = paths.b.a;
-			return A2(
-				$elm$svg$Svg$g,
-				_List_fromArray(
-					[
-						$elm$svg$Svg$Attributes$class('fa-group')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
-						A2(
-							$elm$core$List$cons,
-							$elm$svg$Svg$Attributes$class('fa-secondary'),
-							attrs),
-						secondary),
-						A2(
-						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
-						A2(
-							$elm$core$List$cons,
-							$elm$svg$Svg$Attributes$class('fa-primary'),
-							attrs),
-						primary)
-					]));
-		}
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform = F3(
-	function (color, _v0, icon) {
-		var outer = _v0.outer;
-		var inner = _v0.inner;
-		var path = _v0.path;
-		return A2(
-			$elm$svg$Svg$g,
-			_List_fromArray(
-				[outer]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$svg$Svg$g,
-					_List_fromArray(
-						[inner]),
-					_List_fromArray(
-						[
-							A2(
-							$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
-							_List_fromArray(
-								[
-									$elm$svg$Svg$Attributes$fill(color),
-									path
-								]),
-							icon)
-						]))
-				]));
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor = F2(
-	function (color, fullIcon) {
-		var icon = fullIcon.a.icon;
-		var transforms = fullIcon.a.transforms;
-		var id = fullIcon.a.id;
-		var outer = fullIcon.a.outer;
-		var combinedTransforms = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform(transforms);
-		var _v0 = icon.size;
-		var width = _v0.a;
-		var _v1 = $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions(fullIcon);
-		var topLevelWidth = _v1.a;
-		if (combinedTransforms.$ === 'Just') {
-			var meaningfulTransform = combinedTransforms.a;
-			var svgTransform = A3($lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg, topLevelWidth, width, meaningfulTransform);
-			if (outer.$ === 'Just') {
-				var outerIcon = outer.a;
-				return A4($lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform, color, svgTransform, icon, outerIcon);
-			} else {
-				return A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, color, svgTransform, icon);
-			}
-		} else {
-			return A2(
-				$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
-				_List_fromArray(
-					[
-						$elm$svg$Svg$Attributes$fill(color)
-					]),
-				icon);
-		}
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform = F4(
-	function (color, transforms, exclude, include) {
-		var id = include.a.id;
-		var alwaysId = A2($elm$core$Maybe$withDefault, '', id);
-		var clipId = 'clip-' + alwaysId;
-		var maskId = 'mask-' + alwaysId;
-		var maskTag = A2(
-			$elm$svg$Svg$mask,
-			A2(
-				$elm$core$List$cons,
-				$elm$svg$Svg$Attributes$id(maskId),
-				A2(
-					$elm$core$List$cons,
-					$elm$svg$Svg$Attributes$maskUnits('userSpaceOnUse'),
-					A2(
-						$elm$core$List$cons,
-						$elm$svg$Svg$Attributes$maskContentUnits('userSpaceOnUse'),
-						$lattyware$elm_fontawesome$FontAwesome$Svg$fill))),
-			_List_fromArray(
-				[
-					A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor, 'white', include),
-					A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, 'black', transforms, exclude)
-				]));
-		var defs = A2(
-			$elm$svg$Svg$defs,
-			_List_Nil,
-			_List_fromArray(
-				[maskTag]));
-		var rect = A2(
-			$elm$svg$Svg$rect,
-			A2(
-				$elm$core$List$cons,
-				$elm$svg$Svg$Attributes$fill(color),
-				A2(
-					$elm$core$List$cons,
-					$elm$svg$Svg$Attributes$mask('url(#' + (maskId + ')')),
-					$lattyware$elm_fontawesome$FontAwesome$Svg$fill)),
-			_List_Nil);
-		return A2(
-			$elm$svg$Svg$g,
-			_List_Nil,
-			_List_fromArray(
-				[defs, rect]));
-	});
-var $lattyware$elm_fontawesome$FontAwesome$Svg$view = $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor('currentColor');
-var $rtfeldman$elm_css$Svg$Styled$Attributes$viewBox = $rtfeldman$elm_css$VirtualDom$Styled$attribute('viewBox');
-var $author$project$DropdownTest$faTableColumnsIcon = A2(
-	$rtfeldman$elm_css$Svg$Styled$svg,
-	_List_fromArray(
-		[
-			$rtfeldman$elm_css$Svg$Styled$Attributes$viewBox('0 0 512 512'),
-			$rtfeldman$elm_css$Svg$Styled$Attributes$style('width: 20px; height: 20px;')
-		]),
-	_List_fromArray(
-		[
-			$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
-			$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns))
-		]));
-var $elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2($elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var $elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
-var $author$project$UaDropdownMultiSelect$init = function (items) {
-	return {
-		items: items,
-		myDropdownIsOpen: false,
-		selecteds: A2(
-			$elm$core$List$repeat,
-			$elm$core$List$length(items),
-			false)
-	};
-};
 var $elm$browser$Browser$External = function (a) {
 	return {$: 'External', a: a};
 };
 var $elm$browser$Browser$Internal = function (a) {
 	return {$: 'Internal', a: a};
+};
+var $elm$core$Basics$identity = function (x) {
+	return x;
 };
 var $elm$browser$Browser$Dom$NotFound = function (a) {
 	return {$: 'NotFound', a: a};
@@ -5572,675 +5370,80 @@ var $elm$core$Task$perform = F2(
 			$elm$core$Task$Perform(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
+var $elm$browser$Browser$element = _Browser_element;
+var $author$project$View$TableMsg = function (a) {
+	return {$: 'TableMsg', a: a};
+};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $elm$browser$Browser$sandbox = function (impl) {
-	return _Browser_element(
-		{
-			init: function (_v0) {
-				return _Utils_Tuple2(impl.init, $elm$core$Platform$Cmd$none);
-			},
-			subscriptions: function (_v1) {
-				return $elm$core$Platform$Sub$none;
-			},
-			update: F2(
-				function (msg, model) {
-					return _Utils_Tuple2(
-						A2(impl.update, msg, model),
-						$elm$core$Platform$Cmd$none);
-				}),
-			view: impl.view
-		});
+var $author$project$UaTable$OnData = function (a) {
+	return {$: 'OnData', a: a};
 };
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
-		}
+var $elm$http$Http$BadStatus_ = F2(
+	function (a, b) {
+		return {$: 'BadStatus_', a: a, b: b};
 	});
-var $elm$core$Debug$log = _Debug_log;
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
+var $elm$http$Http$BadUrl_ = function (a) {
+	return {$: 'BadUrl_', a: a};
+};
+var $elm$http$Http$GoodStatus_ = F2(
+	function (a, b) {
+		return {$: 'GoodStatus_', a: a, b: b};
+	});
+var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
+var $elm$http$Http$Receiving = function (a) {
+	return {$: 'Receiving', a: a};
+};
+var $elm$http$Http$Sending = function (a) {
+	return {$: 'Sending', a: a};
+};
+var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $elm$core$Maybe$isJust = function (maybe) {
+	if (maybe.$ === 'Just') {
+		return true;
 	} else {
-		return $elm$core$Maybe$Nothing;
+		return false;
 	}
 };
-var $author$project$UaDropdownMultiSelect$nth = F2(
-	function (n, xs) {
-		if (!n) {
-			return $elm$core$List$head(xs);
-		} else {
-			return $elm$core$List$head(
-				A2($elm$core$List$drop, n, xs));
-		}
-	});
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
+var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$core$Basics$compare = _Utils_compare;
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
 		while (true) {
-			if (n <= 0) {
-				return kept;
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
 			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
 				}
 			}
 		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
-var $author$project$UaDropdownMultiSelect$update = F2(
-	function (msg, model) {
-		if (msg.$ === 'ToggleDropdown') {
-			var newState = msg.a;
-			return _Utils_update(
-				model,
-				{myDropdownIsOpen: newState});
-		} else {
-			var idx = msg.a;
-			var isSelected = A2($author$project$UaDropdownMultiSelect$nth, idx, model.selecteds);
-			var front = A2($elm$core$List$take, idx, model.selecteds);
-			var back = A2($elm$core$List$drop, idx + 1, model.selecteds);
-			var _v1 = A2($elm$core$Debug$log, 'clicked', idx);
-			var _v2 = A2($elm$core$Debug$log, 'sel', model.selecteds);
-			if (isSelected.$ === 'Nothing') {
-				return model;
-			} else {
-				var x = isSelected.a;
-				return _Utils_update(
-					model,
-					{
-						selecteds: _Utils_ap(
-							front,
-							A2($elm$core$List$cons, !x, back))
-					});
-			}
-		}
-	});
-var $author$project$Dropdown$OnClick = {$: 'OnClick'};
-var $author$project$UaDropdownMultiSelect$ToggleDropdown = function (a) {
-	return {$: 'ToggleDropdown', a: a};
-};
-var $elm$virtual_dom$VirtualDom$property = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_property,
-			_VirtualDom_noInnerHtmlOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlJson(value));
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$property = F2(
-	function (key, value) {
-		return A3(
-			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2($elm$virtual_dom$VirtualDom$property, key, value),
-			false,
-			'');
-	});
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$class = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('className');
-var $rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
-	function (a, b, c) {
-		return {$: 'Node', a: a, b: b, c: c};
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$Node;
-var $rtfeldman$elm_css$Html$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$node;
-var $rtfeldman$elm_css$Html$Styled$div = $rtfeldman$elm_css$Html$Styled$node('div');
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $rtfeldman$elm_css$VirtualDom$Styled$style = F2(
-	function (key, val) {
-		return A3(
-			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2($elm$virtual_dom$VirtualDom$style, key, val),
-			false,
-			'');
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$style = $rtfeldman$elm_css$VirtualDom$Styled$style;
-var $author$project$Dropdown$drawer = F4(
-	function (_v0, element, givenAttributes, children) {
-		var drawerVisibleAttribute = _v0.drawerVisibleAttribute;
-		var isToggled = _v0.isToggled;
-		var attributes = isToggled ? A2(
-			$elm$core$List$cons,
-			drawerVisibleAttribute,
-			_Utils_ap(
-				_List_fromArray(
-					[
-						A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'visibility', 'visible'),
-						A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'position', 'absolute')
-					]),
-				givenAttributes)) : _Utils_ap(
-			_List_fromArray(
-				[
-					A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'visibility', 'hidden'),
-					A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'position', 'absolute')
-				]),
-			givenAttributes);
-		return A2(element, attributes, children);
-	});
-var $elm$json$Json$Decode$andThen = _Json_andThen;
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
-var $author$project$Dropdown$DomElement = F2(
-	function (isDropdown, parentElement) {
-		return {isDropdown: isDropdown, parentElement: parentElement};
-	});
-var $author$project$Dropdown$ParentElement = function (a) {
-	return {$: 'ParentElement', a: a};
-};
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $author$project$Dropdown$isDropdown = F2(
-	function (identifier, identifier2) {
-		return $elm$json$Json$Decode$succeed(
-			_Utils_eq(identifier, identifier2));
-	});
-var $elm$json$Json$Decode$lazy = function (thunk) {
-	return A2(
-		$elm$json$Json$Decode$andThen,
-		thunk,
-		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
-};
-var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-var $elm$json$Json$Decode$maybe = function (decoder) {
-	return $elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder),
-				$elm$json$Json$Decode$succeed($elm$core$Maybe$Nothing)
-			]));
-};
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $elm_community$json_extra$Json$Decode$Extra$withDefault = F2(
-	function (fallback, decoder) {
-		return A2(
-			$elm$json$Json$Decode$map,
-			$elm$core$Maybe$withDefault(fallback),
-			$elm$json$Json$Decode$maybe(decoder));
-	});
-var $author$project$Dropdown$decodeDomElement = function (identifier) {
-	return A3(
-		$elm$json$Json$Decode$map2,
-		$author$project$Dropdown$DomElement,
-		A2(
-			$elm_community$json_extra$Json$Decode$Extra$withDefault,
-			false,
-			A2(
-				$elm$json$Json$Decode$andThen,
-				$author$project$Dropdown$isDropdown(identifier),
-				A2($elm$json$Json$Decode$field, 'dropdownId', $elm$json$Json$Decode$string))),
-		A2(
-			$elm$json$Json$Decode$field,
-			'parentElement',
-			$elm$json$Json$Decode$maybe(
-				A2(
-					$elm$json$Json$Decode$map,
-					$author$project$Dropdown$ParentElement,
-					$elm$json$Json$Decode$lazy(
-						function (_v0) {
-							return $author$project$Dropdown$decodeDomElement(identifier);
-						})))));
-};
-var $author$project$Dropdown$isChildOfSelf = function (cfg) {
-	isChildOfSelf:
-	while (true) {
-		if (cfg.isDropdown) {
-			return $elm$json$Json$Decode$succeed(true);
-		} else {
-			var _v0 = cfg.parentElement;
-			if (_v0.$ === 'Nothing') {
-				return $elm$json$Json$Decode$succeed(false);
-			} else {
-				var domElement = _v0.a.a;
-				var $temp$cfg = domElement;
-				cfg = $temp$cfg;
-				continue isChildOfSelf;
-			}
-		}
-	}
-};
-var $author$project$Dropdown$isFocusOnSelf = function (identifier) {
-	return A2(
-		$elm_community$json_extra$Json$Decode$Extra$withDefault,
-		false,
-		A2(
-			$elm$json$Json$Decode$andThen,
-			$author$project$Dropdown$isChildOfSelf,
-			A2(
-				$elm$json$Json$Decode$field,
-				'relatedTarget',
-				$author$project$Dropdown$decodeDomElement(identifier))));
-};
-var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $rtfeldman$elm_css$Html$Styled$Events$keyCode = A2($elm$json$Json$Decode$field, 'keyCode', $elm$json$Json$Decode$int);
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $rtfeldman$elm_css$VirtualDom$Styled$on = F2(
-	function (eventName, handler) {
-		return A3(
-			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2($elm$virtual_dom$VirtualDom$on, eventName, handler),
-			false,
-			'');
-	});
-var $rtfeldman$elm_css$Html$Styled$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$property = $rtfeldman$elm_css$VirtualDom$Styled$property;
-var $rtfeldman$elm_css$Html$Styled$Attributes$tabindex = function (n) {
-	return A2(
-		$rtfeldman$elm_css$VirtualDom$Styled$attribute,
-		'tabIndex',
-		$elm$core$String$fromInt(n));
-};
-var $author$project$Dropdown$root = F4(
-	function (_v0, element, attributes, children) {
-		var toggleEvent = _v0.toggleEvent;
-		var identifier = _v0.identifier;
-		var onToggle = _v0.onToggle;
-		var isToggled = _v0.isToggled;
-		var handleKeyDown = A2(
-			$elm$json$Json$Decode$map,
-			onToggle,
-			A2(
-				$elm$json$Json$Decode$andThen,
-				A2(
-					$elm$core$Basics$composeL,
-					A2(
-						$elm$core$Basics$composeL,
-						A2(
-							$elm$core$Basics$composeL,
-							$elm$json$Json$Decode$succeed,
-							$elm$core$Basics$and(isToggled)),
-						$elm$core$Basics$not),
-					$elm$core$Basics$eq(27)),
-				$rtfeldman$elm_css$Html$Styled$Events$keyCode));
-		var handleFocusChanged = A2(
-			$elm$json$Json$Decode$map,
-			onToggle,
-			$author$project$Dropdown$isFocusOnSelf(identifier));
-		var toggleEvents = function () {
-			if (toggleEvent.$ === 'OnHover') {
-				return _List_fromArray(
-					[
-						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'mouseout', handleFocusChanged),
-						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'focusout', handleFocusChanged)
-					]);
-			} else {
-				return _List_fromArray(
-					[
-						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'focusout', handleFocusChanged)
-					]);
-			}
-		}();
-		return A2(
-			element,
-			_Utils_ap(
-				_List_fromArray(
-					[
-						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'keydown', handleKeyDown)
-					]),
-				_Utils_ap(
-					toggleEvents,
-					_Utils_ap(
-						_List_fromArray(
-							[
-								A2(
-								$rtfeldman$elm_css$Html$Styled$Attributes$property,
-								'dropdownId',
-								$elm$json$Json$Encode$string(identifier)),
-								$rtfeldman$elm_css$Html$Styled$Attributes$tabindex(-1),
-								A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'position', 'relative'),
-								A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'display', 'inline-block'),
-								A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'outline', 'none')
-							]),
-						attributes))),
-			children);
-	});
-var $elm$virtual_dom$VirtualDom$Custom = function (a) {
-	return {$: 'Custom', a: a};
-};
-var $rtfeldman$elm_css$Html$Styled$Events$custom = F2(
-	function (event, decoder) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Custom(decoder));
-	});
-var $rtfeldman$elm_css$Html$Styled$Events$onFocus = function (msg) {
-	return A2(
-		$rtfeldman$elm_css$Html$Styled$Events$on,
-		'focus',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $rtfeldman$elm_css$Html$Styled$Events$onMouseEnter = function (msg) {
-	return A2(
-		$rtfeldman$elm_css$Html$Styled$Events$on,
-		'mouseenter',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $author$project$Dropdown$toggle = F4(
-	function (_v0, element, attributes, children) {
-		var onToggle = _v0.onToggle;
-		var toggleEvent = _v0.toggleEvent;
-		var isToggled = _v0.isToggled;
-		var toggleEvents = function () {
-			switch (toggleEvent.$) {
-				case 'OnClick':
-					return _List_fromArray(
-						[
-							A2(
-							$rtfeldman$elm_css$Html$Styled$Events$custom,
-							'click',
-							$elm$json$Json$Decode$succeed(
-								{
-									message: onToggle(!isToggled),
-									preventDefault: true,
-									stopPropagation: true
-								}))
-						]);
-				case 'OnHover':
-					return _List_fromArray(
-						[
-							$rtfeldman$elm_css$Html$Styled$Events$onMouseEnter(
-							onToggle(true)),
-							$rtfeldman$elm_css$Html$Styled$Events$onFocus(
-							onToggle(true))
-						]);
-				default:
-					return _List_fromArray(
-						[
-							$rtfeldman$elm_css$Html$Styled$Events$onFocus(
-							onToggle(true))
-						]);
-			}
-		}();
-		return A2(
-			element,
-			_Utils_ap(toggleEvents, attributes),
-			children);
-	});
-var $author$project$Dropdown$dropdown = function (config) {
-	return config.layout(
-		{
-			toDrawer: $author$project$Dropdown$drawer(config),
-			toDropdown: $author$project$Dropdown$root(config),
-			toToggle: $author$project$Dropdown$toggle(config)
-		});
-};
-var $rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
-	return {$: 'AppendProperty', a: a};
-};
-var $rtfeldman$elm_css$Css$Structure$Property = function (a) {
-	return {$: 'Property', a: a};
-};
-var $rtfeldman$elm_css$Css$property = F2(
-	function (key, value) {
-		return $rtfeldman$elm_css$Css$Preprocess$AppendProperty(
-			$rtfeldman$elm_css$Css$Structure$Property(key + (':' + value)));
-	});
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute = A2($rtfeldman$elm_css$Css$property, 'position', 'absolute');
-var $rtfeldman$elm_css$Css$Preprocess$ApplyStyles = function (a) {
-	return {$: 'ApplyStyles', a: a};
-};
-var $rtfeldman$elm_css$Css$batch = $rtfeldman$elm_css$Css$Preprocess$ApplyStyles;
-var $matheus23$elm_tailwind_modules_base$Tailwind$Color$propertyWithColor = F4(
-	function (property, embedColor, opacityVarName, color) {
-		if (color.$ === 'Color') {
-			var mode = color.a;
-			var r = color.b;
-			var g = color.c;
-			var b = color.d;
-			var opacity = color.e;
-			var _v1 = _Utils_Tuple2(opacity, opacityVarName);
-			if (_v1.a.$ === 'Opacity') {
-				var op = _v1.a.a;
-				return A2(
-					$rtfeldman$elm_css$Css$property,
-					property,
-					embedColor(mode + ('(' + (r + (' ' + (g + (' ' + (b + (' / ' + (op + ')'))))))))));
-			} else {
-				if (_v1.b.$ === 'Just') {
-					var _v2 = _v1.a;
-					var varName = _v1.b.a;
-					return $rtfeldman$elm_css$Css$batch(
-						_List_fromArray(
-							[
-								A2($rtfeldman$elm_css$Css$property, varName, '1'),
-								A2(
-								$rtfeldman$elm_css$Css$property,
-								property,
-								embedColor(mode + ('(' + (r + (' ' + (g + (' ' + (b + (' / var(' + (varName + '))'))))))))))
-							]));
-				} else {
-					var _v3 = _v1.a;
-					var _v4 = _v1.b;
-					return A2(
-						$rtfeldman$elm_css$Css$property,
-						property,
-						embedColor(mode + ('(' + (r + (' ' + (g + (' ' + (b + ' / 1.0)'))))))));
-				}
-			}
-		} else {
-			var keyword = color.a;
-			return A2($rtfeldman$elm_css$Css$property, property, keyword);
-		}
-	});
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color = function (color) {
-	return A4(
-		$matheus23$elm_tailwind_modules_base$Tailwind$Color$propertyWithColor,
-		'background-color',
-		function (c) {
-			return c;
-		},
-		$elm$core$Maybe$Just('--tw-bg-opacity'),
-		color);
-};
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border = A2($rtfeldman$elm_css$Css$property, 'border-width', '1px');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_color = function (color) {
-	return A4(
-		$matheus23$elm_tailwind_modules_base$Tailwind$Color$propertyWithColor,
-		'border-color',
-		function (c) {
-			return c;
-		},
-		$elm$core$Maybe$Just('--tw-border-opacity'),
-		color);
-};
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_solid = A2($rtfeldman$elm_css$Css$property, 'border-style', 'solid');
-var $matheus23$elm_tailwind_modules_base$Tailwind$Color$Color = F5(
-	function (a, b, c, d, e) {
-		return {$: 'Color', a: a, b: b, c: c, d: d, e: e};
-	});
-var $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable = {$: 'ViaVariable'};
-var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '209', '213', '219', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded = A2($rtfeldman$elm_css$Css$property, 'border-radius', '0.25rem');
-var $author$project$UaDropdownMultiSelect$border = _List_fromArray(
-	[
-		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_solid,
-		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border,
-		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300),
-		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded
-	]);
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$all = F2(
-	function (isOkay, list) {
-		return !A2(
-			$elm$core$List$any,
-			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
-			list);
 	});
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
 		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
 	});
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$Red = {$: 'Red'};
 var $elm$core$Dict$balance = F5(
 	function (color, key, value, left, right) {
@@ -6296,7 +5499,6 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
-var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -6344,6 +5546,1740 @@ var $elm$core$Dict$insert = F3(
 			var x = _v0;
 			return x;
 		}
+	});
+var $elm$core$Dict$getMin = function (dict) {
+	getMin:
+	while (true) {
+		if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+			var left = dict.d;
+			var $temp$dict = left;
+			dict = $temp$dict;
+			continue getMin;
+		} else {
+			return dict;
+		}
+	}
+};
+var $elm$core$Dict$moveRedLeft = function (dict) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.e.d.$ === 'RBNode_elm_builtin') && (dict.e.d.a.$ === 'Red')) {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v1 = dict.d;
+			var lClr = _v1.a;
+			var lK = _v1.b;
+			var lV = _v1.c;
+			var lLeft = _v1.d;
+			var lRight = _v1.e;
+			var _v2 = dict.e;
+			var rClr = _v2.a;
+			var rK = _v2.b;
+			var rV = _v2.c;
+			var rLeft = _v2.d;
+			var _v3 = rLeft.a;
+			var rlK = rLeft.b;
+			var rlV = rLeft.c;
+			var rlL = rLeft.d;
+			var rlR = rLeft.e;
+			var rRight = _v2.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				$elm$core$Dict$Red,
+				rlK,
+				rlV,
+				A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					rlL),
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, rK, rV, rlR, rRight));
+		} else {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v4 = dict.d;
+			var lClr = _v4.a;
+			var lK = _v4.b;
+			var lV = _v4.c;
+			var lLeft = _v4.d;
+			var lRight = _v4.e;
+			var _v5 = dict.e;
+			var rClr = _v5.a;
+			var rK = _v5.b;
+			var rV = _v5.c;
+			var rLeft = _v5.d;
+			var rRight = _v5.e;
+			if (clr.$ === 'Black') {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			}
+		}
+	} else {
+		return dict;
+	}
+};
+var $elm$core$Dict$moveRedRight = function (dict) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.d.d.$ === 'RBNode_elm_builtin') && (dict.d.d.a.$ === 'Red')) {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v1 = dict.d;
+			var lClr = _v1.a;
+			var lK = _v1.b;
+			var lV = _v1.c;
+			var _v2 = _v1.d;
+			var _v3 = _v2.a;
+			var llK = _v2.b;
+			var llV = _v2.c;
+			var llLeft = _v2.d;
+			var llRight = _v2.e;
+			var lRight = _v1.e;
+			var _v4 = dict.e;
+			var rClr = _v4.a;
+			var rK = _v4.b;
+			var rV = _v4.c;
+			var rLeft = _v4.d;
+			var rRight = _v4.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				$elm$core$Dict$Red,
+				lK,
+				lV,
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, llK, llV, llLeft, llRight),
+				A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					lRight,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight)));
+		} else {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v5 = dict.d;
+			var lClr = _v5.a;
+			var lK = _v5.b;
+			var lV = _v5.c;
+			var lLeft = _v5.d;
+			var lRight = _v5.e;
+			var _v6 = dict.e;
+			var rClr = _v6.a;
+			var rK = _v6.b;
+			var rV = _v6.c;
+			var rLeft = _v6.d;
+			var rRight = _v6.e;
+			if (clr.$ === 'Black') {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			}
+		}
+	} else {
+		return dict;
+	}
+};
+var $elm$core$Dict$removeHelpPrepEQGT = F7(
+	function (targetKey, dict, color, key, value, left, right) {
+		if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
+			var _v1 = left.a;
+			var lK = left.b;
+			var lV = left.c;
+			var lLeft = left.d;
+			var lRight = left.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				color,
+				lK,
+				lV,
+				lLeft,
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, lRight, right));
+		} else {
+			_v2$2:
+			while (true) {
+				if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Black')) {
+					if (right.d.$ === 'RBNode_elm_builtin') {
+						if (right.d.a.$ === 'Black') {
+							var _v3 = right.a;
+							var _v4 = right.d;
+							var _v5 = _v4.a;
+							return $elm$core$Dict$moveRedRight(dict);
+						} else {
+							break _v2$2;
+						}
+					} else {
+						var _v6 = right.a;
+						var _v7 = right.d;
+						return $elm$core$Dict$moveRedRight(dict);
+					}
+				} else {
+					break _v2$2;
+				}
+			}
+			return dict;
+		}
+	});
+var $elm$core$Dict$removeMin = function (dict) {
+	if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+		var color = dict.a;
+		var key = dict.b;
+		var value = dict.c;
+		var left = dict.d;
+		var lColor = left.a;
+		var lLeft = left.d;
+		var right = dict.e;
+		if (lColor.$ === 'Black') {
+			if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+				var _v3 = lLeft.a;
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					color,
+					key,
+					value,
+					$elm$core$Dict$removeMin(left),
+					right);
+			} else {
+				var _v4 = $elm$core$Dict$moveRedLeft(dict);
+				if (_v4.$ === 'RBNode_elm_builtin') {
+					var nColor = _v4.a;
+					var nKey = _v4.b;
+					var nValue = _v4.c;
+					var nLeft = _v4.d;
+					var nRight = _v4.e;
+					return A5(
+						$elm$core$Dict$balance,
+						nColor,
+						nKey,
+						nValue,
+						$elm$core$Dict$removeMin(nLeft),
+						nRight);
+				} else {
+					return $elm$core$Dict$RBEmpty_elm_builtin;
+				}
+			}
+		} else {
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				color,
+				key,
+				value,
+				$elm$core$Dict$removeMin(left),
+				right);
+		}
+	} else {
+		return $elm$core$Dict$RBEmpty_elm_builtin;
+	}
+};
+var $elm$core$Dict$removeHelp = F2(
+	function (targetKey, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
+		} else {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			if (_Utils_cmp(targetKey, key) < 0) {
+				if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Black')) {
+					var _v4 = left.a;
+					var lLeft = left.d;
+					if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+						var _v6 = lLeft.a;
+						return A5(
+							$elm$core$Dict$RBNode_elm_builtin,
+							color,
+							key,
+							value,
+							A2($elm$core$Dict$removeHelp, targetKey, left),
+							right);
+					} else {
+						var _v7 = $elm$core$Dict$moveRedLeft(dict);
+						if (_v7.$ === 'RBNode_elm_builtin') {
+							var nColor = _v7.a;
+							var nKey = _v7.b;
+							var nValue = _v7.c;
+							var nLeft = _v7.d;
+							var nRight = _v7.e;
+							return A5(
+								$elm$core$Dict$balance,
+								nColor,
+								nKey,
+								nValue,
+								A2($elm$core$Dict$removeHelp, targetKey, nLeft),
+								nRight);
+						} else {
+							return $elm$core$Dict$RBEmpty_elm_builtin;
+						}
+					}
+				} else {
+					return A5(
+						$elm$core$Dict$RBNode_elm_builtin,
+						color,
+						key,
+						value,
+						A2($elm$core$Dict$removeHelp, targetKey, left),
+						right);
+				}
+			} else {
+				return A2(
+					$elm$core$Dict$removeHelpEQGT,
+					targetKey,
+					A7($elm$core$Dict$removeHelpPrepEQGT, targetKey, dict, color, key, value, left, right));
+			}
+		}
+	});
+var $elm$core$Dict$removeHelpEQGT = F2(
+	function (targetKey, dict) {
+		if (dict.$ === 'RBNode_elm_builtin') {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			if (_Utils_eq(targetKey, key)) {
+				var _v1 = $elm$core$Dict$getMin(right);
+				if (_v1.$ === 'RBNode_elm_builtin') {
+					var minKey = _v1.b;
+					var minValue = _v1.c;
+					return A5(
+						$elm$core$Dict$balance,
+						color,
+						minKey,
+						minValue,
+						left,
+						$elm$core$Dict$removeMin(right));
+				} else {
+					return $elm$core$Dict$RBEmpty_elm_builtin;
+				}
+			} else {
+				return A5(
+					$elm$core$Dict$balance,
+					color,
+					key,
+					value,
+					left,
+					A2($elm$core$Dict$removeHelp, targetKey, right));
+			}
+		} else {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
+		}
+	});
+var $elm$core$Dict$remove = F2(
+	function (key, dict) {
+		var _v0 = A2($elm$core$Dict$removeHelp, key, dict);
+		if ((_v0.$ === 'RBNode_elm_builtin') && (_v0.a.$ === 'Red')) {
+			var _v1 = _v0.a;
+			var k = _v0.b;
+			var v = _v0.c;
+			var l = _v0.d;
+			var r = _v0.e;
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, k, v, l, r);
+		} else {
+			var x = _v0;
+			return x;
+		}
+	});
+var $elm$core$Dict$update = F3(
+	function (targetKey, alter, dictionary) {
+		var _v0 = alter(
+			A2($elm$core$Dict$get, targetKey, dictionary));
+		if (_v0.$ === 'Just') {
+			var value = _v0.a;
+			return A3($elm$core$Dict$insert, targetKey, value, dictionary);
+		} else {
+			return A2($elm$core$Dict$remove, targetKey, dictionary);
+		}
+	});
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var $elm$http$Http$expectStringResponse = F2(
+	function (toMsg, toResult) {
+		return A3(
+			_Http_expect,
+			'',
+			$elm$core$Basics$identity,
+			A2($elm$core$Basics$composeR, toResult, toMsg));
+	});
+var $elm$http$Http$BadBody = function (a) {
+	return {$: 'BadBody', a: a};
+};
+var $elm$http$Http$BadStatus = function (a) {
+	return {$: 'BadStatus', a: a};
+};
+var $elm$http$Http$BadUrl = function (a) {
+	return {$: 'BadUrl', a: a};
+};
+var $elm$http$Http$NetworkError = {$: 'NetworkError'};
+var $elm$http$Http$Timeout = {$: 'Timeout'};
+var $elm$core$Result$mapError = F2(
+	function (f, result) {
+		if (result.$ === 'Ok') {
+			var v = result.a;
+			return $elm$core$Result$Ok(v);
+		} else {
+			var e = result.a;
+			return $elm$core$Result$Err(
+				f(e));
+		}
+	});
+var $elm$http$Http$resolve = F2(
+	function (toResult, response) {
+		switch (response.$) {
+			case 'BadUrl_':
+				var url = response.a;
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadUrl(url));
+			case 'Timeout_':
+				return $elm$core$Result$Err($elm$http$Http$Timeout);
+			case 'NetworkError_':
+				return $elm$core$Result$Err($elm$http$Http$NetworkError);
+			case 'BadStatus_':
+				var metadata = response.a;
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadStatus(metadata.statusCode));
+			default:
+				var body = response.b;
+				return A2(
+					$elm$core$Result$mapError,
+					$elm$http$Http$BadBody,
+					toResult(body));
+		}
+	});
+var $elm$http$Http$expectString = function (toMsg) {
+	return A2(
+		$elm$http$Http$expectStringResponse,
+		toMsg,
+		$elm$http$Http$resolve($elm$core$Result$Ok));
+};
+var $elm$http$Http$emptyBody = _Http_emptyBody;
+var $elm$http$Http$Request = function (a) {
+	return {$: 'Request', a: a};
+};
+var $elm$http$Http$State = F2(
+	function (reqs, subs) {
+		return {reqs: reqs, subs: subs};
+	});
+var $elm$http$Http$init = $elm$core$Task$succeed(
+	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
+var $elm$core$Process$kill = _Scheduler_kill;
+var $elm$core$Process$spawn = _Scheduler_spawn;
+var $elm$http$Http$updateReqs = F3(
+	function (router, cmds, reqs) {
+		updateReqs:
+		while (true) {
+			if (!cmds.b) {
+				return $elm$core$Task$succeed(reqs);
+			} else {
+				var cmd = cmds.a;
+				var otherCmds = cmds.b;
+				if (cmd.$ === 'Cancel') {
+					var tracker = cmd.a;
+					var _v2 = A2($elm$core$Dict$get, tracker, reqs);
+					if (_v2.$ === 'Nothing') {
+						var $temp$router = router,
+							$temp$cmds = otherCmds,
+							$temp$reqs = reqs;
+						router = $temp$router;
+						cmds = $temp$cmds;
+						reqs = $temp$reqs;
+						continue updateReqs;
+					} else {
+						var pid = _v2.a;
+						return A2(
+							$elm$core$Task$andThen,
+							function (_v3) {
+								return A3(
+									$elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A2($elm$core$Dict$remove, tracker, reqs));
+							},
+							$elm$core$Process$kill(pid));
+					}
+				} else {
+					var req = cmd.a;
+					return A2(
+						$elm$core$Task$andThen,
+						function (pid) {
+							var _v4 = req.tracker;
+							if (_v4.$ === 'Nothing') {
+								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
+							} else {
+								var tracker = _v4.a;
+								return A3(
+									$elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A3($elm$core$Dict$insert, tracker, pid, reqs));
+							}
+						},
+						$elm$core$Process$spawn(
+							A3(
+								_Http_toTask,
+								router,
+								$elm$core$Platform$sendToApp(router),
+								req)));
+				}
+			}
+		}
+	});
+var $elm$http$Http$onEffects = F4(
+	function (router, cmds, subs, state) {
+		return A2(
+			$elm$core$Task$andThen,
+			function (reqs) {
+				return $elm$core$Task$succeed(
+					A2($elm$http$Http$State, reqs, subs));
+			},
+			A3($elm$http$Http$updateReqs, router, cmds, state.reqs));
+	});
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var $elm$http$Http$maybeSend = F4(
+	function (router, desiredTracker, progress, _v0) {
+		var actualTracker = _v0.a;
+		var toMsg = _v0.b;
+		return _Utils_eq(desiredTracker, actualTracker) ? $elm$core$Maybe$Just(
+			A2(
+				$elm$core$Platform$sendToApp,
+				router,
+				toMsg(progress))) : $elm$core$Maybe$Nothing;
+	});
+var $elm$http$Http$onSelfMsg = F3(
+	function (router, _v0, state) {
+		var tracker = _v0.a;
+		var progress = _v0.b;
+		return A2(
+			$elm$core$Task$andThen,
+			function (_v1) {
+				return $elm$core$Task$succeed(state);
+			},
+			$elm$core$Task$sequence(
+				A2(
+					$elm$core$List$filterMap,
+					A3($elm$http$Http$maybeSend, router, tracker, progress),
+					state.subs)));
+	});
+var $elm$http$Http$Cancel = function (a) {
+	return {$: 'Cancel', a: a};
+};
+var $elm$http$Http$cmdMap = F2(
+	function (func, cmd) {
+		if (cmd.$ === 'Cancel') {
+			var tracker = cmd.a;
+			return $elm$http$Http$Cancel(tracker);
+		} else {
+			var r = cmd.a;
+			return $elm$http$Http$Request(
+				{
+					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
+					body: r.body,
+					expect: A2(_Http_mapExpect, func, r.expect),
+					headers: r.headers,
+					method: r.method,
+					timeout: r.timeout,
+					tracker: r.tracker,
+					url: r.url
+				});
+		}
+	});
+var $elm$http$Http$MySub = F2(
+	function (a, b) {
+		return {$: 'MySub', a: a, b: b};
+	});
+var $elm$http$Http$subMap = F2(
+	function (func, _v0) {
+		var tracker = _v0.a;
+		var toMsg = _v0.b;
+		return A2(
+			$elm$http$Http$MySub,
+			tracker,
+			A2($elm$core$Basics$composeR, toMsg, func));
+	});
+_Platform_effectManagers['Http'] = _Platform_createManager($elm$http$Http$init, $elm$http$Http$onEffects, $elm$http$Http$onSelfMsg, $elm$http$Http$cmdMap, $elm$http$Http$subMap);
+var $elm$http$Http$command = _Platform_leaf('Http');
+var $elm$http$Http$subscription = _Platform_leaf('Http');
+var $elm$http$Http$request = function (r) {
+	return $elm$http$Http$command(
+		$elm$http$Http$Request(
+			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
+};
+var $elm$http$Http$get = function (r) {
+	return $elm$http$Http$request(
+		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
+};
+var $author$project$UaTable$fetchData = $elm$http$Http$get(
+	{
+		expect: $elm$http$Http$expectString($author$project$UaTable$OnData),
+		url: 'data/data.txt'
+	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$UaTable$fetchUserAgent = _Platform_outgoingPort('fetchUserAgent', $elm$json$Json$Encode$string);
+var $author$project$UaTable$OnTable = function (a) {
+	return {$: 'OnTable', a: a};
+};
+var $author$project$Internal$Config$ConfTable = F3(
+	function (columns, getID, expand) {
+		return {columns: columns, expand: expand, getID: getID};
+	});
+var $author$project$Internal$Config$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var $author$project$Table$Types$Disable = {$: 'Disable'};
+var $author$project$Internal$Config$None = {$: 'None'};
+var $author$project$Table$Types$Static = {$: 'Static'};
+var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
+	function (a, b, c) {
+		return {$: 'Attribute', a: a, b: b, c: c};
+	});
+var $elm$virtual_dom$VirtualDom$property = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_property,
+			_VirtualDom_noInnerHtmlOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlJson(value));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$property = F2(
+	function (key, value) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$property, key, value),
+			false,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$class = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('className');
+var $rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
+	function (a, b, c) {
+		return {$: 'Node', a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$Node;
+var $rtfeldman$elm_css$Html$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$node;
+var $rtfeldman$elm_css$Html$Styled$div = $rtfeldman$elm_css$Html$Styled$node('div');
+var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
+	return {$: 'Unstyled', a: a};
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
+	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
+		$elm$virtual_dom$VirtualDom$text(str));
+};
+var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
+var $author$project$Internal$Config$errorView = function (msg) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$class('table-data-error')
+			]),
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$text(msg)
+			]));
+};
+var $author$project$Internal$Config$static = F3(
+	function (onChange, getID, columns) {
+		return $author$project$Internal$Config$Config(
+			{
+				errorView: $author$project$Internal$Config$errorView,
+				onChangeExt: onChange,
+				onChangeInt: onChange,
+				pagination: $author$project$Internal$Config$None,
+				selection: $author$project$Table$Types$Disable,
+				subtable: $elm$core$Maybe$Nothing,
+				table: A3($author$project$Internal$Config$ConfTable, columns, getID, $elm$core$Maybe$Nothing),
+				toolbar: _List_Nil,
+				type_: $author$project$Table$Types$Static
+			});
+	});
+var $author$project$Table$static = $author$project$Internal$Config$static;
+var $author$project$Internal$Column$Column = function (a) {
+	return {$: 'Column', a: a};
+};
+var $author$project$Table$Types$Ascending = {$: 'Ascending'};
+var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
+var $rtfeldman$elm_css$Html$Styled$abbr = $rtfeldman$elm_css$Html$Styled$node('abbr');
+var $author$project$Internal$Util$iff = F3(
+	function (cond, a, b) {
+		return cond ? a : b;
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $author$project$Table$Types$Descending = {$: 'Descending'};
+var $author$project$Internal$State$next = function (status) {
+	switch (status.$) {
+		case 'StandBy':
+			return $author$project$Table$Types$Descending;
+		case 'Descending':
+			return $author$project$Table$Types$Ascending;
+		default:
+			return $author$project$Table$Types$Descending;
+	}
+};
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $rtfeldman$elm_css$VirtualDom$Styled$on = F2(
+	function (eventName, handler) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$on, eventName, handler),
+			false,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $rtfeldman$elm_css$Html$Styled$span = $rtfeldman$elm_css$Html$Styled$node('span');
+var $rtfeldman$elm_css$Html$Styled$Attributes$title = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('title');
+var $author$project$Internal$Column$viewHeader = F2(
+	function (_v0, _v1) {
+		var col = _v0.a;
+		var state = _v1.a;
+		var pipe = _v1.b;
+		return _List_fromArray(
+			[
+				A3(
+				$author$project$Internal$Util$iff,
+				$elm$core$String$isEmpty(col.abbrev),
+				A2(
+					$rtfeldman$elm_css$Html$Styled$span,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text(col.name)
+						])),
+				A2(
+					$rtfeldman$elm_css$Html$Styled$abbr,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$title(col.name)
+						]),
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text(col.abbrev)
+						]))),
+				A3(
+				$author$project$Internal$Util$iff,
+				!_Utils_eq(col.sortable, $elm$core$Maybe$Nothing),
+				A3(
+					$author$project$Internal$Util$iff,
+					_Utils_eq(
+						state.orderBy,
+						$elm$core$Maybe$Just(col.name)),
+					A2(
+						$rtfeldman$elm_css$Html$Styled$a,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$class('sort'),
+								$rtfeldman$elm_css$Html$Styled$Events$onClick(
+								pipe(
+									function (s) {
+										return _Utils_update(
+											s,
+											{
+												order: $author$project$Internal$State$next(s.order)
+											});
+									}))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(
+								function () {
+									var _v2 = state.order;
+									switch (_v2.$) {
+										case 'Ascending':
+											return '↿';
+										case 'Descending':
+											return '⇂';
+										default:
+											return '⇅';
+									}
+								}())
+							])),
+					A2(
+						$rtfeldman$elm_css$Html$Styled$a,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$class('sort'),
+								$rtfeldman$elm_css$Html$Styled$Events$onClick(
+								pipe(
+									function (s) {
+										return _Utils_update(
+											s,
+											{
+												order: $author$project$Table$Types$Ascending,
+												orderBy: $elm$core$Maybe$Just(col.name)
+											});
+									}))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text('⇅')
+							]))),
+				$rtfeldman$elm_css$Html$Styled$text(''))
+			]);
+	});
+var $author$project$Internal$Column$string = F3(
+	function (get, name, abbrev) {
+		return $author$project$Internal$Column$Column(
+			{
+				abbrev: abbrev,
+				_class: '',
+				_default: true,
+				hiddable: true,
+				name: name,
+				searchable: $elm$core$Maybe$Just(get),
+				sortable: $elm$core$Maybe$Just(
+					F2(
+						function (a, b) {
+							return A2(
+								$elm$core$Basics$compare,
+								get(a),
+								get(b));
+						})),
+				viewCell: F2(
+					function (x, _v0) {
+						return _List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(
+								get(x))
+							]);
+					}),
+				viewHeader: $author$project$Internal$Column$viewHeader,
+				visible: true,
+				width: ''
+			});
+	});
+var $author$project$Table$Column$string = $author$project$Internal$Column$string;
+var $author$project$Internal$Config$ByPage = function (a) {
+	return {$: 'ByPage', a: a};
+};
+var $author$project$Internal$Config$withPagination = F3(
+	function (capabilities, initial, _v0) {
+		var c = _v0.a;
+		return $author$project$Internal$Config$Config(
+			_Utils_update(
+				c,
+				{
+					pagination: $author$project$Internal$Config$ByPage(
+						{capabilities: capabilities, initial: initial})
+				}));
+	});
+var $author$project$Table$Config$withPagination = $author$project$Internal$Config$withPagination;
+var $author$project$Internal$Config$withToolbar = F2(
+	function (t, _v0) {
+		var c = _v0.a;
+		return $author$project$Internal$Config$Config(
+			_Utils_update(
+				c,
+				{toolbar: t}));
+	});
+var $author$project$Table$Config$withToolbar = $author$project$Internal$Config$withToolbar;
+var $author$project$UaTable$config = A2(
+	$author$project$Table$Config$withToolbar,
+	_List_Nil,
+	A3(
+		$author$project$Table$Config$withPagination,
+		_List_fromArray(
+			[20, 50, 100]),
+		20,
+		A3(
+			$author$project$Table$static,
+			$author$project$UaTable$OnTable,
+			function ($) {
+				return $.ua;
+			},
+			_List_fromArray(
+				[
+					A3(
+					$author$project$Table$Column$string,
+					function ($) {
+						return $.ua;
+					},
+					'User Agent',
+					''),
+					A3(
+					$author$project$Table$Column$string,
+					function ($) {
+						return $.browserName;
+					},
+					'Browser',
+					''),
+					A3(
+					$author$project$Table$Column$string,
+					function ($) {
+						return $.deviceModel;
+					},
+					'Model',
+					''),
+					A3(
+					$author$project$Table$Column$string,
+					function ($) {
+						return $.deviceVendor;
+					},
+					'Vendor',
+					''),
+					A3(
+					$author$project$Table$Column$string,
+					function ($) {
+						return $.osName;
+					},
+					'OS',
+					'')
+				]))));
+var $author$project$Table$Types$Loading = {$: 'Loading'};
+var $author$project$Internal$Data$Model = function (a) {
+	return {$: 'Model', a: a};
+};
+var $author$project$Internal$Data$Rows = function (a) {
+	return {$: 'Rows', a: a};
+};
+var $author$project$Internal$State$StateTable = F4(
+	function (visible, selected, expanded, subtable) {
+		return {expanded: expanded, selected: selected, subtable: subtable, visible: visible};
+	});
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $author$project$UaDropdownMultiSelect$init = function (items) {
+	return {
+		isOpen: false,
+		items: items,
+		selecteds: A2(
+			$elm$core$List$repeat,
+			$elm$core$List$length(items),
+			false)
+	};
+};
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Internal$Table$init = function (_v0) {
+	var cfg = _v0.a;
+	var fnVisible = function (_v4) {
+		var name = _v4.a.name;
+		var _default = _v4.a._default;
+		return A3(
+			$author$project$Internal$Util$iff,
+			_default,
+			$elm$core$Maybe$Just(name),
+			$elm$core$Maybe$Nothing);
+	};
+	var visibleColumns = A2($elm$core$List$filterMap, fnVisible, cfg.table.columns);
+	var visibleSubColumns = A2(
+		$elm$core$Maybe$withDefault,
+		_List_Nil,
+		A2(
+			$elm$core$Maybe$map,
+			function (_v3) {
+				var c = _v3.b;
+				return A2($elm$core$List$filterMap, fnVisible, c.columns);
+			},
+			cfg.subtable));
+	var ddPaginationInitState = function () {
+		var _v2 = cfg.pagination;
+		if (_v2.$ === 'ByPage') {
+			var capabilities = _v2.a.capabilities;
+			return A2($elm$core$List$map, $elm$core$String$fromInt, capabilities);
+		} else {
+			return _List_Nil;
+		}
+	}();
+	return $author$project$Internal$Data$Model(
+		{
+			rows: $author$project$Internal$Data$Rows($author$project$Table$Types$Loading),
+			state: {
+				byPage: function () {
+					var _v1 = cfg.pagination;
+					switch (_v1.$) {
+						case 'ByPage':
+							var initial = _v1.a.initial;
+							return initial;
+						case 'Progressive':
+							var initial = _v1.a.initial;
+							return initial;
+						default:
+							return 0;
+					}
+				}(),
+				ddColumns: $author$project$UaDropdownMultiSelect$init(visibleColumns),
+				ddPagination: $author$project$UaDropdownMultiSelect$init(ddPaginationInitState),
+				ddSubColumns: $author$project$UaDropdownMultiSelect$init(visibleSubColumns),
+				order: $author$project$Table$Types$Ascending,
+				orderBy: $elm$core$Maybe$Nothing,
+				page: 0,
+				search: '',
+				subtable: A4($author$project$Internal$State$StateTable, visibleSubColumns, _List_Nil, _List_Nil, _List_Nil),
+				table: A4($author$project$Internal$State$StateTable, visibleColumns, _List_Nil, _List_Nil, _List_Nil)
+			}
+		});
+};
+var $author$project$Table$init = $author$project$Internal$Table$init;
+var $author$project$UaTable$init = $author$project$Table$init($author$project$UaTable$config);
+var $elm$core$Platform$Cmd$map = _Platform_map;
+var $author$project$View$init = function (_v0) {
+	return _Utils_Tuple2(
+		{filterBrowser: 'firefox', filterHost: '', filterLimit: 10, filterOsDevice: 'linux', tableModel: $author$project$UaTable$init},
+		$elm$core$Platform$Cmd$batch(
+			_List_fromArray(
+				[
+					A2($elm$core$Platform$Cmd$map, $author$project$View$TableMsg, $author$project$UaTable$fetchData),
+					$author$project$UaTable$fetchUserAgent('curl/2.0.0')
+				])));
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$map = _Platform_map;
+var $author$project$UaTable$RecvUserAgent = function (a) {
+	return {$: 'RecvUserAgent', a: a};
+};
+var $author$project$UaTable$RecvUserAgentBatch = function (a) {
+	return {$: 'RecvUserAgentBatch', a: a};
+};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$UaTable$recvUserAgent = _Platform_incomingPort('recvUserAgent', $elm$json$Json$Decode$string);
+var $author$project$UaTable$recvUserAgentBatch = _Platform_incomingPort('recvUserAgentBatch', $elm$json$Json$Decode$string);
+var $author$project$Internal$Subscription$isModal = function (_v0) {
+	var state = _v0.a.state;
+	return state.ddColumns.isOpen || state.ddPagination.isOpen;
+};
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $elm$browser$Browser$Events$Document = {$: 'Document'};
+var $elm$browser$Browser$Events$MySub = F3(
+	function (a, b, c) {
+		return {$: 'MySub', a: a, b: b, c: c};
+	});
+var $elm$browser$Browser$Events$State = F2(
+	function (subs, pids) {
+		return {pids: pids, subs: subs};
+	});
+var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
+	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
+var $elm$browser$Browser$Events$nodeToKey = function (node) {
+	if (node.$ === 'Document') {
+		return 'd_';
+	} else {
+		return 'w_';
+	}
+};
+var $elm$browser$Browser$Events$addKey = function (sub) {
+	var node = sub.a;
+	var name = sub.b;
+	return _Utils_Tuple2(
+		_Utils_ap(
+			$elm$browser$Browser$Events$nodeToKey(node),
+			name),
+		sub);
+};
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $elm$core$Dict$foldl = F3(
+	function (func, acc, dict) {
+		foldl:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$func = func,
+					$temp$acc = A3(
+					func,
+					key,
+					value,
+					A3($elm$core$Dict$foldl, func, acc, left)),
+					$temp$dict = right;
+				func = $temp$func;
+				acc = $temp$acc;
+				dict = $temp$dict;
+				continue foldl;
+			}
+		}
+	});
+var $elm$core$Dict$merge = F6(
+	function (leftStep, bothStep, rightStep, leftDict, rightDict, initialResult) {
+		var stepState = F3(
+			function (rKey, rValue, _v0) {
+				stepState:
+				while (true) {
+					var list = _v0.a;
+					var result = _v0.b;
+					if (!list.b) {
+						return _Utils_Tuple2(
+							list,
+							A3(rightStep, rKey, rValue, result));
+					} else {
+						var _v2 = list.a;
+						var lKey = _v2.a;
+						var lValue = _v2.b;
+						var rest = list.b;
+						if (_Utils_cmp(lKey, rKey) < 0) {
+							var $temp$rKey = rKey,
+								$temp$rValue = rValue,
+								$temp$_v0 = _Utils_Tuple2(
+								rest,
+								A3(leftStep, lKey, lValue, result));
+							rKey = $temp$rKey;
+							rValue = $temp$rValue;
+							_v0 = $temp$_v0;
+							continue stepState;
+						} else {
+							if (_Utils_cmp(lKey, rKey) > 0) {
+								return _Utils_Tuple2(
+									list,
+									A3(rightStep, rKey, rValue, result));
+							} else {
+								return _Utils_Tuple2(
+									rest,
+									A4(bothStep, lKey, lValue, rValue, result));
+							}
+						}
+					}
+				}
+			});
+		var _v3 = A3(
+			$elm$core$Dict$foldl,
+			stepState,
+			_Utils_Tuple2(
+				$elm$core$Dict$toList(leftDict),
+				initialResult),
+			rightDict);
+		var leftovers = _v3.a;
+		var intermediateResult = _v3.b;
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v4, result) {
+					var k = _v4.a;
+					var v = _v4.b;
+					return A3(leftStep, k, v, result);
+				}),
+			intermediateResult,
+			leftovers);
+	});
+var $elm$browser$Browser$Events$Event = F2(
+	function (key, event) {
+		return {event: event, key: key};
+	});
+var $elm$browser$Browser$Events$spawn = F3(
+	function (router, key, _v0) {
+		var node = _v0.a;
+		var name = _v0.b;
+		var actualNode = function () {
+			if (node.$ === 'Document') {
+				return _Browser_doc;
+			} else {
+				return _Browser_window;
+			}
+		}();
+		return A2(
+			$elm$core$Task$map,
+			function (value) {
+				return _Utils_Tuple2(key, value);
+			},
+			A3(
+				_Browser_on,
+				actualNode,
+				name,
+				function (event) {
+					return A2(
+						$elm$core$Platform$sendToSelf,
+						router,
+						A2($elm$browser$Browser$Events$Event, key, event));
+				}));
+	});
+var $elm$core$Dict$union = F2(
+	function (t1, t2) {
+		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
+	});
+var $elm$browser$Browser$Events$onEffects = F3(
+	function (router, subs, state) {
+		var stepRight = F3(
+			function (key, sub, _v6) {
+				var deads = _v6.a;
+				var lives = _v6.b;
+				var news = _v6.c;
+				return _Utils_Tuple3(
+					deads,
+					lives,
+					A2(
+						$elm$core$List$cons,
+						A3($elm$browser$Browser$Events$spawn, router, key, sub),
+						news));
+			});
+		var stepLeft = F3(
+			function (_v4, pid, _v5) {
+				var deads = _v5.a;
+				var lives = _v5.b;
+				var news = _v5.c;
+				return _Utils_Tuple3(
+					A2($elm$core$List$cons, pid, deads),
+					lives,
+					news);
+			});
+		var stepBoth = F4(
+			function (key, pid, _v2, _v3) {
+				var deads = _v3.a;
+				var lives = _v3.b;
+				var news = _v3.c;
+				return _Utils_Tuple3(
+					deads,
+					A3($elm$core$Dict$insert, key, pid, lives),
+					news);
+			});
+		var newSubs = A2($elm$core$List$map, $elm$browser$Browser$Events$addKey, subs);
+		var _v0 = A6(
+			$elm$core$Dict$merge,
+			stepLeft,
+			stepBoth,
+			stepRight,
+			state.pids,
+			$elm$core$Dict$fromList(newSubs),
+			_Utils_Tuple3(_List_Nil, $elm$core$Dict$empty, _List_Nil));
+		var deadPids = _v0.a;
+		var livePids = _v0.b;
+		var makeNewPids = _v0.c;
+		return A2(
+			$elm$core$Task$andThen,
+			function (pids) {
+				return $elm$core$Task$succeed(
+					A2(
+						$elm$browser$Browser$Events$State,
+						newSubs,
+						A2(
+							$elm$core$Dict$union,
+							livePids,
+							$elm$core$Dict$fromList(pids))));
+			},
+			A2(
+				$elm$core$Task$andThen,
+				function (_v1) {
+					return $elm$core$Task$sequence(makeNewPids);
+				},
+				$elm$core$Task$sequence(
+					A2($elm$core$List$map, $elm$core$Process$kill, deadPids))));
+	});
+var $elm$browser$Browser$Events$onSelfMsg = F3(
+	function (router, _v0, state) {
+		var key = _v0.key;
+		var event = _v0.event;
+		var toMessage = function (_v2) {
+			var subKey = _v2.a;
+			var _v3 = _v2.b;
+			var node = _v3.a;
+			var name = _v3.b;
+			var decoder = _v3.c;
+			return _Utils_eq(subKey, key) ? A2(_Browser_decodeEvent, decoder, event) : $elm$core$Maybe$Nothing;
+		};
+		var messages = A2($elm$core$List$filterMap, toMessage, state.subs);
+		return A2(
+			$elm$core$Task$andThen,
+			function (_v1) {
+				return $elm$core$Task$succeed(state);
+			},
+			$elm$core$Task$sequence(
+				A2(
+					$elm$core$List$map,
+					$elm$core$Platform$sendToApp(router),
+					messages)));
+	});
+var $elm$browser$Browser$Events$subMap = F2(
+	function (func, _v0) {
+		var node = _v0.a;
+		var name = _v0.b;
+		var decoder = _v0.c;
+		return A3(
+			$elm$browser$Browser$Events$MySub,
+			node,
+			name,
+			A2($elm$json$Json$Decode$map, func, decoder));
+	});
+_Platform_effectManagers['Browser.Events'] = _Platform_createManager($elm$browser$Browser$Events$init, $elm$browser$Browser$Events$onEffects, $elm$browser$Browser$Events$onSelfMsg, 0, $elm$browser$Browser$Events$subMap);
+var $elm$browser$Browser$Events$subscription = _Platform_leaf('Browser.Events');
+var $elm$browser$Browser$Events$on = F3(
+	function (node, name, decoder) {
+		return $elm$browser$Browser$Events$subscription(
+			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
+	});
+var $elm$browser$Browser$Events$onMouseDown = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'mousedown');
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$fail = _Json_fail;
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		thunk,
+		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
+};
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $author$project$Internal$Subscription$isOutsideDropdown = function (dropdownId) {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$json$Json$Decode$andThen,
+				function (id) {
+					return _Utils_eq(dropdownId, id) ? $elm$json$Json$Decode$succeed(false) : $elm$json$Json$Decode$fail('continue');
+				},
+				A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string)),
+				$elm$json$Json$Decode$lazy(
+				function (_v0) {
+					return A2(
+						$elm$json$Json$Decode$field,
+						'parentNode',
+						$author$project$Internal$Subscription$isOutsideDropdown(dropdownId));
+				}),
+				$elm$json$Json$Decode$succeed(true)
+			]));
+};
+var $author$project$Internal$Subscription$outsideTarget = F2(
+	function (pipe, dropdownId) {
+		return A2(
+			$elm$json$Json$Decode$andThen,
+			function (isOutside) {
+				return isOutside ? $elm$json$Json$Decode$succeed(
+					pipe(
+						function (state) {
+							return state;
+						})) : $elm$json$Json$Decode$fail('inside dropdown');
+			},
+			A2(
+				$elm$json$Json$Decode$field,
+				'target',
+				$author$project$Internal$Subscription$isOutsideDropdown(dropdownId)));
+	});
+var $author$project$Internal$Config$pipeInternal = F3(
+	function (_v0, _v1, fn) {
+		var onChangeInt = _v0.a.onChangeInt;
+		var rows = _v1.a.rows;
+		var state = _v1.a.state;
+		return onChangeInt(
+			$author$project$Internal$Data$Model(
+				{
+					rows: rows,
+					state: fn(state)
+				}));
+	});
+var $author$project$Internal$Subscription$subscriptions = F2(
+	function (config, model) {
+		return $author$project$Internal$Subscription$isModal(model) ? $elm$browser$Browser$Events$onMouseDown(
+			A2(
+				$author$project$Internal$Subscription$outsideTarget,
+				A2($author$project$Internal$Config$pipeInternal, config, model),
+				'dropdown')) : $elm$core$Platform$Sub$none;
+	});
+var $author$project$Table$subscriptions = $author$project$Internal$Subscription$subscriptions;
+var $author$project$UaTable$subscriptions = function (model) {
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				A2($author$project$Table$subscriptions, $author$project$UaTable$config, model),
+				$author$project$UaTable$recvUserAgent($author$project$UaTable$RecvUserAgent),
+				$author$project$UaTable$recvUserAgentBatch($author$project$UaTable$RecvUserAgentBatch)
+			]));
+};
+var $author$project$View$subscriptions = function (model) {
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				A2(
+				$elm$core$Platform$Sub$map,
+				$author$project$View$TableMsg,
+				$author$project$UaTable$subscriptions(model.tableModel))
+			]));
+};
+var $elm$core$Debug$log = _Debug_log;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Internal$Data$get = function (_v0) {
+	var model = _v0.a;
+	var _v1 = model.rows;
+	if (_v1.a.$ === 'Loaded') {
+		var rows = _v1.a.a.rows;
+		return A2(
+			$elm$core$List$map,
+			function (_v2) {
+				var x = _v2.a;
+				return x;
+			},
+			rows);
+	} else {
+		return _List_Nil;
+	}
+};
+var $author$project$Table$get = $author$project$Internal$Data$get;
+var $author$project$Table$Types$Loaded = function (a) {
+	return {$: 'Loaded', a: a};
+};
+var $author$project$Internal$Data$Row = function (a) {
+	return {$: 'Row', a: a};
+};
+var $author$project$Internal$Data$loaded = F3(
+	function (_v0, rows, n) {
+		var model = _v0.a;
+		return $author$project$Internal$Data$Model(
+			_Utils_update(
+				model,
+				{
+					rows: $author$project$Internal$Data$Rows(
+						$author$project$Table$Types$Loaded(
+							{
+								rows: A2($elm$core$List$map, $author$project$Internal$Data$Row, rows),
+								total: n
+							}))
+				}));
+	});
+var $author$project$Table$loadedDynamic = F3(
+	function (rows, total, model) {
+		return A3($author$project$Internal$Data$loaded, model, rows, total);
+	});
+var $author$project$UaTable$appendRowsToModel = F2(
+	function (x, model) {
+		if (x.$ === 'Ok') {
+			var res = x.a;
+			return A3(
+				$author$project$Table$loadedDynamic,
+				_Utils_ap(
+					$author$project$Table$get(model),
+					res),
+				$elm$core$List$length(res),
+				model);
+		} else {
+			var err = x.a;
+			var _v1 = A2($elm$core$Debug$log, 'failed to get rows', err);
+			return model;
+		}
+	});
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$UaTable$fetchUserAgentBatch = _Platform_outgoingPort(
+	'fetchUserAgentBatch',
+	$elm$json$Json$Encode$list($elm$json$Json$Encode$string));
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $elm$core$Result$map = F2(
+	function (func, ra) {
+		if (ra.$ === 'Ok') {
+			var a = ra.a;
+			return $elm$core$Result$Ok(
+				func(a));
+		} else {
+			var e = ra.a;
+			return $elm$core$Result$Err(e);
+		}
+	});
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $author$project$UaTable$UserAgent = F5(
+	function (ua, browserName, deviceModel, deviceVendor, osName) {
+		return {browserName: browserName, deviceModel: deviceModel, deviceVendor: deviceVendor, osName: osName, ua: ua};
+	});
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $author$project$UaTable$uaDecoder = A6(
+	$elm$json$Json$Decode$map5,
+	$author$project$UaTable$UserAgent,
+	A2($elm$json$Json$Decode$field, 'ua', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'browser', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'model', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'vendor', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'os', $elm$json$Json$Decode$string));
+var $author$project$UaTable$update = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'OnTable':
+				var m = msg.a;
+				var _v1 = A2($elm$core$Debug$log, 'OnTable', '');
+				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
+			case 'OnData':
+				if (msg.a.$ === 'Ok') {
+					var res = msg.a.a;
+					var lines = A2($elm$core$String$split, '\n', res);
+					return _Utils_Tuple2(
+						model,
+						$author$project$UaTable$fetchUserAgentBatch(lines));
+				} else {
+					var e = msg.a.a;
+					var _v2 = A2($elm$core$Debug$log, 'fetch error', e);
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				}
+			case 'RecvUserAgent':
+				var val = msg.a;
+				var decoded = A2($elm$json$Json$Decode$decodeString, $author$project$UaTable$uaDecoder, val);
+				return _Utils_Tuple2(
+					A2(
+						$author$project$UaTable$appendRowsToModel,
+						A2($elm$core$Result$map, $elm$core$List$singleton, decoded),
+						model),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var val = msg.a;
+				var decoded = A2(
+					$elm$json$Json$Decode$decodeString,
+					$elm$json$Json$Decode$list($author$project$UaTable$uaDecoder),
+					val);
+				return _Utils_Tuple2(
+					A2($author$project$UaTable$appendRowsToModel, decoded, model),
+					$elm$core$Platform$Cmd$none);
+		}
+	});
+var $author$project$View$update = F2(
+	function (msg, model) {
+		if (msg.$ === 'ChangeFilter') {
+			if (msg.a.$ === 'Browser') {
+				var s = msg.a.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							filterBrowser: A2($elm$core$Debug$log, 'log: ', s)
+						}),
+					$elm$core$Platform$Cmd$none);
+			} else {
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			}
+		} else {
+			var m = msg.a;
+			var _v1 = A2($author$project$UaTable$update, m, model.tableModel);
+			var newTableModel = _v1.a;
+			var cmd = _v1.b;
+			var _v2 = A2($elm$core$Debug$log, 'TableMsg called', '');
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{tableModel: newTableModel}),
+				A2($elm$core$Platform$Cmd$map, $author$project$View$TableMsg, cmd));
+		}
+	});
+var $rtfeldman$elm_css$Css$Preprocess$ApplyStyles = function (a) {
+	return {$: 'ApplyStyles', a: a};
+};
+var $rtfeldman$elm_css$Css$batch = $rtfeldman$elm_css$Css$Preprocess$ApplyStyles;
+var $rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
+	return {$: 'AppendProperty', a: a};
+};
+var $rtfeldman$elm_css$Css$Structure$Property = function (a) {
+	return {$: 'Property', a: a};
+};
+var $rtfeldman$elm_css$Css$property = F2(
+	function (key, value) {
+		return $rtfeldman$elm_css$Css$Preprocess$AppendProperty(
+			$rtfeldman$elm_css$Css$Structure$Property(key + (':' + value)));
+	});
+var $rtfeldman$elm_css$Css$Structure$CustomQuery = function (a) {
+	return {$: 'CustomQuery', a: a};
+};
+var $rtfeldman$elm_css$Css$Preprocess$WithMedia = F2(
+	function (a, b) {
+		return {$: 'WithMedia', a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$Media$withMediaQuery = function (queries) {
+	return $rtfeldman$elm_css$Css$Preprocess$WithMedia(
+		A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$CustomQuery, queries));
+};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$container = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'width', '100%'),
+			A2(
+			$rtfeldman$elm_css$Css$Media$withMediaQuery,
+			_List_fromArray(
+				['(min-width: 1536px)']),
+			_List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Css$property, 'max-width', '1536px')
+				])),
+			A2(
+			$rtfeldman$elm_css$Css$Media$withMediaQuery,
+			_List_fromArray(
+				['(min-width: 1280px)']),
+			_List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Css$property, 'max-width', '1280px')
+				])),
+			A2(
+			$rtfeldman$elm_css$Css$Media$withMediaQuery,
+			_List_fromArray(
+				['(min-width: 1024px)']),
+			_List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Css$property, 'max-width', '1024px')
+				])),
+			A2(
+			$rtfeldman$elm_css$Css$Media$withMediaQuery,
+			_List_fromArray(
+				['(min-width: 768px)']),
+			_List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Css$property, 'max-width', '768px')
+				])),
+			A2(
+			$rtfeldman$elm_css$Css$Media$withMediaQuery,
+			_List_fromArray(
+				['(min-width: 640px)']),
+			_List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Css$property, 'max-width', '640px')
+				]))
+		]));
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$Basics$not = _Basics_not;
+var $elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			$elm$core$List$any,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
 	});
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
@@ -6421,7 +7357,6 @@ var $rtfeldman$elm_css$Css$Structure$compactHelp = F2(
 					A2($elm$core$List$cons, declaration, declarations));
 		}
 	});
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $rtfeldman$elm_css$Css$Structure$Keyframes = function (a) {
 	return {$: 'Keyframes', a: a};
 };
@@ -7113,7 +8048,6 @@ var $robinheghan$murmur3$Murmur3$multiplyBy = F2(
 	function (b, a) {
 		return ((a & 65535) * b) + ((((a >>> 16) * b) & 65535) << 16);
 	});
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Bitwise$or = _Bitwise_or;
 var $robinheghan$murmur3$Murmur3$rotlBy = F2(
 	function (b, a) {
@@ -7176,6 +8110,9 @@ var $robinheghan$murmur3$Murmur3$hashString = F2(
 	});
 var $rtfeldman$elm_css$Hash$initialSeed = 15739;
 var $elm$core$String$fromList = _String_fromList;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $rtfeldman$elm_hex$Hex$unsafeToDigit = function (num) {
 	unsafeToDigit:
@@ -7256,6 +8193,15 @@ var $rtfeldman$elm_css$Hash$fromString = function (str) {
 		$rtfeldman$elm_hex$Hex$toString(
 			A2($robinheghan$murmur3$Murmur3$hashString, $rtfeldman$elm_css$Hash$initialSeed, str)));
 };
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $rtfeldman$elm_css$Css$Preprocess$Resolve$last = function (list) {
 	last:
 	while (true) {
@@ -7334,10 +8280,6 @@ var $rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues = functio
 			$rtfeldman$elm_css$Css$Structure$FontFeatureValues(newTuples)
 		]);
 };
-var $elm$core$List$singleton = function (value) {
-	return _List_fromArray(
-		[value]);
-};
 var $rtfeldman$elm_css$Css$Structure$styleBlockToMediaRule = F2(
 	function (mediaQueries, declaration) {
 		if (declaration.$ === 'StyleBlockDeclaration') {
@@ -7360,6 +8302,132 @@ var $elm$core$List$tail = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
 var $rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule = F5(
 	function (str1, str2, str3, str4, declaration) {
 		if (declaration.$ === 'StyleBlockDeclaration') {
@@ -7840,225 +8908,16 @@ var $rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
 	return A3($rtfeldman$elm_css$VirtualDom$Styled$Attribute, classProperty, true, cssTemplate);
 };
 var $rtfeldman$elm_css$Html$Styled$Attributes$css = $rtfeldman$elm_css$Html$Styled$Internal$css;
-var $author$project$UaDropdownMultiSelect$Clicked = function (a) {
-	return {$: 'Clicked', a: a};
-};
-var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$align_baseline = A2($rtfeldman$elm_css$Css$property, 'vertical-align', 'baseline');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$box_border = A2($rtfeldman$elm_css$Css$property, 'box-sizing', 'border-box');
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			$rtfeldman$elm_css$VirtualDom$Styled$property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$cursor_pointer = A2($rtfeldman$elm_css$Css$property, 'cursor', 'pointer');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$float_right = A2($rtfeldman$elm_css$Css$property, 'float', 'right');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '229', '231', '235', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
-	function (a, b) {
-		return {$: 'ExtendSelector', a: a, b: b};
-	});
-var $rtfeldman$elm_css$Css$Structure$PseudoClassSelector = function (a) {
-	return {$: 'PseudoClassSelector', a: a};
-};
-var $rtfeldman$elm_css$Css$pseudoClass = function (_class) {
-	return $rtfeldman$elm_css$Css$Preprocess$ExtendSelector(
-		$rtfeldman$elm_css$Css$Structure$PseudoClassSelector(_class));
-};
-var $rtfeldman$elm_css$Css$hover = $rtfeldman$elm_css$Css$pseudoClass('hover');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_block = A2($rtfeldman$elm_css$Css$property, 'display', 'inline-block');
-var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
-var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
-	return A2(
-		$rtfeldman$elm_css$Html$Styled$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$overflow_hidden = A2($rtfeldman$elm_css$Css$property, 'overflow', 'hidden');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3 = $rtfeldman$elm_css$Css$batch(
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mx_auto = $rtfeldman$elm_css$Css$batch(
 	_List_fromArray(
 		[
-			A2($rtfeldman$elm_css$Css$property, 'padding-left', '0.75rem'),
-			A2($rtfeldman$elm_css$Css$property, 'padding-right', '0.75rem')
+			A2($rtfeldman$elm_css$Css$property, 'margin-left', 'auto'),
+			A2($rtfeldman$elm_css$Css$property, 'margin-right', 'auto')
 		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_1 = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.25rem'),
-			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.25rem')
-		]));
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
-	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
-		$elm$virtual_dom$VirtualDom$text(str));
-};
-var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_ellipsis = A2($rtfeldman$elm_css$Css$property, 'text-overflow', 'ellipsis');
-var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full = A2($rtfeldman$elm_css$Css$property, 'width', '100%');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$whitespace_nowrap = A2($rtfeldman$elm_css$Css$property, 'white-space', 'nowrap');
-var $author$project$UaDropdownMultiSelect$dropdownItem = F2(
-	function (idx, _v0) {
-		var selected = _v0.a;
-		var str = _v0.b;
-		return A2(
-			$rtfeldman$elm_css$Html$Styled$a,
-			_List_fromArray(
-				[
-					$rtfeldman$elm_css$Html$Styled$Attributes$css(
-					_List_fromArray(
-						[
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_block,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$box_border,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_1,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$whitespace_nowrap,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$overflow_hidden,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_ellipsis,
-							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$cursor_pointer,
-							$rtfeldman$elm_css$Css$hover(
-							_List_fromArray(
-								[
-									$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200)
-								]))
-						])),
-					$rtfeldman$elm_css$Html$Styled$Events$onClick(
-					$author$project$UaDropdownMultiSelect$Clicked(idx))
-				]),
-			_List_fromArray(
-				[
-					$rtfeldman$elm_css$Html$Styled$text(str),
-					A2(
-					$rtfeldman$elm_css$Html$Styled$input,
-					_List_fromArray(
-						[
-							$rtfeldman$elm_css$Html$Styled$Attributes$css(
-							_List_fromArray(
-								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$float_right, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$align_baseline])),
-							$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
-							$rtfeldman$elm_css$Html$Styled$Attributes$checked(selected)
-						]),
-					_List_Nil)
-				]));
-	});
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_1 = A2($rtfeldman$elm_css$Css$property, 'margin-top', '0.25rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2 = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.5rem'),
-			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.5rem')
-		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_md = $rtfeldman$elm_css$Css$batch(
-	_List_fromArray(
-		[
-			A2($rtfeldman$elm_css$Css$property, '--tw-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'),
-			A2($rtfeldman$elm_css$Css$property, '--tw-shadow-colored', '0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color)'),
-			A2($rtfeldman$elm_css$Css$property, 'box-shadow', 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)')
-		]));
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_56 = A2($rtfeldman$elm_css$Css$property, 'width', '14rem');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$white = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '255', '255', '255', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10 = A2($rtfeldman$elm_css$Css$property, 'z-index', '10');
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
-var $author$project$UaDropdownMultiSelect$zip = $elm$core$List$map2($elm$core$Tuple$pair);
-var $author$project$UaDropdownMultiSelect$dropdownMenu = F2(
-	function (items, selected) {
-		return A2(
-			$rtfeldman$elm_css$Html$Styled$div,
-			_List_fromArray(
-				[
-					$rtfeldman$elm_css$Html$Styled$Attributes$css(
-					_Utils_ap(
-						_List_fromArray(
-							[
-								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute,
-								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_1,
-								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$white),
-								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_md,
-								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10,
-								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_56,
-								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2
-							]),
-						$author$project$UaDropdownMultiSelect$border))
-				]),
-			A2(
-				$elm$core$List$indexedMap,
-				$author$project$UaDropdownMultiSelect$dropdownItem,
-				A2($author$project$UaDropdownMultiSelect$zip, selected, items)));
-	});
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block = A2($rtfeldman$elm_css$Css$property, 'display', 'block');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10 = A2($rtfeldman$elm_css$Css$property, 'height', '2.5rem');
-var $rtfeldman$elm_css$Html$Styled$i = $rtfeldman$elm_css$Html$Styled$node('i');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex = A2($rtfeldman$elm_css$Css$property, 'display', 'inline-flex');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto = A2($rtfeldman$elm_css$Css$property, 'margin', 'auto');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative = A2($rtfeldman$elm_css$Css$property, 'position', 'relative');
-var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10 = A2($rtfeldman$elm_css$Css$property, 'width', '2.5rem');
-var $author$project$UaDropdownMultiSelect$dropdownToggle = function (icon) {
-	return A2(
-		$rtfeldman$elm_css$Html$Styled$a,
-		_List_fromArray(
-			[
-				$rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_Utils_ap(
-					_List_fromArray(
-						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10]),
-					$author$project$UaDropdownMultiSelect$border))
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$rtfeldman$elm_css$Html$Styled$i,
-				_List_fromArray(
-					[
-						$rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto]))
-					]),
-				_List_fromArray(
-					[icon]))
-			]));
-};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_4 = A2($rtfeldman$elm_css$Css$property, 'padding', '1rem');
 var $rtfeldman$elm_css$VirtualDom$Styled$UnscopedStyles = function (a) {
 	return {$: 'UnscopedStyles', a: a};
 };
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
 var $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles = F2(
 	function (_v0, styles) {
 		var isCssStyles = _v0.b;
@@ -8373,31 +9232,6 @@ var $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml = F2(
 					finalStyles);
 		}
 	});
-var $elm$core$Dict$foldl = F3(
-	function (func, acc, dict) {
-		foldl:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return acc;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var $temp$func = func,
-					$temp$acc = A3(
-					func,
-					key,
-					value,
-					A3($elm$core$Dict$foldl, func, acc, left)),
-					$temp$dict = right;
-				func = $temp$func;
-				acc = $temp$acc;
-				dict = $temp$dict;
-				continue foldl;
-			}
-		}
-	});
 var $elm$core$String$replace = F3(
 	function (before, after, string) {
 		return A2(
@@ -8657,62 +9491,3259 @@ var $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
 	}
 };
 var $rtfeldman$elm_css$Html$Styled$toUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
-var $author$project$UaDropdownMultiSelect$view = F2(
-	function (icon, _v0) {
-		var items = _v0.items;
-		var selecteds = _v0.selecteds;
-		var myDropdownIsOpen = _v0.myDropdownIsOpen;
-		return $rtfeldman$elm_css$Html$Styled$toUnstyled(
+var $rtfeldman$elm_css$VirtualDom$Styled$KeyedNode = F3(
+	function (a, b, c) {
+		return {$: 'KeyedNode', a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$KeyedNodeNS = F4(
+	function (a, b, c, d) {
+		return {$: 'KeyedNodeNS', a: a, b: b, c: c, d: d};
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$NodeNS = F4(
+	function (a, b, c, d) {
+		return {$: 'NodeNS', a: a, b: b, c: c, d: d};
+	});
+var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
+var $elm$virtual_dom$VirtualDom$mapAttribute = _VirtualDom_mapAttribute;
+var $rtfeldman$elm_css$VirtualDom$Styled$mapAttribute = F2(
+	function (transform, _v0) {
+		var prop = _v0.a;
+		var isCssStyle = _v0.b;
+		var cssTemplate = _v0.c;
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$mapAttribute, transform, prop),
+			isCssStyle,
+			cssTemplate);
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$map = F2(
+	function (transform, vdomNode) {
+		switch (vdomNode.$) {
+			case 'Node':
+				var elemType = vdomNode.a;
+				var properties = vdomNode.b;
+				var children = vdomNode.c;
+				return A3(
+					$rtfeldman$elm_css$VirtualDom$Styled$Node,
+					elemType,
+					A2(
+						$elm$core$List$map,
+						$rtfeldman$elm_css$VirtualDom$Styled$mapAttribute(transform),
+						properties),
+					A2(
+						$elm$core$List$map,
+						$rtfeldman$elm_css$VirtualDom$Styled$map(transform),
+						children));
+			case 'NodeNS':
+				var ns = vdomNode.a;
+				var elemType = vdomNode.b;
+				var properties = vdomNode.c;
+				var children = vdomNode.d;
+				return A4(
+					$rtfeldman$elm_css$VirtualDom$Styled$NodeNS,
+					ns,
+					elemType,
+					A2(
+						$elm$core$List$map,
+						$rtfeldman$elm_css$VirtualDom$Styled$mapAttribute(transform),
+						properties),
+					A2(
+						$elm$core$List$map,
+						$rtfeldman$elm_css$VirtualDom$Styled$map(transform),
+						children));
+			case 'KeyedNode':
+				var elemType = vdomNode.a;
+				var properties = vdomNode.b;
+				var children = vdomNode.c;
+				return A3(
+					$rtfeldman$elm_css$VirtualDom$Styled$KeyedNode,
+					elemType,
+					A2(
+						$elm$core$List$map,
+						$rtfeldman$elm_css$VirtualDom$Styled$mapAttribute(transform),
+						properties),
+					A2(
+						$elm$core$List$map,
+						function (_v1) {
+							var key = _v1.a;
+							var child = _v1.b;
+							return _Utils_Tuple2(
+								key,
+								A2($rtfeldman$elm_css$VirtualDom$Styled$map, transform, child));
+						},
+						children));
+			case 'KeyedNodeNS':
+				var ns = vdomNode.a;
+				var elemType = vdomNode.b;
+				var properties = vdomNode.c;
+				var children = vdomNode.d;
+				return A4(
+					$rtfeldman$elm_css$VirtualDom$Styled$KeyedNodeNS,
+					ns,
+					elemType,
+					A2(
+						$elm$core$List$map,
+						$rtfeldman$elm_css$VirtualDom$Styled$mapAttribute(transform),
+						properties),
+					A2(
+						$elm$core$List$map,
+						function (_v2) {
+							var key = _v2.a;
+							var child = _v2.b;
+							return _Utils_Tuple2(
+								key,
+								A2($rtfeldman$elm_css$VirtualDom$Styled$map, transform, child));
+						},
+						children));
+			default:
+				var vdom = vdomNode.a;
+				return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
+					A2($elm$virtual_dom$VirtualDom$map, transform, vdom));
+		}
+	});
+var $rtfeldman$elm_css$Html$Styled$map = $rtfeldman$elm_css$VirtualDom$Styled$map;
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex = A2($rtfeldman$elm_css$Css$property, 'display', 'flex');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center = A2($rtfeldman$elm_css$Css$property, 'align-items', 'center');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_center = A2($rtfeldman$elm_css$Css$property, 'justify-content', 'center');
+var $author$project$Internal$Config$pipeExternal = F3(
+	function (_v0, _v1, fn) {
+		var onChangeExt = _v0.a.onChangeExt;
+		var rows = _v1.a.rows;
+		var state = _v1.a.state;
+		return onChangeExt(
+			$author$project$Internal$Data$Model(
+				{
+					rows: rows,
+					state: fn(state)
+				}));
+	});
+var $matheus23$elm_tailwind_modules_base$Tailwind$Color$propertyWithColor = F4(
+	function (property, embedColor, opacityVarName, color) {
+		if (color.$ === 'Color') {
+			var mode = color.a;
+			var r = color.b;
+			var g = color.c;
+			var b = color.d;
+			var opacity = color.e;
+			var _v1 = _Utils_Tuple2(opacity, opacityVarName);
+			if (_v1.a.$ === 'Opacity') {
+				var op = _v1.a.a;
+				return A2(
+					$rtfeldman$elm_css$Css$property,
+					property,
+					embedColor(mode + ('(' + (r + (' ' + (g + (' ' + (b + (' / ' + (op + ')'))))))))));
+			} else {
+				if (_v1.b.$ === 'Just') {
+					var _v2 = _v1.a;
+					var varName = _v1.b.a;
+					return $rtfeldman$elm_css$Css$batch(
+						_List_fromArray(
+							[
+								A2($rtfeldman$elm_css$Css$property, varName, '1'),
+								A2(
+								$rtfeldman$elm_css$Css$property,
+								property,
+								embedColor(mode + ('(' + (r + (' ' + (g + (' ' + (b + (' / var(' + (varName + '))'))))))))))
+							]));
+				} else {
+					var _v3 = _v1.a;
+					var _v4 = _v1.b;
+					return A2(
+						$rtfeldman$elm_css$Css$property,
+						property,
+						embedColor(mode + ('(' + (r + (' ' + (g + (' ' + (b + ' / 1.0)'))))))));
+				}
+			}
+		} else {
+			var keyword = color.a;
+			return A2($rtfeldman$elm_css$Css$property, property, keyword);
+		}
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color = function (color) {
+	return A4(
+		$matheus23$elm_tailwind_modules_base$Tailwind$Color$propertyWithColor,
+		'background-color',
+		function (c) {
+			return c;
+		},
+		$elm$core$Maybe$Just('--tw-bg-opacity'),
+		color);
+};
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $author$project$Internal$Column$viewExpand = F4(
+	function (lens, getID, v, _v0) {
+		var state = _v0.a;
+		var pipe = _v0.b;
+		var id = getID(v);
+		var conf = lens.get(state);
+		var isExpanded = A2($elm$core$List$member, id, conf.expanded);
+		var updatedExpand = A3(
+			$author$project$Internal$Util$iff,
+			isExpanded,
 			A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
+				$elm$core$List$filter,
+				$elm$core$Basics$neq(id),
+				conf.expanded),
+			A2($elm$core$List$cons, id, conf.expanded));
+		return _List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$a,
 				_List_fromArray(
 					[
-						$author$project$Dropdown$dropdown(
-						{
-							drawerVisibleAttribute: $rtfeldman$elm_css$Html$Styled$Attributes$class('visible'),
-							identifier: 'my-dropdown',
-							isToggled: myDropdownIsOpen,
-							layout: function (_v1) {
-								var toDropdown = _v1.toDropdown;
-								var toToggle = _v1.toToggle;
-								var toDrawer = _v1.toDrawer;
-								return A3(
-									toDropdown,
-									$rtfeldman$elm_css$Html$Styled$div,
-									_List_Nil,
+						$rtfeldman$elm_css$Html$Styled$Attributes$class('btn-expand'),
+						$rtfeldman$elm_css$Html$Styled$Events$onClick(
+						pipe(
+							function (s) {
+								return A2(
+									lens.set,
+									_Utils_update(
+										conf,
+										{expanded: updatedExpand}),
+									s);
+							}))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$rtfeldman$elm_css$Html$Styled$span,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$class(
+								A3($author$project$Internal$Util$iff, isExpanded, 'gg-collapse', 'gg-expand'))
+							]),
+						_List_Nil)
+					]))
+			]);
+	});
+var $author$project$Internal$Column$expand = F3(
+	function (pipe, lens, getID) {
+		return $author$project$Internal$Column$Column(
+			{
+				abbrev: '',
+				_class: 'col-btn-expand',
+				_default: true,
+				hiddable: false,
+				name: '',
+				searchable: $elm$core$Maybe$Nothing,
+				sortable: $elm$core$Maybe$Nothing,
+				viewCell: F2(
+					function (v, _v0) {
+						var s = _v0.a;
+						return A4(
+							$author$project$Internal$Column$viewExpand,
+							lens,
+							getID,
+							v,
+							_Utils_Tuple2(s, pipe));
+					}),
+				viewHeader: $author$project$Internal$Column$viewHeader,
+				visible: true,
+				width: '30px'
+			});
+	});
+var $elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
+			var jsArray = _v0.a;
+			var remainingItems = _v0.b;
+			if (_Utils_cmp(
+				$elm$core$Elm$JsArray$length(jsArray),
+				$elm$core$Array$branchFactor) < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					$elm$core$List$cons,
+					$elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var $elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return $elm$core$Array$empty;
+	} else {
+		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var $author$project$Internal$Util$ifMaybe = F2(
+	function (c, a) {
+		return c ? $elm$core$Maybe$Just(a) : $elm$core$Maybe$Nothing;
+	});
+var $arturopala$elm_monocle$Monocle$Lens$Lens = F2(
+	function (get, set) {
+		return {get: get, set: set};
+	});
+var $author$project$Internal$State$lensTable = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.table;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{table: b});
+		}));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$overflow_auto = A2($rtfeldman$elm_css$Css$property, 'overflow', 'auto');
+var $author$project$Internal$Util$prependMaybe = F2(
+	function (m, l) {
+		if (m.$ === 'Just') {
+			var a = m.a;
+			return A2($elm$core$List$cons, a, l);
+		} else {
+			return l;
+		}
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded = A2($rtfeldman$elm_css$Css$property, 'border-radius', '0.25rem');
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$checked = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('checked');
+var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
+var $arturopala$elm_monocle$Monocle$Lens$compose = F2(
+	function (outer, inner) {
+		var set = F2(
+			function (c, a) {
+				return function (b) {
+					return A2(outer.set, b, a);
+				}(
+					A2(
+						inner.set,
+						c,
+						outer.get(a)));
+			});
+		return A2(
+			$arturopala$elm_monocle$Monocle$Lens$Lens,
+			A2($elm$core$Basics$composeR, outer.get, inner.get),
+			set);
+	});
+var $author$project$Internal$State$lensSelected = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.selected;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{selected: b});
+		}));
+var $author$project$Internal$State$lensSubTable = A2(
+	$arturopala$elm_monocle$Monocle$Lens$Lens,
+	function ($) {
+		return $.subtable;
+	},
+	F2(
+		function (b, a) {
+			return _Utils_update(
+				a,
+				{subtable: b});
+		}));
+var $author$project$Internal$Selection$lensSubTableSelected = A2($arturopala$elm_monocle$Monocle$Lens$compose, $author$project$Internal$State$lensSubTable, $author$project$Internal$State$lensSelected);
+var $author$project$Internal$Selection$lensTableSelected = A2($arturopala$elm_monocle$Monocle$Lens$compose, $author$project$Internal$State$lensTable, $author$project$Internal$State$lensSelected);
+var $author$project$Internal$Selection$linkedState = F7(
+	function (conf, getValues, value, subSelected, updatedSelected, check, state) {
+		var children = A2(
+			$elm$core$List$map,
+			function (x) {
+				return conf.getID(x);
+			},
+			getValues(value));
+		return A2(
+			$author$project$Internal$Selection$lensSubTableSelected.set,
+			A3(
+				$author$project$Internal$Util$iff,
+				check,
+				_Utils_ap(subSelected, children),
+				A2(
+					$elm$core$List$filter,
+					function (x) {
+						return !A2($elm$core$List$member, x, children);
+					},
+					subSelected)),
+			A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state));
+	});
+var $author$project$Internal$Selection$logicParentCell = F5(
+	function (_v0, _v1, value, state, check) {
+		var cfg = _v0.a;
+		var subSelected = state.subtable.selected;
+		var selected = state.table.selected;
+		var id = cfg.table.getID(value);
+		var updatedSelected = A3(
+			$author$project$Internal$Util$iff,
+			check,
+			A2($elm$core$List$cons, id, selected),
+			A2(
+				$elm$core$List$filter,
+				$elm$core$Basics$neq(id),
+				selected));
+		var _v2 = _Utils_Tuple2(cfg.selection, cfg.subtable);
+		_v2$5:
+		while (true) {
+			switch (_v2.a.$) {
+				case 'Disable':
+					var _v3 = _v2.a;
+					return state;
+				case 'Linked':
+					if (_v2.b.$ === 'Just') {
+						var _v4 = _v2.a;
+						var _v5 = _v2.b.a;
+						var getValues = _v5.a;
+						var conf = _v5.b;
+						return A7($author$project$Internal$Selection$linkedState, conf, getValues, value, subSelected, updatedSelected, check, state);
+					} else {
+						break _v2$5;
+					}
+				case 'LinkedStrict':
+					if (_v2.b.$ === 'Just') {
+						var _v6 = _v2.a;
+						var _v7 = _v2.b.a;
+						var getValues = _v7.a;
+						var conf = _v7.b;
+						return A7($author$project$Internal$Selection$linkedState, conf, getValues, value, subSelected, updatedSelected, check, state);
+					} else {
+						break _v2$5;
+					}
+				case 'Exclusive':
+					var _v8 = _v2.a;
+					return A2(
+						$author$project$Internal$Selection$lensSubTableSelected.set,
+						A3($author$project$Internal$Util$iff, check, _List_Nil, state.subtable.selected),
+						A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state));
+				case 'ExclusiveStrict':
+					var _v9 = _v2.a;
+					return A2(
+						$author$project$Internal$Selection$lensSubTableSelected.set,
+						_List_Nil,
+						A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state));
+				default:
+					break _v2$5;
+			}
+		}
+		return A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state);
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $rtfeldman$elm_css$Html$Styled$Events$targetChecked = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'checked']),
+	$elm$json$Json$Decode$bool);
+var $rtfeldman$elm_css$Html$Styled$Events$onCheck = function (tagger) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$on,
+		'change',
+		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetChecked));
+};
+var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
+var $author$project$Internal$Selection$viewParentCell = F4(
+	function (config, rows, value, _v0) {
+		var cfg = config.a;
+		var state = _v0.a;
+		var pipe = _v0.b;
+		return _List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$input,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$class('checkbox'),
+						$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+						$rtfeldman$elm_css$Html$Styled$Attributes$checked(
+						A2(
+							$elm$core$List$member,
+							cfg.table.getID(value),
+							state.table.selected)),
+						$rtfeldman$elm_css$Html$Styled$Events$onCheck(
+						function (b) {
+							return pipe(
+								function (s) {
+									return A5($author$project$Internal$Selection$logicParentCell, config, rows, value, s, b);
+								});
+						})
+					]),
+				_List_Nil)
+			]);
+	});
+var $author$project$Internal$Selection$selectAll = F6(
+	function (check, conf, getValues, state, rows, selected) {
+		var subselected = A3(
+			$author$project$Internal$Util$iff,
+			check,
+			$elm$core$List$concat(
+				A2(
+					$elm$core$List$map,
+					function (_v0) {
+						var x = _v0.a;
+						return A2(
+							$elm$core$List$map,
+							conf.getID,
+							getValues(x));
+					},
+					rows)),
+			_List_Nil);
+		return A2(
+			$author$project$Internal$Selection$lensSubTableSelected.set,
+			subselected,
+			A2($author$project$Internal$Selection$lensTableSelected.set, selected, state));
+	});
+var $author$project$Internal$Selection$logicParentHeader = F4(
+	function (_v0, rows, state, check) {
+		var cfg = _v0.a;
+		var selected = A3(
+			$author$project$Internal$Util$iff,
+			check,
+			A2(
+				$elm$core$List$map,
+				function (_v8) {
+					var a = _v8.a;
+					return cfg.table.getID(a);
+				},
+				rows),
+			_List_Nil);
+		var _v1 = _Utils_Tuple2(cfg.selection, cfg.subtable);
+		_v1$3:
+		while (true) {
+			if (_v1.b.$ === 'Just') {
+				switch (_v1.a.$) {
+					case 'Free':
+						var _v2 = _v1.a;
+						var _v3 = _v1.b.a;
+						var getValues = _v3.a;
+						var conf = _v3.b;
+						return A6($author$project$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
+					case 'Linked':
+						var _v4 = _v1.a;
+						var _v5 = _v1.b.a;
+						var getValues = _v5.a;
+						var conf = _v5.b;
+						return A6($author$project$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
+					case 'LinkedStrict':
+						var _v6 = _v1.a;
+						var _v7 = _v1.b.a;
+						var getValues = _v7.a;
+						var conf = _v7.b;
+						return A6($author$project$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
+					default:
+						break _v1$3;
+				}
+			} else {
+				break _v1$3;
+			}
+		}
+		return A2($author$project$Internal$Selection$lensTableSelected.set, selected, state);
+	});
+var $author$project$Internal$Selection$viewParentHeader = F4(
+	function (config, rows, _v0, _v1) {
+		var state = _v1.a;
+		var pipe = _v1.b;
+		return _List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$input,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$class('checkbox'),
+						$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+						$rtfeldman$elm_css$Html$Styled$Events$onCheck(
+						function (b) {
+							return pipe(
+								function (s) {
+									return A4($author$project$Internal$Selection$logicParentHeader, config, rows, s, b);
+								});
+						})
+					]),
+				_List_Nil)
+			]);
+	});
+var $author$project$Internal$Selection$selectionParent = F3(
+	function (pipe, config, rows) {
+		return $author$project$Internal$Column$Column(
+			{
+				abbrev: '',
+				_class: 'col-selection',
+				_default: true,
+				hiddable: false,
+				name: '',
+				searchable: $elm$core$Maybe$Nothing,
+				sortable: $elm$core$Maybe$Nothing,
+				viewCell: F2(
+					function (v, _v0) {
+						var s = _v0.a;
+						return A4(
+							$author$project$Internal$Selection$viewParentCell,
+							config,
+							rows,
+							v,
+							_Utils_Tuple2(s, pipe));
+					}),
+				viewHeader: F2(
+					function (c, _v1) {
+						var s = _v1.a;
+						return A4(
+							$author$project$Internal$Selection$viewParentHeader,
+							config,
+							rows,
+							c,
+							_Utils_Tuple2(s, pipe));
+					}),
+				visible: true,
+				width: '37px'
+			});
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, '--tw-shadow', '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)'),
+			A2($rtfeldman$elm_css$Css$property, '--tw-shadow-colored', '0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color)'),
+			A2($rtfeldman$elm_css$Css$property, 'box-shadow', 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)')
+		]));
+var $elm$core$Elm$JsArray$appendN = _JsArray_appendN;
+var $elm$core$Elm$JsArray$slice = _JsArray_slice;
+var $elm$core$Array$appendHelpBuilder = F2(
+	function (tail, builder) {
+		var tailLen = $elm$core$Elm$JsArray$length(tail);
+		var notAppended = ($elm$core$Array$branchFactor - $elm$core$Elm$JsArray$length(builder.tail)) - tailLen;
+		var appended = A3($elm$core$Elm$JsArray$appendN, $elm$core$Array$branchFactor, builder.tail, tail);
+		return (notAppended < 0) ? {
+			nodeList: A2(
+				$elm$core$List$cons,
+				$elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: A3($elm$core$Elm$JsArray$slice, notAppended, tailLen, tail)
+		} : ((!notAppended) ? {
+			nodeList: A2(
+				$elm$core$List$cons,
+				$elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: $elm$core$Elm$JsArray$empty
+		} : {nodeList: builder.nodeList, nodeListSize: builder.nodeListSize, tail: appended});
+	});
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$sliceLeft = F2(
+	function (from, array) {
+		var len = array.a;
+		var tree = array.c;
+		var tail = array.d;
+		if (!from) {
+			return array;
+		} else {
+			if (_Utils_cmp(
+				from,
+				$elm$core$Array$tailIndex(len)) > -1) {
+				return A4(
+					$elm$core$Array$Array_elm_builtin,
+					len - from,
+					$elm$core$Array$shiftStep,
+					$elm$core$Elm$JsArray$empty,
+					A3(
+						$elm$core$Elm$JsArray$slice,
+						from - $elm$core$Array$tailIndex(len),
+						$elm$core$Elm$JsArray$length(tail),
+						tail));
+			} else {
+				var skipNodes = (from / $elm$core$Array$branchFactor) | 0;
+				var helper = F2(
+					function (node, acc) {
+						if (node.$ === 'SubTree') {
+							var subTree = node.a;
+							return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
+						} else {
+							var leaf = node.a;
+							return A2($elm$core$List$cons, leaf, acc);
+						}
+					});
+				var leafNodes = A3(
+					$elm$core$Elm$JsArray$foldr,
+					helper,
+					_List_fromArray(
+						[tail]),
+					tree);
+				var nodesToInsert = A2($elm$core$List$drop, skipNodes, leafNodes);
+				if (!nodesToInsert.b) {
+					return $elm$core$Array$empty;
+				} else {
+					var head = nodesToInsert.a;
+					var rest = nodesToInsert.b;
+					var firstSlice = from - (skipNodes * $elm$core$Array$branchFactor);
+					var initialBuilder = {
+						nodeList: _List_Nil,
+						nodeListSize: 0,
+						tail: A3(
+							$elm$core$Elm$JsArray$slice,
+							firstSlice,
+							$elm$core$Elm$JsArray$length(head),
+							head)
+					};
+					return A2(
+						$elm$core$Array$builderToArray,
+						true,
+						A3($elm$core$List$foldl, $elm$core$Array$appendHelpBuilder, initialBuilder, rest));
+				}
+			}
+		}
+	});
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$fetchNewTail = F4(
+	function (shift, end, treeEnd, tree) {
+		fetchNewTail:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (treeEnd >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var sub = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$end = end,
+					$temp$treeEnd = treeEnd,
+					$temp$tree = sub;
+				shift = $temp$shift;
+				end = $temp$end;
+				treeEnd = $temp$treeEnd;
+				tree = $temp$tree;
+				continue fetchNewTail;
+			} else {
+				var values = _v0.a;
+				return A3($elm$core$Elm$JsArray$slice, 0, $elm$core$Array$bitMask & end, values);
+			}
+		}
+	});
+var $elm$core$Array$hoistTree = F3(
+	function (oldShift, newShift, tree) {
+		hoistTree:
+		while (true) {
+			if ((_Utils_cmp(oldShift, newShift) < 1) || (!$elm$core$Elm$JsArray$length(tree))) {
+				return tree;
+			} else {
+				var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, 0, tree);
+				if (_v0.$ === 'SubTree') {
+					var sub = _v0.a;
+					var $temp$oldShift = oldShift - $elm$core$Array$shiftStep,
+						$temp$newShift = newShift,
+						$temp$tree = sub;
+					oldShift = $temp$oldShift;
+					newShift = $temp$newShift;
+					tree = $temp$tree;
+					continue hoistTree;
+				} else {
+					return tree;
+				}
+			}
+		}
+	});
+var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var $elm$core$Array$sliceTree = F3(
+	function (shift, endIdx, tree) {
+		var lastPos = $elm$core$Array$bitMask & (endIdx >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, lastPos, tree);
+		if (_v0.$ === 'SubTree') {
+			var sub = _v0.a;
+			var newSub = A3($elm$core$Array$sliceTree, shift - $elm$core$Array$shiftStep, endIdx, sub);
+			return (!$elm$core$Elm$JsArray$length(newSub)) ? A3($elm$core$Elm$JsArray$slice, 0, lastPos, tree) : A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				lastPos,
+				$elm$core$Array$SubTree(newSub),
+				A3($elm$core$Elm$JsArray$slice, 0, lastPos + 1, tree));
+		} else {
+			return A3($elm$core$Elm$JsArray$slice, 0, lastPos, tree);
+		}
+	});
+var $elm$core$Array$sliceRight = F2(
+	function (end, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		if (_Utils_eq(end, len)) {
+			return array;
+		} else {
+			if (_Utils_cmp(
+				end,
+				$elm$core$Array$tailIndex(len)) > -1) {
+				return A4(
+					$elm$core$Array$Array_elm_builtin,
+					end,
+					startShift,
+					tree,
+					A3($elm$core$Elm$JsArray$slice, 0, $elm$core$Array$bitMask & end, tail));
+			} else {
+				var endIdx = $elm$core$Array$tailIndex(end);
+				var depth = $elm$core$Basics$floor(
+					A2(
+						$elm$core$Basics$logBase,
+						$elm$core$Array$branchFactor,
+						A2($elm$core$Basics$max, 1, endIdx - 1)));
+				var newShift = A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep);
+				return A4(
+					$elm$core$Array$Array_elm_builtin,
+					end,
+					newShift,
+					A3(
+						$elm$core$Array$hoistTree,
+						startShift,
+						newShift,
+						A3($elm$core$Array$sliceTree, startShift, endIdx, tree)),
+					A4($elm$core$Array$fetchNewTail, startShift, end, endIdx, tree));
+			}
+		}
+	});
+var $elm$core$Array$translateIndex = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var posIndex = (index < 0) ? (len + index) : index;
+		return (posIndex < 0) ? 0 : ((_Utils_cmp(posIndex, len) > 0) ? len : posIndex);
+	});
+var $elm$core$Array$slice = F3(
+	function (from, to, array) {
+		var correctTo = A2($elm$core$Array$translateIndex, to, array);
+		var correctFrom = A2($elm$core$Array$translateIndex, from, array);
+		return (_Utils_cmp(correctFrom, correctTo) > 0) ? $elm$core$Array$empty : A2(
+			$elm$core$Array$sliceLeft,
+			correctFrom,
+			A2($elm$core$Array$sliceRight, correctTo, array));
+	});
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Internal$Util$find = F2(
+	function (predicate, list) {
+		find:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				if (predicate(first)) {
+					return $elm$core$Maybe$Just(first);
+				} else {
+					var $temp$predicate = predicate,
+						$temp$list = rest;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue find;
+				}
+			}
+		}
+	});
+var $author$project$Internal$Util$maybe = F3(
+	function (_default, fn, value) {
+		if (value.$ === 'Nothing') {
+			return _default;
+		} else {
+			var x = value.a;
+			return fn(x);
+		}
+	});
+var $elm$core$List$sortWith = _List_sortWith;
+var $author$project$Internal$Table$sortRows = F2(
+	function (comp, rows) {
+		return A2(
+			$elm$core$List$sortWith,
+			F2(
+				function (_v0, _v1) {
+					var a = _v0.a;
+					var b = _v1.a;
+					return A2(comp, a, b);
+				}),
+			rows);
+	});
+var $author$project$Internal$Table$sortRowsFromStatus = F3(
+	function (order, rows, comp) {
+		switch (order.$) {
+			case 'StandBy':
+				return rows;
+			case 'Descending':
+				return A2($author$project$Internal$Table$sortRows, comp, rows);
+			default:
+				return $elm$core$List$reverse(
+					A2($author$project$Internal$Table$sortRows, comp, rows));
+		}
+	});
+var $author$project$Internal$Table$sort = F3(
+	function (columns, state, rows) {
+		var compFn = A2(
+			$elm$core$Maybe$andThen,
+			function (_v0) {
+				var c = _v0.a;
+				return c.sortable;
+			},
+			A2(
+				$author$project$Internal$Util$find,
+				function (_v1) {
+					var c = _v1.a;
+					return _Utils_eq(
+						$elm$core$Maybe$Just(c.name),
+						state.orderBy);
+				},
+				columns));
+		return A3(
+			$author$project$Internal$Util$maybe,
+			rows,
+			A2($author$project$Internal$Table$sortRowsFromStatus, state.order, rows),
+			compFn);
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
+var $author$project$Internal$Column$viewSubtable = F5(
+	function (isDisable, lens, getID, v, _v0) {
+		var state = _v0.a;
+		var pipe = _v0.b;
+		if (isDisable(v)) {
+			return _List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$a,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$class('btn-subtable is-disabled'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(true)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$rtfeldman$elm_css$Html$Styled$span,
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$Attributes$class('gg-plus')
+								]),
+							_List_Nil)
+						]))
+				]);
+		} else {
+			var id = getID(v);
+			var conf = lens.get(state);
+			var isExpanded = A2($elm$core$List$member, id, conf.subtable);
+			var updatedExpand = A3(
+				$author$project$Internal$Util$iff,
+				isExpanded,
+				A2(
+					$elm$core$List$filter,
+					$elm$core$Basics$neq(id),
+					conf.subtable),
+				A2($elm$core$List$cons, id, conf.subtable));
+			return _List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$a,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$class('btn-subtable'),
+							$rtfeldman$elm_css$Html$Styled$Events$onClick(
+							pipe(
+								function (s) {
+									return A2(
+										lens.set,
+										_Utils_update(
+											conf,
+											{subtable: updatedExpand}),
+										s);
+								}))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$rtfeldman$elm_css$Html$Styled$span,
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$Attributes$class(
+									A3($author$project$Internal$Util$iff, isExpanded, 'gg-minus', 'gg-plus'))
+								]),
+							_List_Nil)
+						]))
+				]);
+		}
+	});
+var $author$project$Internal$Column$subtable = F4(
+	function (isDisable, pipe, lens, getID) {
+		return $author$project$Internal$Column$Column(
+			{
+				abbrev: '',
+				_class: 'col-btn-substable',
+				_default: true,
+				hiddable: false,
+				name: '',
+				searchable: $elm$core$Maybe$Nothing,
+				sortable: $elm$core$Maybe$Nothing,
+				viewCell: F2(
+					function (v, _v0) {
+						var s = _v0.a;
+						return A5(
+							$author$project$Internal$Column$viewSubtable,
+							isDisable,
+							lens,
+							getID,
+							v,
+							_Utils_Tuple2(s, pipe));
+					}),
+				viewHeader: $author$project$Internal$Column$viewHeader,
+				visible: true,
+				width: '30px'
+			});
+	});
+var $rtfeldman$elm_css$Html$Styled$table = $rtfeldman$elm_css$Html$Styled$node('table');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_b = A2($rtfeldman$elm_css$Css$property, 'border-bottom-width', '1px');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_color = function (color) {
+	return A4(
+		$matheus23$elm_tailwind_modules_base$Tailwind$Color$propertyWithColor,
+		'border-color',
+		function (c) {
+			return c;
+		},
+		$elm$core$Maybe$Just('--tw-border-opacity'),
+		color);
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$attribute = F2(
+	function (key, value) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$attribute, key, value),
+			false,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$colspan = function (n) {
+	return A2(
+		$rtfeldman$elm_css$VirtualDom$Styled$attribute,
+		'colspan',
+		$elm$core$String$fromInt(n));
+};
+var $matheus23$elm_tailwind_modules_base$Tailwind$Color$Color = F5(
+	function (a, b, c, d, e) {
+		return {$: 'Color', a: a, b: b, c: c, d: d, e: e};
+	});
+var $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable = {$: 'ViaVariable'};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_100 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '243', '244', '246', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '209', '213', '219', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
+	function (a, b) {
+		return {$: 'ExtendSelector', a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$Structure$PseudoClassSelector = function (a) {
+	return {$: 'PseudoClassSelector', a: a};
+};
+var $rtfeldman$elm_css$Css$pseudoClass = function (_class) {
+	return $rtfeldman$elm_css$Css$Preprocess$ExtendSelector(
+		$rtfeldman$elm_css$Css$Structure$PseudoClassSelector(_class));
+};
+var $rtfeldman$elm_css$Css$hover = $rtfeldman$elm_css$Css$pseudoClass('hover');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2 = A2($rtfeldman$elm_css$Css$property, 'padding', '0.5rem');
+var $author$project$Table$Types$LinkedStrict = {$: 'LinkedStrict'};
+var $author$project$Internal$Selection$logicChildCell = F7(
+	function (_v0, _v1, conf, rows, value, state, check) {
+		var cfg = _v1.a;
+		var selected = state.subtable.selected;
+		var id = conf.getID(value);
+		var updatedSelected = A3(
+			$author$project$Internal$Util$iff,
+			check,
+			A2($elm$core$List$cons, id, selected),
+			A2(
+				$elm$core$List$filter,
+				$elm$core$Basics$neq(id),
+				selected));
+		var _v2 = cfg.selection;
+		switch (_v2.$) {
+			case 'LinkedStrict':
+				return state;
+			case 'Exclusive':
+				return A2(
+					$author$project$Internal$Selection$lensSubTableSelected.set,
+					updatedSelected,
+					A2(
+						$author$project$Internal$Selection$lensTableSelected.set,
+						A3($author$project$Internal$Util$iff, check, _List_Nil, state.table.selected),
+						state));
+			case 'ExclusiveStrict':
+				var rs = A2(
+					$elm$core$List$map,
+					function (_v3) {
+						var a = _v3.a;
+						return conf.getID(a);
+					},
+					rows);
+				var ss = A2(
+					$elm$core$List$filter,
+					function (x) {
+						return A2($elm$core$List$member, x, rs);
+					},
+					selected);
+				return A2(
+					$author$project$Internal$Selection$lensSubTableSelected.set,
+					A3(
+						$author$project$Internal$Util$iff,
+						check,
+						A2($elm$core$List$cons, id, ss),
+						A2(
+							$elm$core$List$filter,
+							$elm$core$Basics$neq(id),
+							ss)),
+					A2($author$project$Internal$Selection$lensTableSelected.set, _List_Nil, state));
+			default:
+				return A2($author$project$Internal$Selection$lensSubTableSelected.set, updatedSelected, state);
+		}
+	});
+var $author$project$Internal$Selection$viewChildCell = F5(
+	function (config, rows, id, value, _v0) {
+		var cfg = config.a;
+		var state = _v0.a;
+		var pipe = _v0.b;
+		var _v1 = cfg.subtable;
+		if (_v1.$ === 'Just') {
+			var _v2 = _v1.a;
+			var conf = _v2.b;
+			return _List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$input,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$class('checkbox'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$checked(
+							A2(
+								$elm$core$List$member,
+								conf.getID(value),
+								state.subtable.selected)),
+							$rtfeldman$elm_css$Html$Styled$Events$onCheck(
+							function (check) {
+								return pipe(
+									function (s) {
+										return A7($author$project$Internal$Selection$logicChildCell, id, config, conf, rows, value, s, check);
+									});
+							}),
+							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
+							_Utils_eq(cfg.selection, $author$project$Table$Types$LinkedStrict))
+						]),
+					_List_Nil)
+				]);
+		} else {
+			return _List_Nil;
+		}
+	});
+var $author$project$Internal$Selection$logicChildHeader = F6(
+	function (_v0, _v1, conf, rows, state, check) {
+		var cfg = _v1.a;
+		var original = $author$project$Internal$Selection$lensSubTableSelected.get(state);
+		var ids = A2(
+			$elm$core$List$map,
+			function (_v3) {
+				var a = _v3.a;
+				return conf.getID(a);
+			},
+			rows);
+		var selected = A3(
+			$author$project$Internal$Util$iff,
+			check,
+			$elm$core$List$concat(
+				_List_fromArray(
+					[original, ids])),
+			A2(
+				$elm$core$List$filter,
+				function (id) {
+					return !A2($elm$core$List$member, id, ids);
+				},
+				original));
+		var _v2 = cfg.selection;
+		return A2($author$project$Internal$Selection$lensSubTableSelected.set, selected, state);
+	});
+var $author$project$Internal$Selection$viewChildHeader = F5(
+	function (config, rows, id, _v0, _v1) {
+		var cfg = config.a;
+		var state = _v1.a;
+		var pipe = _v1.b;
+		var _v2 = cfg.subtable;
+		if (_v2.$ === 'Just') {
+			var _v3 = _v2.a;
+			var conf = _v3.b;
+			return _List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$input,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$class('checkbox'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+							$rtfeldman$elm_css$Html$Styled$Events$onCheck(
+							function (b) {
+								return pipe(
+									function (s) {
+										return A6($author$project$Internal$Selection$logicChildHeader, id, config, conf, rows, s, b);
+									});
+							}),
+							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
+							_Utils_eq(cfg.selection, $author$project$Table$Types$LinkedStrict))
+						]),
+					_List_Nil)
+				]);
+		} else {
+			return _List_Nil;
+		}
+	});
+var $author$project$Internal$Selection$selectionChild = F4(
+	function (pipe, config, rows, id) {
+		return $author$project$Internal$Column$Column(
+			{
+				abbrev: '',
+				_class: 'col-selection',
+				_default: true,
+				hiddable: false,
+				name: '',
+				searchable: $elm$core$Maybe$Nothing,
+				sortable: $elm$core$Maybe$Nothing,
+				viewCell: F2(
+					function (v, _v0) {
+						var s = _v0.a;
+						return A5(
+							$author$project$Internal$Selection$viewChildCell,
+							config,
+							rows,
+							id,
+							v,
+							_Utils_Tuple2(s, pipe));
+					}),
+				viewHeader: F2(
+					function (c, _v1) {
+						var s = _v1.a;
+						return A5(
+							$author$project$Internal$Selection$viewChildHeader,
+							config,
+							rows,
+							id,
+							c,
+							_Utils_Tuple2(s, pipe));
+					}),
+				visible: true,
+				width: '37px'
+			});
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_50 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '249', '250', '251', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $rtfeldman$elm_css$VirtualDom$Styled$style = F2(
+	function (key, val) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$style, key, val),
+			false,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$style = $rtfeldman$elm_css$VirtualDom$Styled$style;
+var $rtfeldman$elm_css$Html$Styled$td = $rtfeldman$elm_css$Html$Styled$node('td');
+var $rtfeldman$elm_css$Html$Styled$tr = $rtfeldman$elm_css$Html$Styled$node('tr');
+var $author$project$Internal$Table$subtableContentBodyRow = F5(
+	function (pipeExt, cfg, columns, state, _v0) {
+		var r = _v0.a;
+		return _List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$tr,
+				_List_Nil,
+				A2(
+					$elm$core$List$map,
+					function (_v1) {
+						var c = _v1.a;
+						return A2(
+							$rtfeldman$elm_css$Html$Styled$td,
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$Attributes$css(
 									_List_fromArray(
 										[
-											A3(
-											toToggle,
-											$rtfeldman$elm_css$Html$Styled$div,
-											_List_Nil,
-											_List_fromArray(
-												[
-													$author$project$UaDropdownMultiSelect$dropdownToggle(icon)
-												])),
-											A3(
-											toDrawer,
-											$rtfeldman$elm_css$Html$Styled$div,
-											_List_Nil,
-											_List_fromArray(
-												[
-													A2($author$project$UaDropdownMultiSelect$dropdownMenu, items, selecteds)
-												]))
-										]));
-							},
-							onToggle: $author$project$UaDropdownMultiSelect$ToggleDropdown,
-							toggleEvent: $author$project$Dropdown$OnClick
-						})
-					])));
+											$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2,
+											$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_b,
+											$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300)
+										])),
+									$rtfeldman$elm_css$Html$Styled$Attributes$class(c._class),
+									A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'width', c.width)
+								]),
+							A2(
+								c.viewCell,
+								r,
+								_Utils_Tuple2(state, pipeExt)));
+					},
+					columns)),
+				function () {
+				var _v2 = _Utils_Tuple2(
+					cfg.expand,
+					A2(
+						$elm$core$List$member,
+						cfg.getID(r),
+						state.subtable.expanded));
+				if ((_v2.a.$ === 'Just') && _v2.b) {
+					var c = _v2.a.a.a;
+					return A2(
+						$rtfeldman$elm_css$Html$Styled$tr,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Html$Styled$td,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css(
+										_List_fromArray(
+											[
+												$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2,
+												$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_50)
+											])),
+										$rtfeldman$elm_css$Html$Styled$Attributes$colspan(
+										$elm$core$List$length(columns))
+									]),
+								A2(
+									c.viewCell,
+									r,
+									_Utils_Tuple2(state, pipeExt)))
+							]));
+				} else {
+					return $rtfeldman$elm_css$Html$Styled$text('');
+				}
+			}()
+			]);
 	});
-var $author$project$DropdownTest$main = $elm$browser$Browser$sandbox(
-	{
-		init: $author$project$UaDropdownMultiSelect$init(
+var $rtfeldman$elm_css$Html$Styled$tbody = $rtfeldman$elm_css$Html$Styled$node('tbody');
+var $author$project$Internal$Table$subtableContentBody = F5(
+	function (pipeExt, cfg, columns, state, rows) {
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$tbody,
+			_List_Nil,
+			$elm$core$List$concat(
+				A2(
+					$elm$core$List$map,
+					A4($author$project$Internal$Table$subtableContentBodyRow, pipeExt, cfg, columns, state),
+					rows)));
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '229', '231', '235', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_left = A2($rtfeldman$elm_css$Css$property, 'text-align', 'left');
+var $rtfeldman$elm_css$Html$Styled$th = $rtfeldman$elm_css$Html$Styled$node('th');
+var $rtfeldman$elm_css$Html$Styled$thead = $rtfeldman$elm_css$Html$Styled$node('thead');
+var $author$project$Internal$Table$tableContentHead = F5(
+	function (hasSelection, pipeExt, pipeInt, columns, state) {
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$thead,
+			_List_Nil,
 			_List_fromArray(
-				['A', 'B', 'C', 'oasdlf ajd fklaj sdklfa lkdjf alkjdf klaj dfklajd lfkja dklf'])),
-		update: $author$project$UaDropdownMultiSelect$update,
-		view: $author$project$UaDropdownMultiSelect$view($author$project$DropdownTest$faTableColumnsIcon)
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$tr,
+					_List_Nil,
+					A2(
+						$elm$core$List$indexedMap,
+						F2(
+							function (i, col) {
+								var c = col.a;
+								return A2(
+									$rtfeldman$elm_css$Html$Styled$th,
+									_List_fromArray(
+										[
+											$rtfeldman$elm_css$Html$Styled$Attributes$css(
+											_List_fromArray(
+												[
+													$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2,
+													$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_left,
+													$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200)
+												]))
+										]),
+									A2(
+										c.viewHeader,
+										col,
+										_Utils_Tuple2(
+											state,
+											((!i) && hasSelection) ? pipeInt : pipeExt)));
+							}),
+						columns))
+				]));
 	});
-_Platform_export({'DropdownTest':{'init':$author$project$DropdownTest$main(
+var $author$project$Internal$Table$subtableContent = F7(
+	function (config, pipeExt, pipeInt, parent, subConfig, state, data) {
+		var cfg = config.a;
+		var visibleColumns = A2(
+			$elm$core$List$filter,
+			function (_v0) {
+				var c = _v0.a;
+				return A2($elm$core$List$member, c.name, state.subtable.visible);
+			},
+			subConfig.columns);
+		var rows = A2($elm$core$List$map, $author$project$Internal$Data$Row, data);
+		var selectColumn = A2(
+			$author$project$Internal$Util$ifMaybe,
+			!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
+			A4($author$project$Internal$Selection$selectionChild, pipeInt, config, rows, parent));
+		var expandColumn = A2(
+			$author$project$Internal$Util$ifMaybe,
+			!_Utils_eq(subConfig.expand, $elm$core$Maybe$Nothing),
+			A3($author$project$Internal$Column$expand, pipeInt, $author$project$Internal$State$lensTable, subConfig.getID));
+		var columns = A2(
+			$author$project$Internal$Util$prependMaybe,
+			selectColumn,
+			A2($author$project$Internal$Util$prependMaybe, expandColumn, visibleColumns));
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$class('subtable-content')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$table,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A5(
+							$author$project$Internal$Table$tableContentHead,
+							!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
+							pipeInt,
+							pipeExt,
+							columns,
+							state),
+							A5($author$project$Internal$Table$subtableContentBody, pipeExt, subConfig, columns, state, rows)
+						]))
+				]));
+	});
+var $author$project$Internal$Table$tableContentBodyRow = F6(
+	function (config, pipeExt, pipeInt, columns, state, _v0) {
+		var cfg = config.a;
+		var r = _v0.a;
+		return _List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$tr,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$hover(
+								_List_fromArray(
+									[
+										$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_100)
+									]))
+							]))
+					]),
+				A2(
+					$elm$core$List$map,
+					function (_v1) {
+						var c = _v1.a;
+						return A2(
+							$rtfeldman$elm_css$Html$Styled$td,
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$Attributes$css(
+									_List_fromArray(
+										[
+											$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2,
+											$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_b,
+											$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300)
+										]))
+								]),
+							A2(
+								c.viewCell,
+								r,
+								_Utils_Tuple2(state, pipeExt)));
+					},
+					columns)),
+				function () {
+				var _v2 = _Utils_Tuple2(
+					cfg.table.expand,
+					A2(
+						$elm$core$List$member,
+						cfg.table.getID(r),
+						state.table.expanded));
+				if ((_v2.a.$ === 'Just') && _v2.b) {
+					var c = _v2.a.a.a;
+					return A2(
+						$rtfeldman$elm_css$Html$Styled$tr,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Html$Styled$td,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$colspan(
+										$elm$core$List$length(columns))
+									]),
+								A2(
+									c.viewCell,
+									r,
+									_Utils_Tuple2(state, pipeExt)))
+							]));
+				} else {
+					return $rtfeldman$elm_css$Html$Styled$text('');
+				}
+			}(),
+				function () {
+				var _v3 = _Utils_Tuple2(
+					cfg.subtable,
+					A2(
+						$elm$core$List$member,
+						cfg.table.getID(r),
+						state.table.subtable));
+				if ((_v3.a.$ === 'Just') && _v3.b) {
+					var _v4 = _v3.a.a;
+					var getValue = _v4.a;
+					var conf = _v4.b;
+					return A2(
+						$rtfeldman$elm_css$Html$Styled$tr,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Html$Styled$td,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$colspan(
+										$elm$core$List$length(columns))
+									]),
+								_List_fromArray(
+									[
+										A7(
+										$author$project$Internal$Table$subtableContent,
+										config,
+										pipeExt,
+										pipeInt,
+										cfg.table.getID(r),
+										conf,
+										state,
+										getValue(r))
+									]))
+							]));
+				} else {
+					return $rtfeldman$elm_css$Html$Styled$text('');
+				}
+			}()
+			]);
+	});
+var $author$project$Internal$Table$tableContentBody = F6(
+	function (config, pipeExt, pipeInt, columns, state, rows) {
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$tbody,
+			_List_Nil,
+			$elm$core$List$concat(
+				A2(
+					$elm$core$List$map,
+					A5($author$project$Internal$Table$tableContentBodyRow, config, pipeExt, pipeInt, columns, state),
+					rows)));
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full = A2($rtfeldman$elm_css$Css$property, 'width', '100%');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$white = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '255', '255', '255', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
+var $author$project$Internal$Table$tableContent = F5(
+	function (config, pipeExt, pipeInt, state, rows) {
+		var cfg = config.a;
+		var visibleColumns = A2(
+			$elm$core$List$filter,
+			function (_v5) {
+				var c = _v5.a;
+				return A2($elm$core$List$member, c.name, state.table.visible);
+			},
+			cfg.table.columns);
+		var subtableColumn = function () {
+			var _v3 = cfg.subtable;
+			if (_v3.$ === 'Just') {
+				var _v4 = _v3.a;
+				var get = _v4.a;
+				return $elm$core$Maybe$Just(
+					A4(
+						$author$project$Internal$Column$subtable,
+						A2($elm$core$Basics$composeR, get, $elm$core$List$isEmpty),
+						pipeInt,
+						$author$project$Internal$State$lensTable,
+						cfg.table.getID));
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		}();
+		var srows = A3(
+			$author$project$Internal$Util$iff,
+			_Utils_eq(cfg.type_, $author$project$Table$Types$Static),
+			A3($author$project$Internal$Table$sort, cfg.table.columns, state, rows),
+			rows);
+		var selectColumn = A2(
+			$author$project$Internal$Util$ifMaybe,
+			!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
+			A3($author$project$Internal$Selection$selectionParent, pipeInt, config, rows));
+		var filter = function (rs) {
+			return A3(
+				$author$project$Internal$Util$iff,
+				$elm$core$String$isEmpty(state.search),
+				rs,
+				A2(
+					$elm$core$List$filter,
+					function (_v0) {
+						var a = _v0.a;
+						return A2(
+							$elm$core$List$any,
+							function (_v1) {
+								var c = _v1.a;
+								var _v2 = c.searchable;
+								if (_v2.$ === 'Nothing') {
+									return false;
+								} else {
+									var fn = _v2.a;
+									return A2(
+										$elm$core$String$contains,
+										state.search,
+										fn(a));
+								}
+							},
+							cfg.table.columns);
+					},
+					rows));
+		};
+		var frows = A3(
+			$author$project$Internal$Util$iff,
+			_Utils_eq(cfg.type_, $author$project$Table$Types$Static),
+			filter(srows),
+			srows);
+		var expandColumn = A2(
+			$author$project$Internal$Util$ifMaybe,
+			!_Utils_eq(cfg.table.expand, $elm$core$Maybe$Nothing),
+			A3($author$project$Internal$Column$expand, pipeInt, $author$project$Internal$State$lensTable, cfg.table.getID));
+		var cut = function (rs) {
+			return $elm$core$Array$toList(
+				A3(
+					$elm$core$Array$slice,
+					state.page * state.byPage,
+					(state.page + 1) * state.byPage,
+					$elm$core$Array$fromList(rs)));
+		};
+		var prows = A3(
+			$author$project$Internal$Util$iff,
+			_Utils_eq(cfg.type_, $author$project$Table$Types$Static) && (!_Utils_eq(cfg.pagination, $author$project$Internal$Config$None)),
+			cut(frows),
+			frows);
+		var columns = A2(
+			$author$project$Internal$Util$prependMaybe,
+			selectColumn,
+			A2(
+				$author$project$Internal$Util$prependMaybe,
+				expandColumn,
+				A2($author$project$Internal$Util$prependMaybe, subtableColumn, visibleColumns)));
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$overflow_auto]))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$table,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full,
+									$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$white),
+									$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow,
+									$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded
+								]))
+						]),
+					_List_fromArray(
+						[
+							A5(
+							$author$project$Internal$Table$tableContentHead,
+							!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
+							pipeExt,
+							pipeInt,
+							columns,
+							state),
+							A6($author$project$Internal$Table$tableContentBody, config, pipeExt, pipeInt, columns, state, prows)
+						]))
+				]));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$attribute = $rtfeldman$elm_css$VirtualDom$Styled$attribute;
+var $author$project$Internal$Util$ifh = F2(
+	function (c, a) {
+		return A3(
+			$author$project$Internal$Util$iff,
+			c,
+			a,
+			$rtfeldman$elm_css$Html$Styled$text(''));
+	});
+var $rtfeldman$elm_css$Html$Styled$nav = $rtfeldman$elm_css$Html$Styled$node('nav');
+var $author$project$Internal$Pagination$pagIndex = F2(
+	function (n, c) {
+		if (!c) {
+			if (n > 3) {
+				var m = $elm$core$Basics$floor(n / 2);
+				return _Utils_Tuple3(m - 1, m, m + 1);
+			} else {
+				return _Utils_Tuple3(0, 1, 2);
+			}
+		} else {
+			if (c === 1) {
+				return (n > 3) ? _Utils_Tuple3(1, 2, 3) : _Utils_Tuple3(0, 1, 2);
+			} else {
+				if (_Utils_eq(c, n - 1)) {
+					return (n > 3) ? _Utils_Tuple3(n - 4, n - 3, n - 2) : _Utils_Tuple3(n - 3, n - 2, n - 1);
+				} else {
+					if (_Utils_eq(c, n - 2)) {
+						return _Utils_Tuple3(n - 4, n - 3, n - 2);
+					} else {
+						return _Utils_Tuple3(c - 1, c, c + 1);
+					}
+				}
+			}
+		}
+	});
+var $author$project$Internal$Pagination$paginationEllipsis = A2(
+	$rtfeldman$elm_css$Html$Styled$span,
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Html$Styled$Attributes$class('pagination-ellipsis')
+		]),
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Html$Styled$text('…')
+		]));
+var $author$project$Internal$Pagination$paginationLink = F3(
+	function (pipe, page, i) {
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$a,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$class(
+					'pagination-link ' + A3(
+						$author$project$Internal$Util$iff,
+						_Utils_eq(page, i),
+						'is-current',
+						'')),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$Attributes$attribute,
+					'aria-label',
+					'Goto page ' + $elm$core$String$fromInt(i + 1)),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$Attributes$attribute,
+					'aria-current',
+					A3(
+						$author$project$Internal$Util$iff,
+						_Utils_eq(page, i),
+						'page',
+						'')),
+					$rtfeldman$elm_css$Html$Styled$Events$onClick(
+					pipe(
+						function (state) {
+							return _Utils_update(
+								state,
+								{page: i});
+						}))
+				]),
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$text(
+					$elm$core$String$fromInt(i + 1))
+				]));
+	});
+var $rtfeldman$elm_css$Html$Styled$ul = $rtfeldman$elm_css$Html$Styled$node('ul');
+var $author$project$Internal$Pagination$tableFooterContent = F6(
+	function (type_, pipeInt, pipeExt, byPage, page, total) {
+		var pipe = A3(
+			$author$project$Internal$Util$iff,
+			_Utils_eq(type_, $author$project$Table$Types$Static),
+			pipeInt,
+			pipeExt);
+		var nb = $elm$core$Basics$ceiling(total / byPage);
+		var _v0 = A3(
+			$author$project$Internal$Util$iff,
+			nb === 1,
+			_Utils_Tuple3(0, 0, 0),
+			A2($author$project$Internal$Pagination$pagIndex, nb, page));
+		var ia = _v0.a;
+		var ib = _v0.b;
+		var ic = _v0.c;
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$class('table-footer')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$nav,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$class('pagination is-centered'),
+							A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'role', 'navigation'),
+							A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'aria-label', 'pagination')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$author$project$Internal$Util$ifh,
+							nb > 1,
+							A2(
+								$rtfeldman$elm_css$Html$Styled$a,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$class(
+										'pagination-previous' + A3($author$project$Internal$Util$iff, !page, ' is-disabled', '')),
+										$rtfeldman$elm_css$Html$Styled$Events$onClick(
+										pipe(
+											function (state) {
+												return _Utils_update(
+													state,
+													{page: state.page - 1});
+											}))
+									]),
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$text('Previous')
+									]))),
+							A2(
+							$author$project$Internal$Util$ifh,
+							nb > 1,
+							A2(
+								$rtfeldman$elm_css$Html$Styled$a,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$class(
+										'pagination-next' + A3(
+											$author$project$Internal$Util$iff,
+											_Utils_eq(page, nb - 1),
+											' is-disabled',
+											'')),
+										$rtfeldman$elm_css$Html$Styled$Events$onClick(
+										pipe(
+											function (state) {
+												return _Utils_update(
+													state,
+													{page: page + 1});
+											}))
+									]),
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$text('Next page')
+									]))),
+							A2(
+							$rtfeldman$elm_css$Html$Styled$ul,
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Html$Styled$Attributes$class('pagination-list')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$author$project$Internal$Util$ifh,
+									nb > 3,
+									A3($author$project$Internal$Pagination$paginationLink, pipe, page, 0)),
+									A2($author$project$Internal$Util$ifh, nb > 3, $author$project$Internal$Pagination$paginationEllipsis),
+									A2(
+									$author$project$Internal$Util$ifh,
+									nb > 1,
+									A3($author$project$Internal$Pagination$paginationLink, pipe, page, ia)),
+									A2(
+									$author$project$Internal$Util$ifh,
+									nb > 0,
+									A3($author$project$Internal$Pagination$paginationLink, pipe, page, ib)),
+									A2(
+									$author$project$Internal$Util$ifh,
+									nb > 2,
+									A3($author$project$Internal$Pagination$paginationLink, pipe, page, ic)),
+									A2($author$project$Internal$Util$ifh, nb > 4, $author$project$Internal$Pagination$paginationEllipsis),
+									A2(
+									$author$project$Internal$Util$ifh,
+									nb > 4,
+									A3($author$project$Internal$Pagination$paginationLink, pipe, page, nb - 1))
+								]))
+						]))
+				]));
+	});
+var $author$project$Internal$Table$tableFooter = F5(
+	function (_v0, pipeExt, pipeInt, state, total) {
+		var cfg = _v0.a;
+		return _Utils_eq(cfg.pagination, $author$project$Internal$Config$None) ? $rtfeldman$elm_css$Html$Styled$text('') : A6($author$project$Internal$Pagination$tableFooterContent, cfg.type_, pipeInt, pipeExt, state.byPage, state.page, total);
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$gap_2 = A2($rtfeldman$elm_css$Css$property, 'gap', '0.5rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grow = A2($rtfeldman$elm_css$Css$property, 'flex-grow', '1');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute = A2($rtfeldman$elm_css$Css$property, 'position', 'absolute');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border = A2($rtfeldman$elm_css$Css$property, 'border-width', '1px');
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = $rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
+var $rtfeldman$elm_css$Svg$Styled$fromUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10 = A2($rtfeldman$elm_css$Css$property, 'height', '2.5rem');
+var $rtfeldman$elm_css$Html$Styled$i = $rtfeldman$elm_css$Html$Styled$node('i');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex = A2($rtfeldman$elm_css$Css$property, 'display', 'inline-flex');
+var $lattyware$elm_fontawesome$FontAwesome$IconDef = F4(
+	function (prefix, name, size, paths) {
+		return {name: name, paths: paths, prefix: prefix, size: size};
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$magnifyingGlass = A4(
+	$lattyware$elm_fontawesome$FontAwesome$IconDef,
+	'fas',
+	'magnifying-glass',
+	_Utils_Tuple2(512, 512),
+	_Utils_Tuple2('M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z', $elm$core$Maybe$Nothing));
+var $lattyware$elm_fontawesome$FontAwesome$Internal$Icon = function (a) {
+	return {$: 'Icon', a: a};
+};
+var $lattyware$elm_fontawesome$FontAwesome$present = function (icon) {
+	return $lattyware$elm_fontawesome$FontAwesome$Internal$Icon(
+		{attributes: _List_Nil, icon: icon, id: $elm$core$Maybe$Nothing, outer: $elm$core$Maybe$Nothing, role: 'img', title: $elm$core$Maybe$Nothing, transforms: _List_Nil});
+};
+var $lattyware$elm_fontawesome$FontAwesome$Solid$magnifyingGlass = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$magnifyingGlass);
+var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetValue)));
+};
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $rtfeldman$elm_css$Html$Styled$Events$keyCode = A2($elm$json$Json$Decode$field, 'keyCode', $elm$json$Json$Decode$int);
+var $author$project$Internal$Util$onKeyDown = function (tagger) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$on,
+		'keydown',
+		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$keyCode));
+};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$pl_1 = A2($rtfeldman$elm_css$Css$property, 'padding-left', '0.25rem');
+var $rtfeldman$elm_css$Html$Styled$Attributes$placeholder = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$pointer_events_none = A2($rtfeldman$elm_css$Css$property, 'pointer-events', 'none');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$pr_20 = A2($rtfeldman$elm_css$Css$property, 'padding-right', '5rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_1 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.25rem'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.25rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative = A2($rtfeldman$elm_css$Css$property, 'position', 'relative');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_0 = A2($rtfeldman$elm_css$Css$property, 'right', '0px');
+var $rtfeldman$elm_css$Svg$Styled$Attributes$style = $rtfeldman$elm_css$VirtualDom$Styled$attribute('style');
+var $rtfeldman$elm_css$VirtualDom$Styled$nodeNS = $rtfeldman$elm_css$VirtualDom$Styled$NodeNS;
+var $rtfeldman$elm_css$Svg$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$nodeNS('http://www.w3.org/2000/svg');
+var $rtfeldman$elm_css$Svg$Styled$svg = $rtfeldman$elm_css$Svg$Styled$node('svg');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_color = function (color) {
+	return A4(
+		$matheus23$elm_tailwind_modules_base$Tailwind$Color$propertyWithColor,
+		'color',
+		function (c) {
+			return c;
+		},
+		$elm$core$Maybe$Just('--tw-text-opacity'),
+		color);
+};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$top_0 = A2($rtfeldman$elm_css$Css$property, 'top', '0px');
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var $lattyware$elm_fontawesome$FontAwesome$Svg$fill = _List_fromArray(
+	[
+		$elm$svg$Svg$Attributes$x('0'),
+		$elm$svg$Svg$Attributes$y('0'),
+		$elm$svg$Svg$Attributes$width('100%'),
+		$elm$svg$Svg$Attributes$height('100%')
+	]);
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
+var $elm$svg$Svg$mask = $elm$svg$Svg$trustedNode('mask');
+var $elm$svg$Svg$Attributes$mask = _VirtualDom_attribute('mask');
+var $elm$svg$Svg$Attributes$maskContentUnits = _VirtualDom_attribute('maskContentUnits');
+var $elm$svg$Svg$Attributes$maskUnits = _VirtualDom_attribute('maskUnits');
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add = F2(
+	function (transform, combined) {
+		switch (transform.$) {
+			case 'Scale':
+				var by = transform.a;
+				return _Utils_update(
+					combined,
+					{size: combined.size + by});
+			case 'Reposition':
+				var axis = transform.a;
+				var by = transform.b;
+				var _v1 = function () {
+					if (axis.$ === 'Vertical') {
+						return _Utils_Tuple2(0, by);
+					} else {
+						return _Utils_Tuple2(by, 0);
+					}
+				}();
+				var x = _v1.a;
+				var y = _v1.b;
+				return _Utils_update(
+					combined,
+					{x: combined.x + x, y: combined.y + y});
+			case 'Rotate':
+				var rotation = transform.a;
+				return _Utils_update(
+					combined,
+					{rotate: combined.rotate + rotation});
+			default:
+				var axis = transform.a;
+				if (axis.$ === 'Vertical') {
+					return _Utils_update(
+						combined,
+						{flipY: !combined.flipY});
+				} else {
+					return _Utils_update(
+						combined,
+						{flipX: !combined.flipX});
+				}
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize = 16;
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform = {flipX: false, flipY: false, rotate: 0, size: $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize, x: 0, y: 0};
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine = function (transforms) {
+	return A3($elm$core$List$foldl, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform, transforms);
+};
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform = function (transforms) {
+	var combined = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine(transforms);
+	return _Utils_eq(combined, $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(combined);
+};
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
+var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions = function (_v1) {
+	var icon = _v1.a.icon;
+	var outer = _v1.a.outer;
+	return A2(
+		$elm$core$Maybe$withDefault,
+		icon.size,
+		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal, outer));
+};
+var $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensionsInternal = function (_v0) {
+	var icon = _v0.a.icon;
+	var outer = _v0.a.outer;
+	return A2(
+		$elm$core$Maybe$withDefault,
+		icon.size,
+		A2($elm$core$Maybe$map, $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions, outer));
+};
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg = F3(
+	function (containerWidth, iconWidth, transform) {
+		var path = 'translate(' + ($elm$core$String$fromFloat((iconWidth / 2) * (-1)) + ' -256)');
+		var outer = 'translate(' + ($elm$core$String$fromFloat(containerWidth / 2) + ' 256)');
+		var innerTranslate = 'translate(' + ($elm$core$String$fromFloat(transform.x * 32) + (',' + ($elm$core$String$fromFloat(transform.y * 32) + ') ')));
+		var innerRotate = 'rotate(' + ($elm$core$String$fromFloat(transform.rotate) + ' 0 0)');
+		var flipY = transform.flipY ? (-1) : 1;
+		var scaleY = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipY;
+		var flipX = transform.flipX ? (-1) : 1;
+		var scaleX = (transform.size / $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipX;
+		var innerScale = 'scale(' + ($elm$core$String$fromFloat(scaleX) + (', ' + ($elm$core$String$fromFloat(scaleY) + ') ')));
+		return {
+			inner: $elm$svg$Svg$Attributes$transform(
+				_Utils_ap(
+					innerTranslate,
+					_Utils_ap(innerScale, innerRotate))),
+			outer: $elm$svg$Svg$Attributes$transform(outer),
+			path: $elm$svg$Svg$Attributes$transform(path)
+		};
+	});
+var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPath = F2(
+	function (attrs, d) {
+		return A2(
+			$elm$svg$Svg$path,
+			A2(
+				$elm$core$List$cons,
+				$elm$svg$Svg$Attributes$d(d),
+				attrs),
+			_List_Nil);
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths = F2(
+	function (attrs, _v0) {
+		var paths = _v0.paths;
+		if (paths.b.$ === 'Nothing') {
+			var only = paths.a;
+			var _v2 = paths.b;
+			return A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewPath, attrs, only);
+		} else {
+			var secondary = paths.a;
+			var primary = paths.b.a;
+			return A2(
+				$elm$svg$Svg$g,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$class('fa-group')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
+						A2(
+							$elm$core$List$cons,
+							$elm$svg$Svg$Attributes$class('fa-secondary'),
+							attrs),
+						secondary),
+						A2(
+						$lattyware$elm_fontawesome$FontAwesome$Svg$viewPath,
+						A2(
+							$elm$core$List$cons,
+							$elm$svg$Svg$Attributes$class('fa-primary'),
+							attrs),
+						primary)
+					]));
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform = F3(
+	function (color, _v0, icon) {
+		var outer = _v0.outer;
+		var inner = _v0.inner;
+		var path = _v0.path;
+		return A2(
+			$elm$svg$Svg$g,
+			_List_fromArray(
+				[outer]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$g,
+					_List_fromArray(
+						[inner]),
+					_List_fromArray(
+						[
+							A2(
+							$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
+							_List_fromArray(
+								[
+									$elm$svg$Svg$Attributes$fill(color),
+									path
+								]),
+							icon)
+						]))
+				]));
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor = F2(
+	function (color, fullIcon) {
+		var icon = fullIcon.a.icon;
+		var transforms = fullIcon.a.transforms;
+		var id = fullIcon.a.id;
+		var outer = fullIcon.a.outer;
+		var combinedTransforms = $lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform(transforms);
+		var _v0 = icon.size;
+		var width = _v0.a;
+		var _v1 = $lattyware$elm_fontawesome$FontAwesome$Internal$topLevelDimensions(fullIcon);
+		var topLevelWidth = _v1.a;
+		if (combinedTransforms.$ === 'Just') {
+			var meaningfulTransform = combinedTransforms.a;
+			var svgTransform = A3($lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg, topLevelWidth, width, meaningfulTransform);
+			if (outer.$ === 'Just') {
+				var outerIcon = outer.a;
+				return A4($lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform, color, svgTransform, icon, outerIcon);
+			} else {
+				return A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, color, svgTransform, icon);
+			}
+		} else {
+			return A2(
+				$lattyware$elm_fontawesome$FontAwesome$Svg$viewPaths,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$fill(color)
+					]),
+				icon);
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$viewMaskedWithTransform = F4(
+	function (color, transforms, exclude, include) {
+		var id = include.a.id;
+		var alwaysId = A2($elm$core$Maybe$withDefault, '', id);
+		var clipId = 'clip-' + alwaysId;
+		var maskId = 'mask-' + alwaysId;
+		var maskTag = A2(
+			$elm$svg$Svg$mask,
+			A2(
+				$elm$core$List$cons,
+				$elm$svg$Svg$Attributes$id(maskId),
+				A2(
+					$elm$core$List$cons,
+					$elm$svg$Svg$Attributes$maskUnits('userSpaceOnUse'),
+					A2(
+						$elm$core$List$cons,
+						$elm$svg$Svg$Attributes$maskContentUnits('userSpaceOnUse'),
+						$lattyware$elm_fontawesome$FontAwesome$Svg$fill))),
+			_List_fromArray(
+				[
+					A2($lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor, 'white', include),
+					A3($lattyware$elm_fontawesome$FontAwesome$Svg$viewWithTransform, 'black', transforms, exclude)
+				]));
+		var defs = A2(
+			$elm$svg$Svg$defs,
+			_List_Nil,
+			_List_fromArray(
+				[maskTag]));
+		var rect = A2(
+			$elm$svg$Svg$rect,
+			A2(
+				$elm$core$List$cons,
+				$elm$svg$Svg$Attributes$fill(color),
+				A2(
+					$elm$core$List$cons,
+					$elm$svg$Svg$Attributes$mask('url(#' + (maskId + ')')),
+					$lattyware$elm_fontawesome$FontAwesome$Svg$fill)),
+			_List_Nil);
+		return A2(
+			$elm$svg$Svg$g,
+			_List_Nil,
+			_List_fromArray(
+				[defs, rect]));
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Svg$view = $lattyware$elm_fontawesome$FontAwesome$Svg$viewInColor('currentColor');
+var $rtfeldman$elm_css$Svg$Styled$Attributes$viewBox = $rtfeldman$elm_css$VirtualDom$Styled$attribute('viewBox');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10 = A2($rtfeldman$elm_css$Css$property, 'width', '2.5rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10 = A2($rtfeldman$elm_css$Css$property, 'z-index', '10');
+var $author$project$Internal$Table$headerSearch = F2(
+	function (pipeExt, pipeInt) {
+		return _List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$input,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$pl_1, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_1, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$pr_20, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10])),
+						$rtfeldman$elm_css$Html$Styled$Attributes$type_('text'),
+						$rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Search...'),
+						$rtfeldman$elm_css$Html$Styled$Events$onInput(
+						function (s) {
+							return pipeInt(
+								function (state) {
+									return _Utils_update(
+										state,
+										{search: s});
+								});
+						}),
+						$author$project$Internal$Util$onKeyDown(
+						function (i) {
+							return A3(
+								$author$project$Internal$Util$iff,
+								i === 13,
+								pipeExt(
+									function (state) {
+										return _Utils_update(
+											state,
+											{search: state.search});
+									}),
+								pipeExt(
+									function (state) {
+										return state;
+									}));
+						})
+					]),
+				_List_Nil),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$span,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_0,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$top_0,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_center,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$pointer_events_none,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300)
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$rtfeldman$elm_css$Html$Styled$i,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Svg$Styled$svg,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Svg$Styled$Attributes$viewBox('0 0 512 512'),
+										$rtfeldman$elm_css$Svg$Styled$Attributes$style('width: 24px; height: 24px;')
+									]),
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
+										$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$magnifyingGlass))
+									]))
+							]))
+					]))
+			]);
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_between = A2($rtfeldman$elm_css$Css$property, 'justify-content', 'space-between');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_4 = A2($rtfeldman$elm_css$Css$property, 'margin-bottom', '1rem');
+var $author$project$UaDropdownMultiSelect$Right = {$: 'Right'};
+var $author$project$UaDropdownMultiSelect$nth = F2(
+	function (n, xs) {
+		return $elm$core$List$head(
+			A2($elm$core$List$drop, n, xs));
+	});
+var $author$project$UaDropdownMultiSelect$clickDropdown = F2(
+	function (idx, st) {
+		var isSelected = A2($author$project$UaDropdownMultiSelect$nth, idx, st.selecteds);
+		var front = A2($elm$core$List$take, idx, st.selecteds);
+		var back = A2($elm$core$List$drop, idx + 1, st.selecteds);
+		if (isSelected.$ === 'Nothing') {
+			return st;
+		} else {
+			var x = isSelected.a;
+			return _Utils_update(
+				st,
+				{
+					selecteds: _Utils_ap(
+						front,
+						A2($elm$core$List$cons, !x, back))
+				});
+		}
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns = A4(
+	$lattyware$elm_fontawesome$FontAwesome$IconDef,
+	'fas',
+	'table-columns',
+	_Utils_Tuple2(512, 512),
+	_Utils_Tuple2('M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm64 64l0 256 160 0 0-256L64 160zm384 0l-160 0 0 256 160 0 0-256z', $elm$core$Maybe$Nothing));
+var $lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns);
+var $author$project$Internal$Toolbar$faTableColumnsIcon = A2(
+	$rtfeldman$elm_css$Svg$Styled$svg,
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Svg$Styled$Attributes$viewBox('0 0 512 512'),
+			$rtfeldman$elm_css$Svg$Styled$Attributes$style('width: 20px; height: 20px;')
+		]),
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
+			$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns))
+		]));
+var $author$project$UaDropdownMultiSelect$toggleDropdown = F2(
+	function (_new, st) {
+		return _Utils_update(
+			st,
+			{isOpen: _new});
+	});
+var $author$project$Dropdown$OnClick = {$: 'OnClick'};
+var $author$project$Dropdown$drawer = F4(
+	function (_v0, element, givenAttributes, children) {
+		var drawerVisibleAttribute = _v0.drawerVisibleAttribute;
+		var isToggled = _v0.isToggled;
+		var attributes = isToggled ? A2(
+			$elm$core$List$cons,
+			drawerVisibleAttribute,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'visibility', 'visible'),
+						A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'position', 'absolute')
+					]),
+				givenAttributes)) : _Utils_ap(
+			_List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'visibility', 'hidden'),
+					A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'position', 'absolute')
+				]),
+			givenAttributes);
+		return A2(element, attributes, children);
+	});
+var $author$project$Dropdown$DomElement = F2(
+	function (isDropdown, parentElement) {
+		return {isDropdown: isDropdown, parentElement: parentElement};
+	});
+var $author$project$Dropdown$ParentElement = function (a) {
+	return {$: 'ParentElement', a: a};
+};
+var $author$project$Dropdown$isDropdown = F2(
+	function (identifier, identifier2) {
+		return $elm$json$Json$Decode$succeed(
+			_Utils_eq(identifier, identifier2));
+	});
+var $elm$json$Json$Decode$maybe = function (decoder) {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder),
+				$elm$json$Json$Decode$succeed($elm$core$Maybe$Nothing)
+			]));
+};
+var $elm_community$json_extra$Json$Decode$Extra$withDefault = F2(
+	function (fallback, decoder) {
+		return A2(
+			$elm$json$Json$Decode$map,
+			$elm$core$Maybe$withDefault(fallback),
+			$elm$json$Json$Decode$maybe(decoder));
+	});
+var $author$project$Dropdown$decodeDomElement = function (identifier) {
+	return A3(
+		$elm$json$Json$Decode$map2,
+		$author$project$Dropdown$DomElement,
+		A2(
+			$elm_community$json_extra$Json$Decode$Extra$withDefault,
+			false,
+			A2(
+				$elm$json$Json$Decode$andThen,
+				$author$project$Dropdown$isDropdown(identifier),
+				A2($elm$json$Json$Decode$field, 'dropdownId', $elm$json$Json$Decode$string))),
+		A2(
+			$elm$json$Json$Decode$field,
+			'parentElement',
+			$elm$json$Json$Decode$maybe(
+				A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Dropdown$ParentElement,
+					$elm$json$Json$Decode$lazy(
+						function (_v0) {
+							return $author$project$Dropdown$decodeDomElement(identifier);
+						})))));
+};
+var $author$project$Dropdown$isChildOfSelf = function (cfg) {
+	isChildOfSelf:
+	while (true) {
+		if (cfg.isDropdown) {
+			return $elm$json$Json$Decode$succeed(true);
+		} else {
+			var _v0 = cfg.parentElement;
+			if (_v0.$ === 'Nothing') {
+				return $elm$json$Json$Decode$succeed(false);
+			} else {
+				var domElement = _v0.a.a;
+				var $temp$cfg = domElement;
+				cfg = $temp$cfg;
+				continue isChildOfSelf;
+			}
+		}
+	}
+};
+var $author$project$Dropdown$isFocusOnSelf = function (identifier) {
+	return A2(
+		$elm_community$json_extra$Json$Decode$Extra$withDefault,
+		false,
+		A2(
+			$elm$json$Json$Decode$andThen,
+			$author$project$Dropdown$isChildOfSelf,
+			A2(
+				$elm$json$Json$Decode$field,
+				'relatedTarget',
+				$author$project$Dropdown$decodeDomElement(identifier))));
+};
+var $rtfeldman$elm_css$Html$Styled$Attributes$property = $rtfeldman$elm_css$VirtualDom$Styled$property;
+var $rtfeldman$elm_css$Html$Styled$Attributes$tabindex = function (n) {
+	return A2(
+		$rtfeldman$elm_css$VirtualDom$Styled$attribute,
+		'tabIndex',
+		$elm$core$String$fromInt(n));
+};
+var $author$project$Dropdown$root = F4(
+	function (_v0, element, attributes, children) {
+		var toggleEvent = _v0.toggleEvent;
+		var identifier = _v0.identifier;
+		var onToggle = _v0.onToggle;
+		var isToggled = _v0.isToggled;
+		var handleKeyDown = A2(
+			$elm$json$Json$Decode$map,
+			onToggle,
+			A2(
+				$elm$json$Json$Decode$andThen,
+				A2(
+					$elm$core$Basics$composeL,
+					A2(
+						$elm$core$Basics$composeL,
+						A2(
+							$elm$core$Basics$composeL,
+							$elm$json$Json$Decode$succeed,
+							$elm$core$Basics$and(isToggled)),
+						$elm$core$Basics$not),
+					$elm$core$Basics$eq(27)),
+				$rtfeldman$elm_css$Html$Styled$Events$keyCode));
+		var handleFocusChanged = A2(
+			$elm$json$Json$Decode$map,
+			onToggle,
+			$author$project$Dropdown$isFocusOnSelf(identifier));
+		var toggleEvents = function () {
+			if (toggleEvent.$ === 'OnHover') {
+				return _List_fromArray(
+					[
+						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'mouseout', handleFocusChanged),
+						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'focusout', handleFocusChanged)
+					]);
+			} else {
+				return _List_fromArray(
+					[
+						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'focusout', handleFocusChanged)
+					]);
+			}
+		}();
+		return A2(
+			element,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						A2($rtfeldman$elm_css$Html$Styled$Events$on, 'keydown', handleKeyDown)
+					]),
+				_Utils_ap(
+					toggleEvents,
+					_Utils_ap(
+						_List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Html$Styled$Attributes$property,
+								'dropdownId',
+								$elm$json$Json$Encode$string(identifier)),
+								$rtfeldman$elm_css$Html$Styled$Attributes$tabindex(-1),
+								A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'position', 'relative'),
+								A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'display', 'inline-block'),
+								A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'outline', 'none')
+							]),
+						attributes))),
+			children);
+	});
+var $elm$virtual_dom$VirtualDom$Custom = function (a) {
+	return {$: 'Custom', a: a};
+};
+var $rtfeldman$elm_css$Html$Styled$Events$custom = F2(
+	function (event, decoder) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Custom(decoder));
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$onFocus = function (msg) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$on,
+		'focus',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $rtfeldman$elm_css$Html$Styled$Events$onMouseEnter = function (msg) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$on,
+		'mouseenter',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $author$project$Dropdown$toggle = F4(
+	function (_v0, element, attributes, children) {
+		var onToggle = _v0.onToggle;
+		var toggleEvent = _v0.toggleEvent;
+		var isToggled = _v0.isToggled;
+		var toggleEvents = function () {
+			switch (toggleEvent.$) {
+				case 'OnClick':
+					return _List_fromArray(
+						[
+							A2(
+							$rtfeldman$elm_css$Html$Styled$Events$custom,
+							'click',
+							$elm$json$Json$Decode$succeed(
+								{
+									message: onToggle(!isToggled),
+									preventDefault: true,
+									stopPropagation: true
+								}))
+						]);
+				case 'OnHover':
+					return _List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Events$onMouseEnter(
+							onToggle(true)),
+							$rtfeldman$elm_css$Html$Styled$Events$onFocus(
+							onToggle(true))
+						]);
+				default:
+					return _List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Events$onFocus(
+							onToggle(true))
+						]);
+			}
+		}();
+		return A2(
+			element,
+			_Utils_ap(toggleEvents, attributes),
+			children);
+	});
+var $author$project$Dropdown$dropdown = function (config) {
+	return config.layout(
+		{
+			toDrawer: $author$project$Dropdown$drawer(config),
+			toDropdown: $author$project$Dropdown$root(config),
+			toToggle: $author$project$Dropdown$toggle(config)
+		});
+};
+var $author$project$UaDropdownMultiSelect$Left = {$: 'Left'};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_solid = A2($rtfeldman$elm_css$Css$property, 'border-style', 'solid');
+var $author$project$UaDropdownMultiSelect$border = _List_fromArray(
+	[
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_solid,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border,
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_300),
+		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded
+	]);
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$align_baseline = A2($rtfeldman$elm_css$Css$property, 'vertical-align', 'baseline');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$box_border = A2($rtfeldman$elm_css$Css$property, 'box-sizing', 'border-box');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$cursor_pointer = A2($rtfeldman$elm_css$Css$property, 'cursor', 'pointer');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$float_right = A2($rtfeldman$elm_css$Css$property, 'float', 'right');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_block = A2($rtfeldman$elm_css$Css$property, 'display', 'inline-block');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$overflow_hidden = A2($rtfeldman$elm_css$Css$property, 'overflow', 'hidden');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-left', '0.75rem'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-right', '0.75rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_ellipsis = A2($rtfeldman$elm_css$Css$property, 'text-overflow', 'ellipsis');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$whitespace_nowrap = A2($rtfeldman$elm_css$Css$property, 'white-space', 'nowrap');
+var $author$project$UaDropdownMultiSelect$dropdownItem = F3(
+	function (clickMsg, idx, _v0) {
+		var selected = _v0.a;
+		var str = _v0.b;
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$a,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_block,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$box_border,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_1,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$whitespace_nowrap,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$overflow_hidden,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_ellipsis,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$cursor_pointer,
+							$rtfeldman$elm_css$Css$hover(
+							_List_fromArray(
+								[
+									$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200)
+								]))
+						])),
+					$rtfeldman$elm_css$Html$Styled$Events$onClick(
+					clickMsg(idx))
+				]),
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$text(str),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$input,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$float_right, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$align_baseline])),
+							$rtfeldman$elm_css$Html$Styled$Attributes$type_('checkbox'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$checked(selected)
+						]),
+					_List_Nil)
+				]));
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$left_0 = A2($rtfeldman$elm_css$Css$property, 'left', '0px');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$left_auto = A2($rtfeldman$elm_css$Css$property, 'left', 'auto');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_1 = A2($rtfeldman$elm_css$Css$property, 'margin-top', '0.25rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2 = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'padding-top', '0.5rem'),
+			A2($rtfeldman$elm_css$Css$property, 'padding-bottom', '0.5rem')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_auto = A2($rtfeldman$elm_css$Css$property, 'right', 'auto');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_md = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, '--tw-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'),
+			A2($rtfeldman$elm_css$Css$property, '--tw-shadow-colored', '0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color)'),
+			A2($rtfeldman$elm_css$Css$property, 'box-shadow', 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)')
+		]));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_56 = A2($rtfeldman$elm_css$Css$property, 'width', '14rem');
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$UaDropdownMultiSelect$zip = $elm$core$List$map2($elm$core$Tuple$pair);
+var $author$project$UaDropdownMultiSelect$dropdownMenu = F5(
+	function (toDrawer, align, onClick, items, selected) {
+		return A3(
+			toDrawer,
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_Utils_ap(
+						_List_fromArray(
+							[
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$absolute,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mt_1,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$white),
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_md,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_56,
+								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2
+							]),
+						_Utils_ap(
+							$author$project$UaDropdownMultiSelect$border,
+							_Utils_eq(align, $author$project$UaDropdownMultiSelect$Left) ? _List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$left_0, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_auto]) : _List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$left_auto, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_0]))))
+				]),
+			A2(
+				$elm$core$List$indexedMap,
+				$author$project$UaDropdownMultiSelect$dropdownItem(onClick),
+				A2($author$project$UaDropdownMultiSelect$zip, selected, items)));
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block = A2($rtfeldman$elm_css$Css$property, 'display', 'block');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto = A2($rtfeldman$elm_css$Css$property, 'margin', 'auto');
+var $author$project$UaDropdownMultiSelect$dropdownToggle = function (icon) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$a,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_Utils_ap(
+					_List_fromArray(
+						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10]),
+					$author$project$UaDropdownMultiSelect$border))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$i,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto]))
+					]),
+				_List_fromArray(
+					[icon]))
+			]));
+};
+var $author$project$UaDropdownMultiSelect$view = F2(
+	function (_v0, _v1) {
+		var onClick = _v0.onClick;
+		var onToggle = _v0.onToggle;
+		var icon = _v0.icon;
+		var align = _v0.align;
+		var items = _v1.items;
+		var selecteds = _v1.selecteds;
+		var isOpen = _v1.isOpen;
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$author$project$Dropdown$dropdown(
+					{
+						drawerVisibleAttribute: $rtfeldman$elm_css$Html$Styled$Attributes$class(''),
+						identifier: '',
+						isToggled: isOpen,
+						layout: function (_v2) {
+							var toDropdown = _v2.toDropdown;
+							var toToggle = _v2.toToggle;
+							var toDrawer = _v2.toDrawer;
+							return A3(
+								toDropdown,
+								$rtfeldman$elm_css$Html$Styled$div,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A3(
+										toToggle,
+										$rtfeldman$elm_css$Html$Styled$div,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$author$project$UaDropdownMultiSelect$dropdownToggle(icon)
+											])),
+										A5($author$project$UaDropdownMultiSelect$dropdownMenu, toDrawer, align, onClick, items, selecteds)
+									]));
+						},
+						onToggle: onToggle,
+						toggleEvent: $author$project$Dropdown$OnClick
+					})
+				]));
+	});
+var $author$project$Internal$Toolbar$toolbarMenuColumns = F3(
+	function (columns, pipeInt, state) {
+		return A2(
+			$author$project$UaDropdownMultiSelect$view,
+			{
+				align: $author$project$UaDropdownMultiSelect$Right,
+				icon: $author$project$Internal$Toolbar$faTableColumnsIcon,
+				onClick: function (idx) {
+					return pipeInt(
+						function (s) {
+							return _Utils_update(
+								s,
+								{
+									ddColumns: A2($author$project$UaDropdownMultiSelect$clickDropdown, idx, s.ddColumns)
+								});
+						});
+				},
+				onToggle: function (btnState) {
+					return pipeInt(
+						function (s) {
+							return _Utils_update(
+								s,
+								{
+									ddColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddColumns),
+									ddPagination: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddPagination),
+									ddSubColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddSubColumns)
+								});
+						});
+				}
+			},
+			state.ddColumns);
+	});
+var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$bars = A4(
+	$lattyware$elm_fontawesome$FontAwesome$IconDef,
+	'fas',
+	'bars',
+	_Utils_Tuple2(448, 512),
+	_Utils_Tuple2('M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z', $elm$core$Maybe$Nothing));
+var $lattyware$elm_fontawesome$FontAwesome$Solid$bars = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$bars);
+var $author$project$Internal$Toolbar$faBarsIcon = A2(
+	$rtfeldman$elm_css$Svg$Styled$svg,
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Svg$Styled$Attributes$viewBox('0 0 512 512'),
+			$rtfeldman$elm_css$Svg$Styled$Attributes$style('width: 20px; height: 20px;')
+		]),
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
+			$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$bars))
+		]));
+var $author$project$Internal$Toolbar$toolbarMenuPagination = F4(
+	function (pipeExt, pipeInt, state, capabilities) {
+		return A2(
+			$author$project$UaDropdownMultiSelect$view,
+			{
+				align: $author$project$UaDropdownMultiSelect$Right,
+				icon: $author$project$Internal$Toolbar$faBarsIcon,
+				onClick: function (idx) {
+					return pipeInt(
+						function (s) {
+							return _Utils_update(
+								s,
+								{
+									ddPagination: A2($author$project$UaDropdownMultiSelect$clickDropdown, idx, s.ddPagination)
+								});
+						});
+				},
+				onToggle: function (btnState) {
+					return pipeInt(
+						function (s) {
+							return _Utils_update(
+								s,
+								{
+									ddColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddColumns),
+									ddPagination: A2($author$project$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddPagination),
+									ddSubColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddSubColumns)
+								});
+						});
+				}
+			},
+			state.ddPagination);
+	});
+var $author$project$Internal$Toolbar$toolbarMenuSubColumns = F3(
+	function (columns, pipeInt, state) {
+		return A2(
+			$author$project$UaDropdownMultiSelect$view,
+			{
+				align: $author$project$UaDropdownMultiSelect$Right,
+				icon: $author$project$Internal$Toolbar$faTableColumnsIcon,
+				onClick: function (idx) {
+					return pipeInt(
+						function (s) {
+							return _Utils_update(
+								s,
+								{
+									ddSubColumns: A2($author$project$UaDropdownMultiSelect$clickDropdown, idx, s.ddSubColumns)
+								});
+						});
+				},
+				onToggle: function (btnState) {
+					return pipeInt(
+						function (s) {
+							return _Utils_update(
+								s,
+								{
+									ddColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddColumns),
+									ddPagination: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddPagination),
+									ddSubColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddSubColumns)
+								});
+						});
+				}
+			},
+			state.ddSubColumns);
+	});
+var $author$project$Internal$Toolbar$view = F4(
+	function (_v0, pipeExt, pipeInt, state) {
+		var cfg = _v0.a;
+		return _List_fromArray(
+			[
+				function () {
+				var _v1 = cfg.pagination;
+				if (_v1.$ === 'ByPage') {
+					var capabilities = _v1.a.capabilities;
+					return A4($author$project$Internal$Toolbar$toolbarMenuPagination, pipeExt, pipeInt, state, capabilities);
+				} else {
+					return $rtfeldman$elm_css$Html$Styled$text('');
+				}
+			}(),
+				A3($author$project$Internal$Toolbar$toolbarMenuColumns, cfg.table.columns, pipeInt, state),
+				function () {
+				var _v2 = cfg.subtable;
+				if (_v2.$ === 'Just') {
+					var _v3 = _v2.a;
+					var conf = _v3.b;
+					return A3($author$project$Internal$Toolbar$toolbarMenuSubColumns, conf.columns, pipeInt, state);
+				} else {
+					return $rtfeldman$elm_css$Html$Styled$text('');
+				}
+			}()
+			]);
+	});
+var $author$project$Internal$Table$tableHeader = F4(
+	function (config, pipeExt, pipeInt, state) {
+		var cfg = config.a;
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_4,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_4,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$bg_color($matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_100),
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$gap_2,
+							$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded
+						]))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_between, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grow]))
+						]),
+					A2($author$project$Internal$Table$headerSearch, pipeExt, pipeInt)),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center]))
+						]),
+					cfg.toolbar),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$gap_2, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center]))
+						]),
+					A4($author$project$Internal$Toolbar$view, config, pipeExt, pipeInt, state))
+				]));
+	});
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'font-size', '1.5rem'),
+			A2($rtfeldman$elm_css$Css$property, 'line-height', '2rem')
+		]));
+var $author$project$Internal$Table$view = F2(
+	function (config, model) {
+		var m = model.a;
+		var pipeInt = A2($author$project$Internal$Config$pipeInternal, config, model);
+		var pipeExt = A2($author$project$Internal$Config$pipeExternal, config, model);
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+				]),
+			function () {
+				var _v0 = m.rows;
+				switch (_v0.a.$) {
+					case 'Loading':
+						var _v1 = _v0.a;
+						return _List_fromArray(
+							[
+								A4($author$project$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
+								A2(
+								$rtfeldman$elm_css$Html$Styled$div,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$css(
+										_List_fromArray(
+											[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_center, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32]))
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$rtfeldman$elm_css$Html$Styled$span,
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$Attributes$css(
+												_List_fromArray(
+													[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl]))
+											]),
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$text('Loading...')
+											]))
+									]))
+							]);
+					case 'Loaded':
+						var total = _v0.a.a.total;
+						var rows = _v0.a.a.rows;
+						return _List_fromArray(
+							[
+								A4($author$project$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
+								A5($author$project$Internal$Table$tableContent, config, pipeExt, pipeInt, m.state, rows),
+								A5($author$project$Internal$Table$tableFooter, config, pipeExt, pipeInt, m.state, total)
+							]);
+					default:
+						var msg = _v0.a.a;
+						return _List_fromArray(
+							[
+								A4($author$project$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
+								$author$project$Internal$Config$errorView(msg)
+							]);
+				}
+			}());
+	});
+var $author$project$Table$view = $author$project$Internal$Table$view;
+var $author$project$UaTable$view = function (model) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$class('example-dynamic')
+			]),
+		_List_fromArray(
+			[
+				A2($author$project$Table$view, $author$project$UaTable$config, model)
+			]));
+};
+var $author$project$View$viewMain = function (model) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$map,
+		$author$project$View$TableMsg,
+		$author$project$UaTable$view(model.tableModel));
+};
+var $author$project$View$Browser = function (a) {
+	return {$: 'Browser', a: a};
+};
+var $author$project$View$ChangeFilter = function (a) {
+	return {$: 'ChangeFilter', a: a};
+};
+var $author$project$View$Limit = function (a) {
+	return {$: 'Limit', a: a};
+};
+var $author$project$View$OSDevice = function (a) {
+	return {$: 'OSDevice', a: a};
+};
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$gap_4 = A2($rtfeldman$elm_css$Css$property, 'gap', '1rem');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grid = A2($rtfeldman$elm_css$Css$property, 'display', 'grid');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grid_cols_1 = A2($rtfeldman$elm_css$Css$property, 'grid-template-columns', 'repeat(1, minmax(0, 1fr))');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grid_cols_3 = A2($rtfeldman$elm_css$Css$property, 'grid-template-columns', 'repeat(3, minmax(0, 1fr))');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Breakpoints$md = $rtfeldman$elm_css$Css$Media$withMediaQuery(
+	_List_fromArray(
+		['(min-width: 768px)']));
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex_col = A2($rtfeldman$elm_css$Css$property, 'flex-direction', 'column');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$font_semibold = A2($rtfeldman$elm_css$Css$property, 'font-weight', '600');
+var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_1 = A2($rtfeldman$elm_css$Css$property, 'margin-bottom', '0.25rem');
+var $rtfeldman$elm_css$Html$Styled$Attributes$value = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
+var $author$project$View$viewSelector = F3(
+	function (label, value, onChange) {
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex_col]))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$font_semibold, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_1]))
+						]),
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text(label)
+						])),
+					A2(
+					$rtfeldman$elm_css$Html$Styled$input,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$rounded, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2])),
+							$rtfeldman$elm_css$Html$Styled$Attributes$placeholder(label),
+							$rtfeldman$elm_css$Html$Styled$Attributes$value(value),
+							$rtfeldman$elm_css$Html$Styled$Events$onInput(onChange)
+						]),
+					_List_Nil)
+				]));
+	});
+var $author$project$View$viewSelectors = function (model) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grid,
+						$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grid_cols_1,
+						$matheus23$elm_default_tailwind_modules$Tailwind$Breakpoints$md(
+						_List_fromArray(
+							[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grid_cols_3])),
+						$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$gap_4,
+						$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_4
+					]))
+			]),
+		_List_fromArray(
+			[
+				A3(
+				$author$project$View$viewSelector,
+				'Browser',
+				model.filterBrowser,
+				A2($elm$core$Basics$composeL, $author$project$View$ChangeFilter, $author$project$View$Browser)),
+				A3(
+				$author$project$View$viewSelector,
+				'OS/Device',
+				model.filterOsDevice,
+				A2($elm$core$Basics$composeL, $author$project$View$ChangeFilter, $author$project$View$OSDevice)),
+				A3(
+				$author$project$View$viewSelector,
+				'Limit',
+				$elm$core$String$fromInt(model.filterLimit),
+				A2($elm$core$Basics$composeL, $author$project$View$ChangeFilter, $author$project$View$Limit))
+			]));
+};
+var $author$project$View$view = function (model) {
+	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
+		A2(
+			$rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$container, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mx_auto, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_4]))
+				]),
+			_List_fromArray(
+				[
+					$author$project$View$viewSelectors(model),
+					$author$project$View$viewMain(model)
+				])));
+};
+var $author$project$View$main = $elm$browser$Browser$element(
+	{init: $author$project$View$init, subscriptions: $author$project$View$subscriptions, update: $author$project$View$update, view: $author$project$View$view});
+_Platform_export({'View':{'init':$author$project$View$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
