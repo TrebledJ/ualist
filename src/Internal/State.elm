@@ -37,8 +37,8 @@ type alias State =
 
 
 type alias StateTable =
-    { visible : List ColumnName
-    , selected : List RowID
+    { {- visible : List ColumnName
+    ,  -}selected : List RowID
     , expanded : List RowID
     , subtable : List RowID
     }

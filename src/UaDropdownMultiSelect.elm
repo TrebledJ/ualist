@@ -1,4 +1,4 @@
-module UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, init2, toggleDropdown, view)
+module UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, init2, getSelected, toggleDropdown, view)
 
 import Css
 import Dropdown exposing (dropdown)
@@ -47,6 +47,8 @@ zip : List a -> List b -> List ( a, b )
 zip =
     List.map2 Tuple.pair
 
+getSelected : State -> List String
+getSelected st = zip st.items st.selecteds |> List.filterMap (\(name, sel) -> if sel then Just name else Nothing)
 
 toggleDropdown : Bool -> State -> State
 toggleDropdown new st =

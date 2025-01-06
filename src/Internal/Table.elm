@@ -86,8 +86,8 @@ init (Config cfg) =
             , ddPagination = Dropdown.init ddPaginationInitState
             , ddColumns = Dropdown.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
             , ddSubColumns = Dropdown.init visibleSubColumns -- TODO: same as column
-            , table = StateTable visibleColumns [] [] []
-            , subtable = StateTable visibleSubColumns [] [] []
+            , table = StateTable {- visibleColumns -} [] [] []
+            , subtable = StateTable {- visibleSubColumns -} [] [] []
             }
         , rows = Rows Loading
         }
@@ -210,9 +210,11 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
         selectColumn =
             ifMaybe (cfg.selection /= Disable) (selectionParent pipeInt config rows)
 
+        _ = Debug.log "selected" <| Dropdown.getSelected state.ddColumns
+
         visibleColumns =
             List.filter
-                (\(Column c) -> List.member c.name state.table.visible)
+                (\(Column c) -> List.member c.name <| Dropdown.getSelected state.ddColumns)
                 cfg.table.columns
 
         columns =
@@ -372,7 +374,7 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
 
         visibleColumns =
             List.filter
-                (\(Column c) -> List.member c.name state.subtable.visible)
+                (\(Column c) -> List.member c.name <| Dropdown.getSelected state.ddSubColumns)
                 subConfig.columns
 
         columns =
