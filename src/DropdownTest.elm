@@ -8,6 +8,7 @@ import Html.Styled exposing (toUnstyled)
 import Svg.Styled
 import Svg.Styled.Attributes as SvgA
 import Components.UaDropdownMultiSelect exposing (..)
+import TwUtil
 
 
 faTableColumnsIcon =
@@ -40,5 +41,6 @@ main =
                     { onToggle = ToggleDropdown
                     , onClick = Clicked
                     , icon = faTableColumnsIcon
+                    , align = TwUtil.Left
                     }
         }
