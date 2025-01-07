@@ -202,6 +202,7 @@ headerSearch pipeExt pipeInt =
         [ css <|
             [ Tw.relative
             , Tw.inline_flex
+            , Tw.text_base
             , Tw.pl_2
             , Tw.pr_20
             , Tw.w_full
