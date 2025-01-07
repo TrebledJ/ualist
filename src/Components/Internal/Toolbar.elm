@@ -1,19 +1,20 @@
 module Components.Internal.Toolbar exposing (view)
 
-import FontAwesome.Solid as Icon
-import FontAwesome.Svg as SvgIcon
-import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events exposing (onCheck, onClick)
 import Components.Internal.Column exposing (..)
 import Components.Internal.Config exposing (..)
 import Components.Internal.Data exposing (..)
 import Components.Internal.State exposing (..)
 import Components.Internal.Util exposing (..)
+import Components.UaDropdownMultiSelect as UaDropdown
+import FontAwesome.Solid as Icon
+import FontAwesome.Svg as SvgIcon
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onCheck, onClick)
 import Monocle.Lens exposing (Lens)
 import Svg.Styled
 import Svg.Styled.Attributes as SvgA
-import Components.UaDropdownMultiSelect as UaDropdown
+import TwUtil
 
 
 view : Config a b msg -> Pipe msg -> Pipe msg -> State -> List (Html msg)
@@ -59,7 +60,7 @@ toolbarMenuPagination pipeExt pipeInt state capabilities =
                             , ddSubColumns = UaDropdown.toggleDropdown False s.ddSubColumns
                         }
         , icon = faBarsIcon
-        , align = UaDropdown.Right
+        , align = TwUtil.Right
         }
         state.ddPagination
 
@@ -79,7 +80,7 @@ toolbarMenuColumns columns pipeInt state =
                             , ddSubColumns = UaDropdown.toggleDropdown False s.ddSubColumns
                         }
         , icon = faTableColumnsIcon
-        , align = UaDropdown.Right
+        , align = TwUtil.Right
         }
         state.ddColumns
 
@@ -99,8 +100,6 @@ toolbarMenuSubColumns columns pipeInt state =
                             , ddColumns = UaDropdown.toggleDropdown False s.ddColumns
                         }
         , icon = faTableColumnsIcon
-        , align = UaDropdown.Right
+        , align = TwUtil.Right
         }
         state.ddSubColumns
-
-

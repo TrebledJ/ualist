@@ -1,4 +1,4 @@
-module Components.UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, init2, getSelected, toggleDropdown, view)
+module Components.UaDropdownMultiSelect exposing (State, clickDropdown, init, init2, getSelected, toggleDropdown, view)
 
 import Css
 import Components.Dropdown as Dropdown exposing (dropdown)
@@ -7,6 +7,7 @@ import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
+import TwUtil
 
 
 init : List String -> State
@@ -25,17 +26,6 @@ type alias State =
     , selecteds : List Bool
     , isOpen : Dropdown.State
     }
-
-
-type Align
-    = Left
-    | Right
-
-
-
--- type Msg
---     = ToggleDropdown Bool
---     | Clicked Int
 
 
 nth : Int -> List a -> Maybe a
@@ -85,7 +75,7 @@ clickDropdown idx st =
 
 
 view :
-    { onClick : Int -> msg, onToggle : Bool -> msg, icon : Html msg, align : Align }
+    { onClick : Int -> msg, onToggle : Bool -> msg, icon : Html msg, align : TwUtil.Align }
     -> State
     -> Html msg
 view { onClick, onToggle, icon, align } { items, selecteds, isOpen } =
@@ -107,14 +97,10 @@ view { onClick, onToggle, icon, align } { items, selecteds, isOpen } =
         ]
 
 
-border =
-    [ Tw.border_solid, Tw.border, Tw.border_color Tw.gray_300, Tw.rounded ]
-
-
 dropdownToggle : Html msg -> Html msg
 dropdownToggle icon =
     a
-        [ css <| [ Tw.inline_flex, Tw.w_10, Tw.h_10 ] ++ border
+        [ css <| [ Tw.inline_flex, Tw.w_10, Tw.h_10 ] ++ TwUtil.border
         ]
         [ i
             [ css [ Tw.block, Tw.relative, Tw.m_auto ] ]
@@ -125,7 +111,7 @@ dropdownToggle icon =
 type alias HtmlBuilder msg =
     List (Attribute msg) -> List (Html msg) -> Html msg
 
-dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> Align -> (Int -> msg) -> List String -> List Bool -> Html msg
+dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> TwUtil.Align -> (Int -> msg) -> List String -> List Bool -> Html msg
 dropdownMenu toDrawer align onClick items selected =
     toDrawer div
         [ css <|
@@ -137,13 +123,8 @@ dropdownMenu toDrawer align onClick items selected =
             , Tw.w_56
             , Tw.py_2
             ]
-                ++ border
-                ++ (if align == Left then
-                        [ Tw.left_0, Tw.right_auto ]
-
-                    else
-                        [ Tw.left_auto, Tw.right_0 ]
-                   )
+                ++ TwUtil.border
+                ++ TwUtil.fix_left_right align
         ]
         (items |> zip selected |> List.indexedMap (dropdownItem onClick))
 

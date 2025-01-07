@@ -143,13 +143,14 @@ headerSearch pipeExt pipeInt =
         [ css
             [ Tw.relative
             , Tw.inline_flex
-            , Tw.border
-            , Tw.rounded
+            -- , Tw.border
+            -- , Tw.rounded
             , Tw.pl_1
             , Tw.py_1
             , Tw.pr_20
             , Tw.w_full
             , Tw.h_10
+            , Tw.border_solid, Tw.border, Tw.border_color Tw.gray_300, Tw.rounded
             ]
         , type_ "text"
         , placeholder "Search..."
