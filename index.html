@@ -11,12 +11,12 @@
 <body>
     <div id="view-app"></div>
     <script>
-        var app = Elm.View.init({
-            node: document.getElementById('view-app')
-        }); 
-        // var app = Elm.DropdownTest.init({
+        // var app = Elm.View.init({
         //     node: document.getElementById('view-app')
         // }); 
+        var app = Elm.ButtonTest.init({
+            node: document.getElementById('view-app')
+        });
 
         const uap = new UAParser();
 
@@ -63,6 +63,67 @@
         // app.ports.jsonConsole.subscribe(function(json) {
         //     console.log(json)
         // });
+    </script>
+    <script>
+        function fallbackCopyTextToClipboard(copyInfo) {
+            const text = copyInfo.getText();
+            if (!text) {
+                copyInfo.error();
+                return;
+            }
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.position = 'fixed';
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                setTimeout(function () {
+                    if (successful) {
+                        copyInfo.success();
+                    } else {
+                        copyInfo.error();
+                    }
+                }, 1);
+            } catch (err) {
+                setTimeout(function () {
+                    copyInfo.error(err);
+                }, 1);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function copyTextToClipboard(copyInfo) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(copyInfo.text).then(copyInfo.success, function () {
+                    // try the fallback in case `writeText` didn't work
+                    fallbackCopyTextToClipboard(copyInfo);
+                });
+            } else {
+                fallbackCopyTextToClipboard(copyInfo);
+            }
+        }
+
+        app.ports.copyToClipboard.subscribe(function (text) {
+            console.log("[js] copying text:", text)
+            copyTextToClipboard({
+                text,
+                success() {
+                    app.ports.recvCopyStatus.send(true);
+                },
+                error() {
+                    app.ports.recvCopyStatus.send(false);
+                }
+            });
+        });
     </script>
 </body>
 
