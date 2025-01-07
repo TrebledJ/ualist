@@ -52,7 +52,7 @@
 
         app.ports.fetchUserAgent.subscribe(function (ua) {
             const data = processUserAgent(ua);
-            app.ports.recvUserAgent.send(JSON.stringify(data));
+            app.ports.recvUserAgentBatch.send(JSON.stringify([data]));
         });
 
         app.ports.fetchUserAgentBatch.subscribe(function (ua) {

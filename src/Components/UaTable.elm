@@ -1,6 +1,6 @@
 port module Components.UaTable exposing (..)
 
-import Components.CopyToClipboardButton as CopyToClipboardButton
+import Components.Clipboard as Clipboard
 import Components.Table
 import Components.Table.Column as Column
 import Components.Table.Config as Config
@@ -17,8 +17,8 @@ import Svg.Attributes as Svg
 import Svg.Styled
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
-import TwUtil
 import Task
+import TwUtil
 
 
 
@@ -28,14 +28,16 @@ import Task
 init : Model
 init =
     { table = Components.Table.init config
-    , toolbarState = {
-        copyToClipboardViewState = CopyToClipboardButton.Idle }
+    , toolbarState =
+        { copyAllState = Clipboard.Idle
+        }
     }
 
-type alias ToolbarState = 
-    {
-        copyToClipboardViewState : CopyToClipboardButton.ButtonViewState
+
+type alias ToolbarState =
+    { copyAllState : Clipboard.ViewState
     }
+
 
 config : Components.Table.Config UserAgent () ToolbarState Msg
 config =
@@ -64,13 +66,12 @@ port fetchUserAgent : String -> Cmd msg
 port fetchUserAgentBatch : List String -> Cmd msg
 
 
-port recvUserAgent : (String -> msg) -> Sub msg
-
-
 port recvUserAgentBatch : (String -> msg) -> Sub msg
 
 
-type alias TableModel = Components.Table.Model UserAgent
+type alias TableModel =
+    Components.Table.Model UserAgent
+
 
 type alias Model =
     { table : TableModel
@@ -100,87 +101,21 @@ uaDecoder =
 type Msg
     = OnTable TableModel
     | OnData (Result Error String)
-    | RecvUserAgent String
     | RecvUserAgentBatch String
-    | CopyToClipboardMsg (CopyToClipboardButton.Msg TableModel)
+    | ClipboardMsg (Clipboard.Msg TableModel)
 
 
 fetchData : Cmd Msg
 fetchData =
-    -- run <| OnData (Ok { page = page, perPage = 1, totalPages = 1, data = [ { id = 1, firstname = "John", lastname = "Doe", email = "a@example.com", avatar = "none" } ] })
     Http.get
         { url = "data/data.txt"
         , expect = Http.expectString OnData
         }
 
 
-
--- TODO: modify table by updating css directly. Refer to designs elsewhere.
--- Reuse UaTable for Generate UA App
-
-
-run : msg -> Cmd msg
-run m =
-    Task.perform (always m) (Task.succeed ())
-
-
-
--- Http.get
---     { url = Builder.relative [ "api", "users" ] [ Builder.int "page" page ]
---     , expect = Http.expectJson OnData decoder
---     }
--- main : Program () Model Msg
--- main =
---     Browser.element
---         { init = init
---         , view = view
---         , update = update
---         , subscriptions = Table.subscriptions config
---         }
--- init : () -> ( Model, Cmd Msg )
--- init _ =
---     ( Table.init config, get 1 )
-
-
-view : Model -> Html Msg
-view model =
-    div [] [ Components.Table.view config model.toolbarState model.table ]
-
-buildString : TableModel -> String
-buildString table = Components.Table.getFiltered config table |> List.map .ua |> String.join "\n"
-
-copyAllButton : ToolbarState -> Html Msg
-copyAllButton { copyToClipboardViewState } =
-    let
-        icon =
-            if copyToClipboardViewState == CopyToClipboardButton.Idle then
-                Icon.clipboard
-
-            else
-                Icon.clipboardCheck
-
-    in
-    button
-        [ -- onClick (CopyAction onCopy)
-          Html.Styled.Attributes.map CopyToClipboardMsg <| onClick <| CopyToClipboardButton.makeCopyAction buildString
-        , css <|
-            [ Tw.flex
-            , Tw.justify_center
-            , Tw.items_center
-            , Tw.w_10
-            , Tw.h_10
-            , Tw.bg_color Tw.white
-            , Css.hover
-                [ Tw.bg_color Tw.gray_100
-                ]
-            ]
-                ++ TwUtil.border
-        ]
-        [ icon
-            |> Icon.styled [ Svg.width "20", Svg.height "20" ]
-            |> Icon.view
-            |> Svg.Styled.fromUnstyled
-        ]
+-- run : msg -> Cmd msg
+-- run m =
+--     Task.perform (always m) (Task.succeed ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -188,7 +123,7 @@ update msg model =
     case msg of
         OnTable m ->
             -- Set model to whatever is passed in parameter.
-            ( {model | table = m} , Cmd.none )
+            ( { model | table = m }, Cmd.none )
 
         -- let
         --     p =
@@ -212,13 +147,6 @@ update msg model =
             in
             ( model, Cmd.none )
 
-        RecvUserAgent val ->
-            let
-                decoded =
-                    Decode.decodeString uaDecoder val
-            in
-            ( appendRowsToModel (Result.map List.singleton decoded) model, Cmd.none )
-
         RecvUserAgentBatch val ->
             let
                 decoded =
@@ -226,20 +154,32 @@ update msg model =
             in
             ( appendRowsToModel decoded model, Cmd.none )
 
-        CopyToClipboardMsg m ->
-            let ( state, cmd ) = CopyToClipboardButton.update m model.table model.toolbarState.copyToClipboardViewState
-                toolbarState = model.toolbarState
-                newToolbarState = { toolbarState | copyToClipboardViewState = state }
+        ClipboardMsg m ->
+            let
+                ( state, cmd ) =
+                    Clipboard.update m model.table model.toolbarState.copyAllState
+
+                toolbarState =
+                    model.toolbarState
+
+                newToolbarState =
+                    { toolbarState | copyAllState = state }
             in
-            ( { model | toolbarState = newToolbarState }, Cmd.map CopyToClipboardMsg cmd )
+            ( { model | toolbarState = newToolbarState }, Cmd.map ClipboardMsg cmd )
 
 
-appendRowsToModel : Result Decode.Error (List UserAgent) -> Model -> Model
+appendRowsToModel : Result error (List UserAgent) -> Model -> Model
 appendRowsToModel x model =
     case x of
-        Ok res ->
-            let table = model.table |> Components.Table.loadedDynamic ((model.table |> Components.Table.get) ++ res) (List.length res)
-            in { model | table = table }
+        Ok newRows ->
+            let
+                rows =
+                    model.table |> Components.Table.get
+
+                table =
+                    model.table |> Components.Table.loadedStatic (rows ++ newRows)
+            in
+            { model | table = table }
 
         Err err ->
             let
@@ -253,7 +193,47 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Components.Table.subscriptions config model.table
-        , recvUserAgent RecvUserAgent
         , recvUserAgentBatch RecvUserAgentBatch
-        , Sub.map CopyToClipboardMsg <| CopyToClipboardButton.subscriptions ()
+        , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
+        ]
+
+view : Model -> Html Msg
+view model =
+    Components.Table.view config model.toolbarState model.table
+
+
+copyAllButton : ToolbarState -> Html Msg
+copyAllButton { copyAllState } =
+    let
+        icon =
+            if copyAllState == Clipboard.Idle then
+                Icon.clipboard
+
+            else
+                Icon.clipboardCheck
+    in
+    button
+        [ onClick <|
+            ClipboardMsg <|
+                Clipboard.CopyAction <|
+                    String.join "\n"
+                        << List.map .ua
+                        << Components.Table.getFiltered config
+        , css <|
+            [ Tw.flex
+            , Tw.justify_center
+            , Tw.items_center
+            , Tw.w_10
+            , Tw.h_10
+            , Tw.bg_color Tw.white
+            , Css.hover
+                [ Tw.bg_color Tw.gray_100
+                ]
+            ]
+                ++ TwUtil.border
+        ]
+        [ icon
+            |> Icon.styled [ Svg.width "20", Svg.height "20" ]
+            |> Icon.view
+            |> Svg.Styled.fromUnstyled
         ]
