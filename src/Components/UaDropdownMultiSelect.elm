@@ -1,7 +1,7 @@
-module Components.UaDropdownMultiSelect exposing (State, clickDropdown, init, init2, getSelected, toggleDropdown, view)
+module Components.UaDropdownMultiSelect exposing (State, clickDropdown, getSelected, init, init2, toggleDropdown, view)
 
-import Css
 import Components.Dropdown as Dropdown exposing (dropdown)
+import Css
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
@@ -11,7 +11,9 @@ import TwUtil
 
 
 init : List String -> State
-init items = init2 items (List.repeat (List.length items) False)
+init items =
+    init2 items (List.repeat (List.length items) False)
+
 
 init2 : List String -> List Bool -> State
 init2 items selecteds =
@@ -37,8 +39,19 @@ zip : List a -> List b -> List ( a, b )
 zip =
     List.map2 Tuple.pair
 
+
 getSelected : State -> List String
-getSelected st = zip st.items st.selecteds |> List.filterMap (\(name, sel) -> if sel then Just name else Nothing)
+getSelected st =
+    zip st.items st.selecteds
+        |> List.filterMap
+            (\( name, sel ) ->
+                if sel then
+                    Just name
+
+                else
+                    Nothing
+            )
+
 
 toggleDropdown : Bool -> State -> State
 toggleDropdown new st =
@@ -79,27 +92,25 @@ view :
     -> State
     -> Html msg
 view { onClick, onToggle, icon, align } { items, selecteds, isOpen } =
-    div []
-        [ dropdown
-            { identifier = ""
-            , toggleEvent = Dropdown.OnClick
-            , drawerVisibleAttribute = class ""
-            , onToggle = onToggle
-            , layout =
-                \{ toDropdown, toToggle, toDrawer } ->
-                    toDropdown div
-                        []
-                        [ toToggle div [] [ dropdownToggle icon ]
-                        , dropdownMenu toDrawer align onClick items selecteds
-                        ]
-            , isToggled = isOpen
-            }
-        ]
+    dropdown
+        { identifier = ""
+        , toggleEvent = Dropdown.OnClick
+        , drawerVisibleAttribute = class ""
+        , onToggle = onToggle
+        , layout =
+            \{ toDropdown, toToggle, toDrawer } ->
+                toDropdown div
+                    []
+                    [ dropdownToggle toToggle icon
+                    , dropdownMenu toDrawer align onClick items selecteds
+                    ]
+        , isToggled = isOpen
+        }
 
 
-dropdownToggle : Html msg -> Html msg
-dropdownToggle icon =
-    a
+dropdownToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg -> Html msg
+dropdownToggle toToggle icon =
+    toToggle a
         [ css <| [ Tw.inline_flex, Tw.w_10, Tw.h_10 ] ++ TwUtil.border
         ]
         [ i
@@ -110,6 +121,7 @@ dropdownToggle icon =
 
 type alias HtmlBuilder msg =
     List (Attribute msg) -> List (Html msg) -> Html msg
+
 
 dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> TwUtil.Align -> (Int -> msg) -> List String -> List Bool -> Html msg
 dropdownMenu toDrawer align onClick items selected =
