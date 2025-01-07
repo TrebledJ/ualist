@@ -110,8 +110,20 @@ view { onClick, onToggle, icon, align } { items, selecteds, isOpen } =
 
 dropdownToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg -> Html msg
 dropdownToggle toToggle icon =
-    toToggle a
-        [ css <| [ Tw.inline_flex, Tw.w_10, Tw.h_10 ] ++ TwUtil.border
+    toToggle button
+        [ css <|
+            [ Tw.flex
+            , Tw.justify_center
+            , Tw.items_center
+            , Tw.w_10
+            , Tw.h_10
+            , Tw.cursor_pointer
+            , Tw.bg_color Tw.white
+            , Css.hover
+                [ Tw.bg_color Tw.gray_100
+                ]
+            ]
+                ++ TwUtil.border
         ]
         [ i
             [ css [ Tw.block, Tw.relative, Tw.m_auto ] ]
@@ -154,7 +166,7 @@ dropdownItem clickMsg idx ( selected, str ) =
             , Tw.overflow_hidden
             , Tw.text_ellipsis
             , Tw.cursor_pointer
-            , Css.hover [ Tw.bg_color Tw.gray_200 ]
+            , Css.hover [ Tw.bg_color Tw.gray_100 ]
             ]
         , onClick (clickMsg idx)
         ]

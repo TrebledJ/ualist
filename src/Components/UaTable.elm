@@ -13,7 +13,7 @@ import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import Http exposing (Error)
 import Json.Decode as Decode exposing (Decoder, Value)
-import Svg.Attributes as Svg
+import Svg.Attributes as SvgA
 import Svg.Styled
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
@@ -227,7 +227,7 @@ copyAllButton { copyAllState } =
     let
         icon =
             if copyAllState == Clipboard.Idle then
-                Icon.clipboard
+                Icon.clipboardList
 
             else
                 Icon.clipboardCheck
@@ -245,6 +245,7 @@ copyAllButton { copyAllState } =
             , Tw.items_center
             , Tw.w_10
             , Tw.h_10
+            , Tw.cursor_pointer
             , Tw.bg_color Tw.white
             , Css.hover
                 [ Tw.bg_color Tw.gray_100
@@ -253,7 +254,7 @@ copyAllButton { copyAllState } =
                 ++ TwUtil.border
         ]
         [ icon
-            |> Icon.styled [ Svg.width "20", Svg.height "20" ]
+            |> Icon.styled [ SvgA.width "20", SvgA.height "20" ]
             |> Icon.view
             |> Svg.Styled.fromUnstyled
         ]

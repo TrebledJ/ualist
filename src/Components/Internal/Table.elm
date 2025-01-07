@@ -22,15 +22,13 @@ import Components.Internal.Util exposing (..)
 import Components.Table.Types exposing (..)
 import Components.UaDropdownMultiSelect as UaDropdown
 import Css
-import Css.Global
-import FontAwesome as Icon exposing (Icon)
+import FontAwesome as Icon
 import FontAwesome.Solid as Icon
-import FontAwesome.Svg as SvgIcon
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick, onInput)
+import Svg.Attributes as SvgA
 import Svg.Styled
-import Svg.Styled.Attributes as SvgA
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
 import TwUtil
@@ -236,8 +234,10 @@ headerSearch pipeExt pipeInt =
             ]
         ]
         [ i []
-            [ Svg.Styled.svg [ SvgA.viewBox "0 0 512 512", SvgA.style "width: 20px; height: 20px;" ]
-                [ Svg.Styled.fromUnstyled <| SvgIcon.view Icon.magnifyingGlass ]
+            [ Icon.magnifyingGlass
+                |> Icon.styled [ SvgA.width "20", SvgA.height "20" ]
+                |> Icon.view
+                |> Svg.Styled.fromUnstyled
             ]
         ]
     ]
