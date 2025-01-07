@@ -9,7 +9,7 @@ import Json.Decode as Decode
 import Components.UaDropdownMultiSelect as UaDropdown
 
 
-subscriptions : Config a b msg -> Model a -> Sub msg
+subscriptions : Config a b tbstate msg -> Model a -> Sub msg
 subscriptions config model =
     if isModal model then
         Browser.Events.onMouseDown (outsideTarget (pipeInternal config model) "dropdown")

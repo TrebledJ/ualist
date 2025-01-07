@@ -36,14 +36,14 @@ import Html.Styled exposing (Html)
 
 {-| Table's configuration (opaque).
 -}
-type alias Config a b msg =
-    Components.Internal.Config.Config a b msg
+type alias Config a b tbstate msg =
+    Components.Internal.Config.Config a b tbstate msg
 
 
 {-| Define a configuration for a table with static data (i.e. with all loaded
 data at once).
 -}
-static : (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () msg
+static : (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () tbstate msg
 static =
     Components.Internal.Config.static
 
@@ -51,97 +51,97 @@ static =
 {-| Define a configuration for a table with dynamic data (i.e. with paginated
 loaded data).
 -}
-dynamic : (Model a -> msg) -> (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () msg
+dynamic : (Model a -> msg) -> (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () tbstate msg
 dynamic =
     Components.Internal.Config.dynamic
 
 
 {-| Add an full-width expandable row.
 -}
-withExpand : Column a msg -> Config a b msg -> Config a b msg
+withExpand : Column a msg -> Config a b tbstate msg -> Config a b tbstate msg
 withExpand =
     Components.Internal.Config.withExpand
 
 
 {-| Enable the selection (see `Selection` type for the different logics).
 -}
-withSelection : Selection -> Config a b msg -> Config a b msg
+withSelection : Selection -> Config a b tbstate msg -> Config a b tbstate msg
 withSelection =
     Components.Internal.Config.withSelection
 
 
 {-| Enable the selection with the _free_ logic (see `Selection` for more details).
 -}
-withSelectionFree : Config a b msg -> Config a b msg
+withSelectionFree : Config a b tbstate msg -> Config a b tbstate msg
 withSelectionFree =
     Components.Internal.Config.withSelectionFree
 
 
 {-| Enable the selection with the _linked_ logic (see `Selection` for more details).
 -}
-withSelectionLinked : Config a b msg -> Config a b msg
+withSelectionLinked : Config a b tbstate msg -> Config a b tbstate msg
 withSelectionLinked =
     Components.Internal.Config.withSelectionLinked
 
 
 {-| Enable the selection with the _linked_ logic (see `Selection` for more details).
 -}
-withSelectionLinkedStrict : Config a b msg -> Config a b msg
+withSelectionLinkedStrict : Config a b tbstate msg -> Config a b tbstate msg
 withSelectionLinkedStrict =
     Components.Internal.Config.withSelectionLinkedStrict
 
 
 {-| Enable the selection with the _exclusive_ logic (see `Selection` for more details).
 -}
-withSelectionExclusive : Config a b msg -> Config a b msg
+withSelectionExclusive : Config a b tbstate msg -> Config a b tbstate msg
 withSelectionExclusive =
     Components.Internal.Config.withSelectionExclusive
 
 
 {-| Enable the selection with the _strict excluive_ logic (see `Selection` for more details).
 -}
-withSelectionExclusiveStrict : Config a b msg -> Config a b msg
+withSelectionExclusiveStrict : Config a b tbstate msg -> Config a b tbstate msg
 withSelectionExclusiveStrict =
     Components.Internal.Config.withSelectionExclusiveStrict
 
 
 {-| Enable the pagination and define the page sizes and the detault page size.
 -}
-withPagination : List Int -> Int -> Config a b msg -> Config a b msg
+withPagination : List Int -> Int -> Config a b tbstate msg -> Config a b tbstate msg
 withPagination =
     Components.Internal.Config.withPagination
 
 
 {-| Enable the progressive loading pagination (not implemented).
 -}
-withProgressiveLoading : Int -> Int -> Config a b msg -> Config a b msg
+withProgressiveLoading : Int -> Int -> Config a b tbstate msg -> Config a b tbstate msg
 withProgressiveLoading =
     Components.Internal.Config.withProgressiveLoading
 
 
 {-| Add a custom toolbar.
 -}
-withToolbar : List (Html msg) -> Config a b msg -> Config a b msg
+withToolbar : List (tbstate -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withToolbar =
     Components.Internal.Config.withToolbar
 
 
 {-| Define a specific error message.
 -}
-withErrorView : (String -> Html msg) -> Config a b msg -> Config a b msg
+withErrorView : (String -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withErrorView =
     Components.Internal.Config.withErrorView
 
 
 {-| Define a subtable.
 -}
-withSubtable : (a -> List b) -> (b -> String) -> List (Column b msg) -> Maybe (Column b msg) -> Config a () msg -> Config a b msg
+withSubtable : (a -> List b) -> (b -> String) -> List (Column b msg) -> Maybe (Column b msg) -> Config a () tbstate msg -> Config a b tbstate msg
 withSubtable =
     Components.Internal.Config.withSubtable
 
 
 {-| Enable sticky headers.
 -}
-withStickyHeader : Config a b msg -> Config a b msg
+withStickyHeader : Config a b tbstate msg -> Config a b tbstate msg
 withStickyHeader =
     Components.Internal.Config.withStickyHeader

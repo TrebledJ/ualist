@@ -18,7 +18,7 @@ import Components.Table.Types exposing (..)
 --
 
 
-selectionParent : Pipe msg -> Config a b msg -> List (Row a) -> Column a msg
+selectionParent : Pipe msg -> Config a b tbstate msg -> List (Row a) -> Column a msg
 selectionParent pipe config rows =
     Column
         { name = ""
@@ -37,7 +37,7 @@ selectionParent pipe config rows =
         }
 
 
-viewParentHeader : Config a b msg -> List (Row a) -> Column a msg -> ( State, Pipe msg ) -> List (Html msg)
+viewParentHeader : Config a b tbstate msg -> List (Row a) -> Column a msg -> ( State, Pipe msg ) -> List (Html msg)
 viewParentHeader config rows _ ( state, pipe ) =
     [ input
         [ class "checkbox"
@@ -48,7 +48,7 @@ viewParentHeader config rows _ ( state, pipe ) =
     ]
 
 
-viewParentCell : Config a b msg -> List (Row a) -> a -> ( State, Pipe msg ) -> List (Html msg)
+viewParentCell : Config a b tbstate msg -> List (Row a) -> a -> ( State, Pipe msg ) -> List (Html msg)
 viewParentCell ((Config cfg) as config) rows value ( state, pipe ) =
     [ input
         [ class "checkbox"
@@ -60,7 +60,7 @@ viewParentCell ((Config cfg) as config) rows value ( state, pipe ) =
     ]
 
 
-logicParentHeader : Config a b msg -> List (Row a) -> State -> Bool -> State
+logicParentHeader : Config a b tbstate msg -> List (Row a) -> State -> Bool -> State
 logicParentHeader (Config cfg) rows state check =
     let
         selected =
@@ -104,7 +104,7 @@ lensSubTableSelected =
     compose lensSubTable lensSelected
 
 
-logicParentCell : Config a b msg -> List (Row a) -> a -> State -> Bool -> State
+logicParentCell : Config a b tbstate msg -> List (Row a) -> a -> State -> Bool -> State
 logicParentCell (Config cfg) _ value state check =
     let
         id =
@@ -164,7 +164,7 @@ linkedState conf getValues value subSelected updatedSelected check state =
 --
 
 
-selectionChild : Pipe msg -> Config a b msg -> List (Row b) -> RowID -> Column b msg
+selectionChild : Pipe msg -> Config a b tbstate msg -> List (Row b) -> RowID -> Column b msg
 selectionChild pipe config rows id =
     Column
         { name = ""
@@ -183,7 +183,7 @@ selectionChild pipe config rows id =
         }
 
 
-viewChildHeader : Config a b msg -> List (Row b) -> RowID -> Column b msg -> ( State, Pipe msg ) -> List (Html msg)
+viewChildHeader : Config a b tbstate msg -> List (Row b) -> RowID -> Column b msg -> ( State, Pipe msg ) -> List (Html msg)
 viewChildHeader ((Config cfg) as config) rows id _ ( state, pipe ) =
     case cfg.subtable of
         Just (SubTable _ conf) ->
@@ -200,7 +200,7 @@ viewChildHeader ((Config cfg) as config) rows id _ ( state, pipe ) =
             []
 
 
-viewChildCell : Config a b msg -> List (Row b) -> RowID -> b -> ( State, Pipe msg ) -> List (Html msg)
+viewChildCell : Config a b tbstate msg -> List (Row b) -> RowID -> b -> ( State, Pipe msg ) -> List (Html msg)
 viewChildCell ((Config cfg) as config) rows id value ( state, pipe ) =
     case cfg.subtable of
         Just (SubTable _ conf) ->
@@ -218,7 +218,7 @@ viewChildCell ((Config cfg) as config) rows id value ( state, pipe ) =
             []
 
 
-logicChildHeader : RowID -> Config a b msg -> ConfTable b msg -> List (Row b) -> State -> Bool -> State
+logicChildHeader : RowID -> Config a b tbstate msg -> ConfTable b msg -> List (Row b) -> State -> Bool -> State
 logicChildHeader _ (Config cfg) conf rows state check =
     let
         original =
@@ -237,7 +237,7 @@ logicChildHeader _ (Config cfg) conf rows state check =
             lensSubTableSelected.set selected state
 
 
-logicChildCell : RowID -> Config a b msg -> ConfTable b msg -> List (Row b) -> b -> State -> Bool -> State
+logicChildCell : RowID -> Config a b tbstate msg -> ConfTable b msg -> List (Row b) -> b -> State -> Bool -> State
 logicChildCell _ (Config cfg) conf rows value state check =
     let
         id =

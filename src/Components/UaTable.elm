@@ -1,15 +1,23 @@
 port module Components.UaTable exposing (..)
 
+import Components.CopyToClipboardButton as CopyToClipboardButton
 import Components.Table
 import Components.Table.Column as Column
 import Components.Table.Config as Config
 import Css
+import FontAwesome as Icon
+import FontAwesome.Solid as Icon
+import FontAwesome.Styles as Icon
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, src)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
 import Http exposing (Error)
 import Json.Decode as Decode exposing (Decoder, Value)
+import Svg.Attributes as Svg
+import Svg.Styled
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
+import TwUtil
 import Task
 
 
@@ -19,10 +27,17 @@ import Task
 
 init : Model
 init =
-    Components.Table.init config
+    { table = Components.Table.init config
+    , toolbarState = {
+        copyToClipboardViewState = CopyToClipboardButton.Idle }
+    }
 
+type alias ToolbarState = 
+    {
+        copyToClipboardViewState : CopyToClipboardButton.ButtonViewState
+    }
 
-config : Components.Table.Config UserAgent () Msg
+config : Components.Table.Config UserAgent () ToolbarState Msg
 config =
     Components.Table.static
         OnTable
@@ -34,6 +49,9 @@ config =
         , Column.string .osName "OS" ""
         ]
         |> Config.withStickyHeader
+        |> Config.withToolbar
+            [ copyAllButton
+            ]
 
 
 
@@ -52,8 +70,12 @@ port recvUserAgent : (String -> msg) -> Sub msg
 port recvUserAgentBatch : (String -> msg) -> Sub msg
 
 
+type alias TableModel = Components.Table.Model UserAgent
+
 type alias Model =
-    Components.Table.Model UserAgent
+    { table : TableModel
+    , toolbarState : ToolbarState
+    }
 
 
 type alias UserAgent =
@@ -76,10 +98,11 @@ uaDecoder =
 
 
 type Msg
-    = OnTable Model
+    = OnTable TableModel
     | OnData (Result Error String)
     | RecvUserAgent String
     | RecvUserAgentBatch String
+    | CopyToClipboardMsg (CopyToClipboardButton.Msg ())
 
 
 fetchData : Cmd Msg
@@ -121,18 +144,48 @@ run m =
 
 view : Model -> Html Msg
 view model =
-    div [] [ Components.Table.view config model ]
+    div [] [ Components.Table.view config model.toolbarState model.table ]
+
+
+copyAllButton : ToolbarState -> Html Msg
+copyAllButton { copyToClipboardViewState } =
+    let
+        icon =
+            if copyToClipboardViewState == CopyToClipboardButton.Idle then
+                Icon.clipboard
+
+            else
+                Icon.clipboardCheck
+    in
+    button
+        [ -- onClick (CopyAction onCopy)
+          Html.Styled.Attributes.map CopyToClipboardMsg <| onClick <| CopyToClipboardButton.makeCopyAction "abc"
+        , css <|
+            [ Tw.flex
+            , Tw.justify_center
+            , Tw.items_center
+            , Tw.w_10
+            , Tw.h_10
+            , Tw.bg_color Tw.white
+            , Css.hover
+                [ Tw.bg_color Tw.gray_100
+                ]
+            ]
+                ++ TwUtil.border
+        ]
+        [ icon
+            |> Icon.styled [ Svg.width "20", Svg.height "20" ]
+            |> Icon.view
+            |> Svg.Styled.fromUnstyled
+        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnTable m ->
-            let
-                _ =
-                    Debug.log "OnTable" ""
-            in
-            ( m, Cmd.none )
+            -- Set model to whatever is passed in parameter.
+            ( {model | table = m} , Cmd.none )
 
         -- let
         --     p =
@@ -170,12 +223,20 @@ update msg model =
             in
             ( appendRowsToModel decoded model, Cmd.none )
 
+        CopyToClipboardMsg m ->
+            let ( state, cmd ) = CopyToClipboardButton.update m model.toolbarState.copyToClipboardViewState
+                toolbarState = model.toolbarState
+                newToolbarState = { toolbarState | copyToClipboardViewState = state }
+            in
+            ( { model | toolbarState = newToolbarState }, Cmd.map CopyToClipboardMsg cmd )
+
 
 appendRowsToModel : Result Decode.Error (List UserAgent) -> Model -> Model
 appendRowsToModel x model =
     case x of
         Ok res ->
-            model |> Components.Table.loadedDynamic ((model |> Components.Table.get) ++ res) (List.length res)
+            let table = model.table |> Components.Table.loadedDynamic ((model.table |> Components.Table.get) ++ res) (List.length res)
+            in { model | table = table }
 
         Err err ->
             let
@@ -188,7 +249,8 @@ appendRowsToModel x model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Components.Table.subscriptions config model
+        [ Components.Table.subscriptions config model.table
         , recvUserAgent RecvUserAgent
         , recvUserAgentBatch RecvUserAgentBatch
+        , Sub.map CopyToClipboardMsg <| CopyToClipboardButton.subscriptions ()
         ]

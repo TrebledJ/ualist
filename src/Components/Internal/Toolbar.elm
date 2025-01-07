@@ -17,7 +17,7 @@ import Svg.Styled.Attributes as SvgA
 import TwUtil
 
 
-view : Config a b msg -> Pipe msg -> Pipe msg -> State -> List (Html msg)
+view : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> List (Html msg)
 view (Config cfg) pipeExt pipeInt state =
     [ case cfg.pagination of
         ByPage { capabilities } ->

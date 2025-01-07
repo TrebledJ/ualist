@@ -59,8 +59,8 @@ type alias State =
 
 {-| Table's configuration (opaque).
 -}
-type alias Config a b msg =
-    Components.Internal.Config.Config a b msg
+type alias Config a b tbstate msg =
+    Components.Internal.Config.Config a b tbstate msg
 
 
 {-| Column's configuration (opaque).
@@ -95,14 +95,14 @@ type alias Pagination =
 
 {-| Table's view.
 -}
-view : Config a b msg -> Model a -> Html msg
+view : Config a b tbstate msg -> tbstate -> Model a -> Html msg
 view =
     Components.Internal.Table.view
 
 
 {-| Initialize the table's model.
 -}
-init : Config a b msg -> Model a
+init : Config a b tbstate msg -> Model a
 init =
     Components.Internal.Table.init
 
@@ -160,7 +160,7 @@ pagination =
 
 {-| Table's subscriptions.
 -}
-subscriptions : Config a b msg -> Model a -> Sub msg
+subscriptions : Config a b tbstate msg -> Model a -> Sub msg
 subscriptions =
     Components.Internal.Subscription.subscriptions
 
@@ -168,7 +168,7 @@ subscriptions =
 {-| Define a configuration for a table with static data (i.e. with all loaded
 data at once).
 -}
-static : (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () msg
+static : (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () tbstate msg
 static =
     Components.Internal.Config.static
 
@@ -176,7 +176,7 @@ static =
 {-| Define a configuration for a table with dynamic data (i.e. with paginated
 loaded data).
 -}
-dynamic : (Model a -> msg) -> (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () msg
+dynamic : (Model a -> msg) -> (Model a -> msg) -> (a -> String) -> List (Column a msg) -> Config a () tbstate msg
 dynamic =
     Components.Internal.Config.dynamic
 

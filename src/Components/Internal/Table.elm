@@ -42,7 +42,7 @@ import TwUtil
 --
 
 
-init : Config a b msg -> Model a
+init : Config a b tbstate msg -> Model a
 init (Config cfg) =
     let
         fnVisible =
@@ -101,8 +101,8 @@ init (Config cfg) =
 -- View
 
 
-view : Config a b msg -> Model a -> Html msg
-view config ((Model m) as model) =
+view : Config a b tbstate msg -> tbstate -> Model a -> Html msg
+view config toolbarState ((Model m) as model) =
     let
         pipeInt =
             pipeInternal config model
@@ -113,27 +113,27 @@ view config ((Model m) as model) =
     div [ css [] ] <|
         case m.rows of
             Rows Loading ->
-                [ tableHeader config pipeExt pipeInt m.state
+                [ tableHeader config toolbarState pipeExt pipeInt m.state
                 , div [ css [ Tw.flex, Tw.justify_center, Tw.items_center, Tw.h_32 ] ]
                     [ span [ css [ Tw.text_2xl ] ] [ text "Loading..." ] ]
                 ]
 
             Rows (Loaded { total, rows }) ->
-                [ tableHeader config pipeExt pipeInt m.state
+                [ tableHeader config toolbarState pipeExt pipeInt m.state
                 , tableContent config pipeExt pipeInt m.state rows
                 , tableFooter config pipeExt pipeInt m.state total
                 ]
 
             Rows (Failed msg) ->
-                [ tableHeader config pipeExt pipeInt m.state, errorView msg ]
+                [ tableHeader config toolbarState pipeExt pipeInt m.state, errorView msg ]
 
 
 
 -- Header
 
 
-tableHeader : Config a b msg -> Pipe msg -> Pipe msg -> State -> Html msg
-tableHeader ((Config cfg) as config) pipeExt pipeInt state =
+tableHeader : Config a b tbstate msg -> tbstate -> Pipe msg -> Pipe msg -> State -> Html msg
+tableHeader ((Config cfg) as config) toolbarState pipeExt pipeInt state =
     div
         [ css <|
             [ Tw.h_16
@@ -152,7 +152,7 @@ tableHeader ((Config cfg) as config) pipeExt pipeInt state =
                    )
         ]
         [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
-        , div [ css [ Tw.flex, Tw.items_center ] ] cfg.toolbar
+        , div [ css [ Tw.flex, Tw.items_center ] ] <| List.map (\f -> f toolbarState) <| cfg.toolbar
         , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Components.Internal.Toolbar.view config pipeExt pipeInt state
         ]
 
@@ -205,7 +205,7 @@ headerSearch pipeExt pipeInt =
 -- Content
 
 
-tableContent : Config a b msg -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
+tableContent : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
 tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
     let
         expandColumn =
@@ -318,7 +318,7 @@ tableContentHead stickyHeader hasSelection pipeExt pipeInt columns state =
 
 
 tableContentBody :
-    Config a b msg
+    Config a b tbstate msg
     -> Pipe msg
     -> Pipe msg
     -> List (Column a msg)
@@ -330,7 +330,7 @@ tableContentBody config pipeExt pipeInt columns state rows =
 
 
 tableContentBodyRow :
-    Config a b msg
+    Config a b tbstate msg
     -> Pipe msg
     -> Pipe msg
     -> List (Column a msg)
@@ -392,7 +392,7 @@ tableContentBodyRow ((Config cfg) as config) pipeExt pipeInt columns state (Row 
 
 
 subtableContent :
-    Config a b msg
+    Config a b tbstate msg
     -> Pipe msg
     -> Pipe msg
     -> RowID
@@ -475,7 +475,7 @@ subtableContentBodyRow pipeExt cfg columns state (Row r) =
 -- Footer
 
 
-tableFooter : Config a b msg -> Pipe msg -> Pipe msg -> State -> Int -> Html msg
+tableFooter : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> Int -> Html msg
 tableFooter (Config cfg) pipeExt pipeInt state total =
     if cfg.pagination == None then
         text ""
