@@ -5,7 +5,7 @@ module Components.Table.Config exposing
     , withSelectionLinkedStrict, withSelectionExclusive
     , withSelectionExclusiveStrict, withPagination, withProgressiveLoading
     , withToolbar, withErrorView, withSubtable
-    , withStickyHeader
+    , withStickyHeader, withRowClickHandler
     )
 
 {-| Configuration of the table.
@@ -28,7 +28,7 @@ module Components.Table.Config exposing
 -}
 
 import Components.Internal.Config
-import Components.Internal.Data exposing (Model)
+import Components.Internal.Data exposing (Model, Row)
 import Components.Table.Column exposing (..)
 import Components.Table.Types exposing (..)
 import Html.Styled exposing (Html)
@@ -145,3 +145,9 @@ withSubtable =
 withStickyHeader : Config a b tbstate msg -> Config a b tbstate msg
 withStickyHeader =
     Components.Internal.Config.withStickyHeader
+
+{-| Handle clicks on individual rows.
+-}
+withRowClickHandler : (a -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
+withRowClickHandler =
+    Components.Internal.Config.withRowClickHandler

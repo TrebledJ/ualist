@@ -19,6 +19,7 @@ import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
 import Task
 import TwUtil
+import Components.Clipboard as Clipboard
 
 
 
@@ -51,10 +52,10 @@ config =
         , Column.string .osName "OS" ""
         ]
         |> Config.withStickyHeader
+        |> Config.withRowClickHandler OnRowClick
         |> Config.withToolbar
             [ copyAllButton
             ]
-
 
 
 -- PORTS
@@ -101,8 +102,10 @@ uaDecoder =
 type Msg
     = OnTable TableModel
     | OnData (Result Error String)
+    | OnRowClick UserAgent
     | RecvUserAgentBatch String
     | ClipboardMsg (Clipboard.Msg TableModel)
+    | ClipboardRowMsg (Clipboard.Msg UserAgent)
 
 
 fetchData : Cmd Msg
@@ -147,6 +150,13 @@ update msg model =
             in
             ( model, Cmd.none )
 
+        OnRowClick rec ->
+            let
+                _ = Debug.log "onrowclick" rec.ua
+                (_, cmd) = Clipboard.update "recvCopyRowStatus" (Clipboard.CopyAction .ua) rec Clipboard.Idle
+            in
+            ( model, Cmd.map ClipboardRowMsg cmd )
+
         RecvUserAgentBatch val ->
             let
                 decoded =
@@ -156,8 +166,9 @@ update msg model =
 
         ClipboardMsg m ->
             let
+                _ = Debug.log "called" "ClipboardMsg"
                 ( state, cmd ) =
-                    Clipboard.update m model.table model.toolbarState.copyAllState
+                    Clipboard.update "recvCopyAllStatus" m model.table model.toolbarState.copyAllState
 
                 toolbarState =
                     model.toolbarState
@@ -166,6 +177,10 @@ update msg model =
                     { toolbarState | copyAllState = state }
             in
             ( { model | toolbarState = newToolbarState }, Cmd.map ClipboardMsg cmd )
+    
+        ClipboardRowMsg _ ->
+            let _ = Debug.log "called" "ClipboardRowMsg" in
+            ( model, Cmd.none )
 
 
 appendRowsToModel : Result error (List UserAgent) -> Model -> Model
@@ -189,12 +204,17 @@ appendRowsToModel x model =
             model
 
 
+port recvCopyAllStatus : (Bool -> msg) -> Sub msg
+port recvCopyRowStatus : (Bool -> msg) -> Sub msg
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Components.Table.subscriptions config model.table
         , recvUserAgentBatch RecvUserAgentBatch
-        , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
+        -- , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
+        , recvCopyAllStatus (ClipboardMsg << Clipboard.CopyStatus)
+        , recvCopyRowStatus (ClipboardRowMsg << Clipboard.CopyStatus)
         ]
 
 view : Model -> Html Msg

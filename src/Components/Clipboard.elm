@@ -1,24 +1,24 @@
-port module Components.Clipboard exposing (ViewState(..), update, subscriptions, Msg(..))
+port module Components.Clipboard exposing (ViewState(..), update, Msg(..))
 
 import Process
 import Task
 
 
-port copyToClipboard : String -> Cmd msg
+port copyToClipboard : (String, String) -> Cmd msg
 
 
 port recvCopyStatus : (Bool -> msg) -> Sub msg
 
 
-update : Msg a -> a -> ViewState -> ( ViewState, Cmd (Msg a) )
-update m model vs =
+update : String -> Msg a -> a -> ViewState -> ( ViewState, Cmd (Msg a) )
+update port_ m model vs =
     case m of
         CopyAction func ->
             let
                 str =
                     func model
             in
-            ( vs, copyToClipboard str )
+            ( vs, copyToClipboard (port_, str) )
 
         CopyStatus ok ->
             if ok then
@@ -42,6 +42,6 @@ type ViewState
     | Copied
 
 
-subscriptions : () -> Sub (Msg a)
-subscriptions _ =
-    recvCopyStatus CopyStatus
+-- subscriptions : () -> Sub (Msg a)
+-- subscriptions _ =
+--     recvCopyStatus CopyStatus

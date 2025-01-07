@@ -28,7 +28,7 @@ import FontAwesome.Solid as Icon
 import FontAwesome.Svg as SvgIcon
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events exposing (onInput)
+import Html.Styled.Events exposing (onClick, onInput)
 import Svg.Styled
 import Svg.Styled.Attributes as SvgA
 import Tailwind.Theme as Tw
@@ -102,7 +102,8 @@ getFiltered (Config cfg) (Model model) =
     case model.rows of
         Rows (Loaded { rows }) ->
             let
-                state = model.state
+                state =
+                    model.state
 
                 -- sort by columns
                 srows =
@@ -130,11 +131,12 @@ getFiltered (Config cfg) (Model model) =
 
                 frows =
                     iff (cfg.type_ == Static) (filter srows) srows
-            
-            in frows |> List.map (\(Row x) -> x)
+            in
+            frows |> List.map (\(Row x) -> x)
 
         _ ->
             []
+
 
 
 -- View
@@ -378,7 +380,20 @@ tableContentBodyRow :
     -> Row a
     -> List (Html msg)
 tableContentBodyRow ((Config cfg) as config) pipeExt pipeInt columns state (Row r) =
-    [ tr [ css [ Css.hover [ Tw.bg_color Tw.gray_100 ] ] ] <|
+    [ tr
+        (css
+            [ iff (cfg.onRowClick == Nothing) Tw.cursor_default Tw.cursor_pointer
+            , Css.hover [ Tw.bg_color Tw.gray_100 ]
+            ]
+            :: (case cfg.onRowClick of
+                    Nothing ->
+                        []
+
+                    Just func ->
+                        [ onClick <| func r ]
+               )
+        )
+      <|
         List.map
             (\(Column c) ->
                 td [ css <| [ Tw.p_2, Tw.text_center, Tw.border_b, Tw.border_color Tw.gray_300 ] ++ c.css ] <|

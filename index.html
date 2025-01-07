@@ -13,7 +13,7 @@
     <script>
         var app = Elm.View.init({
             node: document.getElementById('view-app')
-        }); 
+        });
         // var app = Elm.ButtonTest.init({
         //     node: document.getElementById('view-app')
         // });
@@ -112,15 +112,16 @@
             }
         }
 
-        app.ports.copyToClipboard.subscribe(function (text) {
-            console.log("[js] copying text:", text)
+        app.ports.copyToClipboard.subscribe(function ([port, text]) {
+            console.log("[js] copying text:", text, "from port", port)
             copyTextToClipboard({
                 text,
                 success() {
-                    app.ports.recvCopyStatus.send(true);
+                    // TODO: could this potentially cause security issues?
+                    const x = app.ports[port]; x && x.send(true);
                 },
                 error() {
-                    app.ports.recvCopyStatus.send(false);
+                    const x = app.ports[port]; x && x.send(false);
                 }
             });
         });
