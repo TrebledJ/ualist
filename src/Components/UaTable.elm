@@ -1,16 +1,15 @@
 port module Components.UaTable exposing (..)
 
--- import Json.Decode as Decode exposing (Decoder)
--- import Json.Decode.Pipeline exposing (required)
-
-import Browser
+import Components.Table
+import Components.Table.Column as Column
+import Components.Table.Config as Config
+import Css
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (class, src)
 import Http exposing (Error)
 import Json.Decode as Decode exposing (Decoder, Value)
-import Components.Table
-import Components.Table.Column as Column
-import Components.Table.Config as Config
+import Tailwind.Theme as Tw
+import Tailwind.Utilities as Tw
 import Task
 
 
@@ -28,16 +27,13 @@ config =
     Components.Table.static
         OnTable
         .ua
-        -- [Column.string (\x -> x) "Agent" ""]
-        -- (String.fromInt << .id)
-        [ Column.string .ua "User Agent" "" -- |> Column.withSearchable Nothing
+        [ Column.string .ua "User Agent" "" |> Column.withCss [ Css.property "word-break" "break-word" ] |> Column.withLineClamp (Just 3)
         , Column.string .browserName "Browser" ""
         , Column.string .deviceModel "Model" ""
         , Column.string .deviceVendor "Vendor" ""
         , Column.string .osName "OS" ""
         ]
-        |> Config.withPagination [20, 50, 100] 20
-        |> Config.withToolbar []
+        |> Config.withStickyHeader
 
 
 
@@ -94,8 +90,11 @@ fetchData =
         , expect = Http.expectString OnData
         }
 
+
+
 -- TODO: modify table by updating css directly. Refer to designs elsewhere.
 -- Reuse UaTable for Generate UA App
+
 
 run : msg -> Cmd msg
 run m =
@@ -122,7 +121,7 @@ run m =
 
 view : Model -> Html Msg
 view model =
-    div [ class "example-dynamic" ] [ Components.Table.view config model ]
+    div [] [ Components.Table.view config model ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

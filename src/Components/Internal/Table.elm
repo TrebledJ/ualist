@@ -11,14 +11,6 @@ module Components.Internal.Table exposing (..)
 --
 
 import Array
-import Css
-import Css.Global
-import FontAwesome as Icon exposing (Icon)
-import FontAwesome.Solid as Icon
-import FontAwesome.Svg as SvgIcon
-import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events exposing (onInput)
 import Components.Internal.Column exposing (..)
 import Components.Internal.Config exposing (..)
 import Components.Internal.Data exposing (..)
@@ -27,12 +19,21 @@ import Components.Internal.Selection exposing (..)
 import Components.Internal.State exposing (..)
 import Components.Internal.Toolbar
 import Components.Internal.Util exposing (..)
+import Components.Table.Types exposing (..)
+import Components.UaDropdownMultiSelect as UaDropdown
+import Css
+import Css.Global
+import FontAwesome as Icon exposing (Icon)
+import FontAwesome.Solid as Icon
+import FontAwesome.Svg as SvgIcon
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onInput)
 import Svg.Styled
 import Svg.Styled.Attributes as SvgA
-import Components.Table.Types exposing (..)
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
-import Components.UaDropdownMultiSelect as UaDropdown
+import TwUtil
 
 
 
@@ -56,9 +57,12 @@ init (Config cfg) =
                 cfg.subtable
                 |> Maybe.withDefault []
 
-        fnNameSelected = \(Column { name, default }) -> (name, default)
-        (colNames, colSelecteds) = cfg.table.columns |> List.map fnNameSelected |> List.unzip
-        
+        fnNameSelected =
+            \(Column { name, default }) -> ( name, default )
+
+        ( colNames, colSelecteds ) =
+            cfg.table.columns |> List.map fnNameSelected |> List.unzip
+
         ddPaginationInitState =
             case cfg.pagination of
                 ByPage { capabilities } ->
@@ -130,7 +134,23 @@ view config ((Model m) as model) =
 
 tableHeader : Config a b msg -> Pipe msg -> Pipe msg -> State -> Html msg
 tableHeader ((Config cfg) as config) pipeExt pipeInt state =
-    div [ css [ Tw.mb_4, Tw.p_4, Tw.bg_color Tw.gray_100, Tw.flex, Tw.gap_2, Tw.rounded ] ]
+    div
+        [ css <|
+            [ Tw.h_16
+            , Tw.px_4
+            , Tw.bg_color Tw.gray_100
+            , Tw.flex
+            , Tw.gap_2
+            , Tw.rounded
+            , Tw.z_10 -- In case thead is sticky, we want the extra header to be on top.
+            ]
+                ++ (if cfg.stickyHeader then
+                        [ Tw.sticky, Tw.top_0 ]
+
+                    else
+                        []
+                   )
+        ]
         [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
         , div [ css [ Tw.flex, Tw.items_center ] ] cfg.toolbar
         , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Components.Internal.Toolbar.view config pipeExt pipeInt state
@@ -140,18 +160,15 @@ tableHeader ((Config cfg) as config) pipeExt pipeInt state =
 headerSearch : Pipe msg -> Pipe msg -> List (Html msg)
 headerSearch pipeExt pipeInt =
     [ input
-        [ css
+        [ css <|
             [ Tw.relative
             , Tw.inline_flex
-            -- , Tw.border
-            -- , Tw.rounded
-            , Tw.pl_1
-            , Tw.py_1
+            , Tw.pl_2
             , Tw.pr_20
             , Tw.w_full
             , Tw.h_10
-            , Tw.border_solid, Tw.border, Tw.border_color Tw.gray_300, Tw.rounded
             ]
+                ++ TwUtil.border
         , type_ "text"
         , placeholder "Search..."
         , onInput
@@ -170,20 +187,14 @@ headerSearch pipeExt pipeInt =
     , span
         [ css
             [ Tw.absolute
-            , Tw.right_0
-            , Tw.top_0
-            , Tw.w_10
-            , Tw.h_10
+            , Tw.right_2
             , Tw.z_10
-            , Tw.inline_flex
-            , Tw.justify_center
-            , Tw.items_center
             , Tw.pointer_events_none
             , Tw.text_color Tw.gray_300
             ]
         ]
         [ i []
-            [ Svg.Styled.svg [ SvgA.viewBox "0 0 512 512", SvgA.style "width: 24px; height: 24px;" ]
+            [ Svg.Styled.svg [ SvgA.viewBox "0 0 512 512", SvgA.style "width: 20px; height: 20px;" ]
                 [ Svg.Styled.fromUnstyled <| SvgIcon.view Icon.magnifyingGlass ]
             ]
         ]
@@ -211,7 +222,8 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
         selectColumn =
             ifMaybe (cfg.selection /= Disable) (selectionParent pipeInt config rows)
 
-        _ = Debug.log "selected" <| UaDropdown.getSelected state.ddColumns
+        _ =
+            Debug.log "selected" <| UaDropdown.getSelected state.ddColumns
 
         visibleColumns =
             List.filter
@@ -263,9 +275,9 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
         prows =
             iff (cfg.type_ == Static && cfg.pagination /= None) (cut frows) frows
     in
-    div [ css [ Tw.overflow_auto ] ]
-        [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.shadow, Tw.rounded ] ]
-            [ tableContentHead (cfg.selection /= Disable) pipeExt pipeInt columns state
+    div []
+        [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.shadow, Tw.rounded, Tw.border_collapse ] ]
+            [ tableContentHead cfg.stickyHeader (cfg.selection /= Disable) pipeExt pipeInt columns state
             , tableContentBody config pipeExt pipeInt columns state prows
             ]
         ]
@@ -273,17 +285,25 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
 
 tableContentHead :
     Bool
+    -> Bool
     -> Pipe msg
     -> Pipe msg
     -> List (Column a msg)
     -> State
     -> Html msg
-tableContentHead hasSelection pipeExt pipeInt columns state =
-    thead []
+tableContentHead stickyHeader hasSelection pipeExt pipeInt columns state =
+    thead
+        [ css <|
+            if stickyHeader then
+                [ Tw.sticky, Tw.top_16 ]
+
+            else
+                []
+        ]
         [ tr [] <|
             List.indexedMap
                 (\i ((Column c) as col) ->
-                    th [ css [ Tw.p_2, Tw.text_center, Tw.bg_color Tw.gray_200 ] ] <|
+                    th [ css [ Tw.p_2, Tw.text_center, Tw.text_sm, Tw.uppercase, Tw.bg_color Tw.gray_200 ] ] <|
                         c.viewHeader col
                             ( state
                             , if i == 0 && hasSelection then
@@ -321,8 +341,26 @@ tableContentBodyRow ((Config cfg) as config) pipeExt pipeInt columns state (Row 
     [ tr [ css [ Css.hover [ Tw.bg_color Tw.gray_100 ] ] ] <|
         List.map
             (\(Column c) ->
-                td [ css [ Tw.p_2, Tw.border_b, Tw.border_color Tw.gray_300 ] ] <|
-                    c.viewCell r ( state, pipeExt )
+                td [ css <| [ Tw.p_2, Tw.text_center, Tw.border_b, Tw.border_color Tw.gray_300 ] ++ c.css ] <|
+                    case c.lineClamp of
+                        Just nlines ->
+                            [ p
+                                [ css
+                                    [ Css.property "-webkit-box-orient" "vertical"
+                                    , Css.property "-webkit-line-clamp" (String.fromInt nlines)
+                                    , Css.property "line-clamp" (String.fromInt nlines)
+                                    , Tw.block
+                                    , Css.property "display" "-webkit-box"
+                                    , Tw.overflow_hidden
+                                    , Tw.text_ellipsis
+                                    ]
+                                ]
+                              <|
+                                c.viewCell r ( state, pipeExt )
+                            ]
+
+                        Nothing ->
+                            c.viewCell r ( state, pipeExt )
             )
             columns
     , case ( cfg.table.expand, List.member (cfg.table.getID r) state.table.expanded ) of
@@ -385,7 +423,7 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
     in
     div [ class "subtable-content" ]
         [ table []
-            [ tableContentHead (cfg.selection /= Disable) pipeInt pipeExt columns state
+            [ tableContentHead False (cfg.selection /= Disable) pipeInt pipeExt columns state
             , subtableContentBody pipeExt subConfig columns state rows
             ]
         ]

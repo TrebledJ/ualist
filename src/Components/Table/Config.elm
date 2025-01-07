@@ -5,6 +5,7 @@ module Components.Table.Config exposing
     , withSelectionLinkedStrict, withSelectionExclusive
     , withSelectionExclusiveStrict, withPagination, withProgressiveLoading
     , withToolbar, withErrorView, withSubtable
+    , withStickyHeader
     )
 
 {-| Configuration of the table.
@@ -26,11 +27,11 @@ module Components.Table.Config exposing
 
 -}
 
-import Html.Styled exposing (Html)
 import Components.Internal.Config
 import Components.Internal.Data exposing (Model)
 import Components.Table.Column exposing (..)
 import Components.Table.Types exposing (..)
+import Html.Styled exposing (Html)
 
 
 {-| Table's configuration (opaque).
@@ -137,3 +138,10 @@ withErrorView =
 withSubtable : (a -> List b) -> (b -> String) -> List (Column b msg) -> Maybe (Column b msg) -> Config a () msg -> Config a b msg
 withSubtable =
     Components.Internal.Config.withSubtable
+
+
+{-| Enable sticky headers.
+-}
+withStickyHeader : Config a b msg -> Config a b msg
+withStickyHeader =
+    Components.Internal.Config.withStickyHeader

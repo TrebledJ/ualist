@@ -106,34 +106,10 @@ view : Model -> Html.Html Msg
 view model =
     HtmlS.toUnstyled <|
         div
-            [ Attr.css [ Tw.container, Tw.mx_auto, Tw.p_4 ]
+            [ Attr.css [ Tw.w_screen, Tw.mx_auto ]
             ]
-            [ viewSelectors model
-            , viewMain model
+            [ viewMain model
             ]
-
-
-viewSelectors : Model -> Html Msg
-viewSelectors model =
-    div [ Attr.css [ Tw.grid, Tw.grid_cols_1, Breakpoints.md [ Tw.grid_cols_3 ], Tw.gap_4, Tw.mb_4 ] ]
-        [ viewSelector "Browser" model.filterBrowser (ChangeFilter << Browser)
-        , viewSelector "OS/Device" model.filterOsDevice (ChangeFilter << OSDevice)
-        , viewSelector "Limit" (String.fromInt model.filterLimit) (ChangeFilter << Limit)
-        ]
-
-
-viewSelector : String -> String -> (String -> Msg) -> Html Msg
-viewSelector label value onChange =
-    div [ Attr.css [ Tw.flex, Tw.flex_col ] ]
-        [ div [ Attr.css [ Tw.font_semibold, Tw.mb_1 ] ] [ text label ]
-        , input
-            [ Attr.css [ Tw.border, Tw.rounded, Tw.p_2 ]
-            , Attr.placeholder label
-            , Attr.value value
-            , Events.onInput onChange
-            ]
-            []
-        ]
 
 
 viewMain : Model -> Html Msg

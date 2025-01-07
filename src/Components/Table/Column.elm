@@ -1,7 +1,7 @@
 module Components.Table.Column exposing
     ( Column, ViewCell, ViewHeader
     , bool, default, float, int, string
-    , withClass, withDefault, withHeaderView, withHiddable, withHidden
+    , withClass, withCss, withLineClamp, withDefault, withHeaderView, withHiddable, withHidden
     , withSearchable, withSortable, withUnSortable, withView, withWidth
     )
 
@@ -22,6 +22,7 @@ module Components.Table.Column exposing
 
 -}
 
+import Css
 import Components.Internal.Column
 
 
@@ -113,6 +114,18 @@ withHeaderView =
 withClass : String -> Column a msg -> Column a msg
 withClass =
     Components.Internal.Column.withClass
+
+{-| Define CSS styles for the column.
+-}
+withCss : List Css.Style -> Column a msg -> Column a msg
+withCss =
+    Components.Internal.Column.withCss
+
+{-| Define CSS styles for the column.
+-}
+withLineClamp : Maybe Int -> Column a msg -> Column a msg
+withLineClamp =
+    Components.Internal.Column.withLineClamp
 
 
 {-| Create an agnostic column with a rendering function.

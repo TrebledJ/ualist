@@ -32,6 +32,7 @@ type alias ConfigInternal a b msg =
     , subtable : Maybe (SubTable a b msg)
     , errorView : String -> Html msg
     , toolbar : List (Html msg)
+    , stickyHeader : Bool
     }
 
 
@@ -54,6 +55,7 @@ config t s oe oi c =
         , subtable = Nothing
         , errorView = errorView
         , toolbar = []
+        , stickyHeader = False
         }
 
 
@@ -69,6 +71,7 @@ static onChange getID columns =
         , subtable = Nothing
         , errorView = errorView
         , toolbar = []
+        , stickyHeader = False
         }
 
 
@@ -84,6 +87,7 @@ dynamic onChangeExt onChangeInt getID columns =
         , subtable = Nothing
         , errorView = errorView
         , toolbar = []
+        , stickyHeader = False
         }
 
 
@@ -164,8 +168,11 @@ withSubtable getValues getID columns expand (Config c) =
         , subtable = Just <| SubTable getValues { columns = columns, getID = getID, expand = expand }
         , errorView = c.errorView
         , toolbar = c.toolbar
+        , stickyHeader = False
         }
 
+withStickyHeader : Config a b msg -> Config a b msg
+withStickyHeader (Config c) = Config { c | stickyHeader = True }
 
 errorView : String -> Html msg
 errorView msg =

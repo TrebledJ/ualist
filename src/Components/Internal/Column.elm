@@ -1,5 +1,6 @@
 module Components.Internal.Column exposing (..)
 
+import Css
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick)
@@ -27,6 +28,8 @@ type Column a msg
         { name : String
         , abbrev : String
         , class : String
+        , css : List Css.Style
+        , lineClamp : Maybe Int
         , width : String
         , sortable : Maybe (a -> a -> Order)
         , hiddable : Bool
@@ -87,6 +90,13 @@ withClass : String -> Column a msg -> Column a msg
 withClass name (Column col) =
     Column { col | class = name }
 
+withCss : List Css.Style -> Column a msg -> Column a msg
+withCss css (Column col) =
+    Column { col | css = css }
+
+withLineClamp : Maybe Int -> Column a msg -> Column a msg
+withLineClamp clamp (Column col) =
+    Column { col | lineClamp = clamp }
 
 default : String -> String -> ViewCell a msg -> Column a msg
 default name abbrev view =
@@ -95,6 +105,8 @@ default name abbrev view =
         , abbrev = abbrev
         , width = ""
         , class = ""
+        , css = []
+        , lineClamp = Nothing
         , sortable = Nothing
         , hiddable = True
         , searchable = Nothing
@@ -112,6 +124,8 @@ int get name abbrev =
         , abbrev = abbrev
         , width = ""
         , class = ""
+        , css = []
+        , lineClamp = Nothing
         , sortable = Just <| \a b -> compare (get a) (get b)
         , searchable = Just (String.fromInt << get)
         , visible = True
@@ -129,6 +143,8 @@ string get name abbrev =
         , abbrev = abbrev
         , width = ""
         , class = ""
+        , css = []
+        , lineClamp = Nothing
         , sortable = Just <| \a b -> compare (get a) (get b)
         , searchable = Just get
         , visible = True
@@ -146,6 +162,8 @@ bool get name abbrev =
         , abbrev = abbrev
         , width = ""
         , class = ""
+        , css = []
+        , lineClamp = Nothing
         , sortable = Nothing
         , searchable = Nothing
         , visible = True
@@ -163,6 +181,8 @@ float get name abbrev =
         , abbrev = abbrev
         , width = ""
         , class = ""
+        , css = []
+        , lineClamp = Nothing
         , sortable = Just <| \a b -> compare (get a) (get b)
         , searchable = Just (String.fromFloat << get)
         , visible = True
@@ -180,6 +200,8 @@ clipboard get name abbrev =
         , abbrev = abbrev
         , width = ""
         , class = ""
+        , css = []
+        , lineClamp = Nothing
         , sortable = Just <| \a b -> compare (get a) (get b)
         , searchable = Just get
         , visible = True
@@ -197,6 +219,8 @@ expand pipe lens getID =
         , abbrev = ""
         , width = "30px"
         , class = "col-btn-expand"
+        , css = []
+        , lineClamp = Nothing
         , sortable = Nothing
         , searchable = Nothing
         , visible = True
@@ -214,6 +238,8 @@ subtable isDisable pipe lens getID =
         , abbrev = ""
         , width = "30px"
         , class = "col-btn-substable"
+        , css = []
+        , lineClamp = Nothing
         , sortable = Nothing
         , searchable = Nothing
         , visible = True
