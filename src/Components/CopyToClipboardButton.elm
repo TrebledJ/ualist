@@ -27,14 +27,13 @@ port recvCopyStatus : (Bool -> msg) -> Sub msg
 --     { viewState = Idle, model = model }
 
 
-update : Msg a -> ButtonViewState -> ( ButtonViewState, Cmd (Msg a) )
-update m state =
+update : Msg a -> a -> ButtonViewState -> ( ButtonViewState, Cmd (Msg a) )
+update m model state =
     case m of
-        -- CopyAction func model ->
-        CopyAction str ->
+        CopyAction func ->
             let
-                -- str =
-                --     func model
+                str =
+                    func model
 
                 _ =
                     Debug.log "got string" str
@@ -53,7 +52,7 @@ update m state =
 
 
 type Msg a
-    = CopyAction String
+    = CopyAction (a -> String)
     | CopyStatus Bool
     | CopiedTimeout
 
@@ -80,8 +79,8 @@ subscriptions _ =
     recvCopyStatus CopyStatus
 
 
-makeCopyAction : (String) -> Msg a
-makeCopyAction = CopyAction 
+makeCopyAction : (a -> String) -> Msg a
+makeCopyAction = CopyAction
 
 -- view : ViewConfig a -> ButtonViewState -> Html (Msg a)
 -- view { onCopy, layout } state =

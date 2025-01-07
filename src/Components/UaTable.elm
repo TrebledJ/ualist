@@ -102,7 +102,7 @@ type Msg
     | OnData (Result Error String)
     | RecvUserAgent String
     | RecvUserAgentBatch String
-    | CopyToClipboardMsg (CopyToClipboardButton.Msg ())
+    | CopyToClipboardMsg (CopyToClipboardButton.Msg TableModel)
 
 
 fetchData : Cmd Msg
@@ -146,6 +146,8 @@ view : Model -> Html Msg
 view model =
     div [] [ Components.Table.view config model.toolbarState model.table ]
 
+buildString : TableModel -> String
+buildString table = Components.Table.getFiltered config table |> List.map .ua |> String.join "\n"
 
 copyAllButton : ToolbarState -> Html Msg
 copyAllButton { copyToClipboardViewState } =
@@ -156,10 +158,11 @@ copyAllButton { copyToClipboardViewState } =
 
             else
                 Icon.clipboardCheck
+
     in
     button
         [ -- onClick (CopyAction onCopy)
-          Html.Styled.Attributes.map CopyToClipboardMsg <| onClick <| CopyToClipboardButton.makeCopyAction "abc"
+          Html.Styled.Attributes.map CopyToClipboardMsg <| onClick <| CopyToClipboardButton.makeCopyAction buildString
         , css <|
             [ Tw.flex
             , Tw.justify_center
@@ -224,7 +227,7 @@ update msg model =
             ( appendRowsToModel decoded model, Cmd.none )
 
         CopyToClipboardMsg m ->
-            let ( state, cmd ) = CopyToClipboardButton.update m model.toolbarState.copyToClipboardViewState
+            let ( state, cmd ) = CopyToClipboardButton.update m model.table model.toolbarState.copyToClipboardViewState
                 toolbarState = model.toolbarState
                 newToolbarState = { toolbarState | copyToClipboardViewState = state }
             in

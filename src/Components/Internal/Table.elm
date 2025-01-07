@@ -97,6 +97,45 @@ init (Config cfg) =
         }
 
 
+getFiltered : Config a b tbstate msg -> Model a -> List a
+getFiltered (Config cfg) (Model model) =
+    case model.rows of
+        Rows (Loaded { rows }) ->
+            let
+                state = model.state
+
+                -- sort by columns
+                srows =
+                    iff (cfg.type_ == Static) (sort cfg.table.columns state rows) rows
+
+                filter =
+                    \rs ->
+                        iff (String.isEmpty state.search)
+                            rs
+                            (List.filter
+                                (\(Row a) ->
+                                    List.any
+                                        (\(Column c) ->
+                                            case c.searchable of
+                                                Nothing ->
+                                                    False
+
+                                                Just fn ->
+                                                    String.contains state.search (fn a)
+                                        )
+                                        cfg.table.columns
+                                )
+                                rows
+                            )
+
+                frows =
+                    iff (cfg.type_ == Static) (filter srows) srows
+            
+            in frows |> List.map (\(Row x) -> x)
+
+        _ ->
+            []
+
 
 -- View
 

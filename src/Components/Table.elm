@@ -1,5 +1,5 @@
 module Components.Table exposing
-    ( Model, Row, Rows, RowID, get, init, loaded, loadedDynamic, loadedStatic, loading, failed
+    ( Model, Row, Rows, RowID, get, getFiltered, init, loaded, loadedDynamic, loadedStatic, loading, failed
     , Pipe, State, Pagination, pagination, selected, subSelected
     , Config, Column, static, dynamic
     , view, subscriptions
@@ -112,6 +112,12 @@ init =
 get : Model a -> List a
 get =
     Components.Internal.Data.get
+
+{-| Get the loaded data with search filters applied.
+-}
+getFiltered : Config a b tbstate msg -> Model a -> List a
+getFiltered =
+    Components.Internal.Table.getFiltered
 
 
 {-| Load the data in the model with the total number of rows if the data are
