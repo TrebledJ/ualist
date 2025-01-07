@@ -6,14 +6,11 @@ import Components.Internal.Data exposing (..)
 import Components.Internal.State exposing (..)
 import Components.Internal.Util exposing (..)
 import Components.UaDropdownMultiSelect as UaDropdown
-import FontAwesome as Icon
 import FontAwesome.Solid as Icon
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onCheck, onClick)
 import Monocle.Lens exposing (Lens)
-import Svg.Attributes as SvgA
-import Svg.Styled
 import TwUtil
 
 
@@ -35,15 +32,6 @@ view (Config cfg) pipeExt pipeInt state =
     ]
 
 
-
--- faBarsIcon =
---     Svg.Styled.svg [ SvgA.viewBox "0 0 512 512", SvgA.style "width: 20px; height: 20px;" ]
---         [ Svg.Styled.fromUnstyled <| SvgIcon.view Icon.bars ]
--- faTableColumnsIcon =
---     Svg.Styled.svg [ SvgA.viewBox "0 0 512 512", SvgA.style "width: 20px; height: 20px;" ]
---         [ Svg.Styled.fromUnstyled <| SvgIcon.view Icon.tableColumns ]
-
-
 toolbarMenuPagination : Pipe msg -> Pipe msg -> State -> List Int -> Html msg
 toolbarMenuPagination pipeExt pipeInt state capabilities =
     UaDropdown.view
@@ -58,11 +46,7 @@ toolbarMenuPagination pipeExt pipeInt state capabilities =
                             , ddColumns = UaDropdown.toggleDropdown False s.ddColumns
                             , ddSubColumns = UaDropdown.toggleDropdown False s.ddSubColumns
                         }
-        , icon =
-            Icon.bars
-                |> Icon.styled [ SvgA.width "20", SvgA.height "20" ]
-                |> Icon.view
-                |> Svg.Styled.fromUnstyled
+        , icon = TwUtil.icon Icon.bars
         , align = TwUtil.Right
         }
         state.ddPagination
@@ -82,11 +66,7 @@ toolbarMenuColumns columns pipeInt state =
                             , ddPagination = UaDropdown.toggleDropdown False s.ddPagination
                             , ddSubColumns = UaDropdown.toggleDropdown False s.ddSubColumns
                         }
-        , icon =
-            Icon.tableColumns
-                |> Icon.styled [ SvgA.width "20", SvgA.height "20" ]
-                |> Icon.view
-                |> Svg.Styled.fromUnstyled
+        , icon = TwUtil.icon Icon.tableColumns
         , align = TwUtil.Right
         }
         state.ddColumns
@@ -106,11 +86,7 @@ toolbarMenuSubColumns columns pipeInt state =
                             , ddPagination = UaDropdown.toggleDropdown False s.ddPagination
                             , ddColumns = UaDropdown.toggleDropdown False s.ddColumns
                         }
-        , icon =
-            Icon.tableColumns
-                |> Icon.styled [ SvgA.width "20", SvgA.height "20" ]
-                |> Icon.view
-                |> Svg.Styled.fromUnstyled
+        , icon = TwUtil.icon Icon.tableColumns
         , align = TwUtil.Right
         }
         state.ddSubColumns

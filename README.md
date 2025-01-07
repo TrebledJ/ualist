@@ -4,9 +4,8 @@ Find and retrieve lists of user agents.
 ## TODO
 
 - Case insensitive search
-- Click row to copy user agent
 - unify button component + css
-- Refactor svg icon construction. Add utilities?
+- indicator for copied row (animate row? tooltip?)
 - Fancy (switchable?) theme
 - Limit number of UAs shown
 - Filter to generate

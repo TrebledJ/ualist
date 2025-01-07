@@ -264,9 +264,6 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
         selectColumn =
             ifMaybe (cfg.selection /= Disable) (selectionParent pipeInt config rows)
 
-        _ =
-            Debug.log "selected" <| UaDropdown.getSelected state.ddColumns
-
         visibleColumns =
             List.filter
                 (\(Column c) -> List.member c.name <| UaDropdown.getSelected state.ddColumns)

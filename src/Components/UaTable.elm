@@ -1,24 +1,21 @@
 port module Components.UaTable exposing (..)
 
 import Components.Clipboard as Clipboard
-import Components.Table
+import Components.Table as Table
 import Components.Table.Column as Column
 import Components.Table.Config as Config
 import Css
-import FontAwesome as Icon
 import FontAwesome.Solid as Icon
-import FontAwesome.Styles as Icon
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import Http exposing (Error)
 import Json.Decode as Decode exposing (Decoder, Value)
-import Svg.Attributes as SvgA
-import Svg.Styled
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
 import Task
 import TwUtil
+import Util exposing (..)
 import Components.Clipboard as Clipboard
 
 
@@ -28,7 +25,7 @@ import Components.Clipboard as Clipboard
 
 init : Model
 init =
-    { table = Components.Table.init config
+    { table = Table.init config
     , toolbarState =
         { copyAllState = Clipboard.Idle
         }
@@ -40,9 +37,9 @@ type alias ToolbarState =
     }
 
 
-config : Components.Table.Config UserAgent () ToolbarState Msg
+config : Table.Config UserAgent () ToolbarState Msg
 config =
-    Components.Table.static
+    Table.static
         OnTable
         .ua
         [ Column.string .ua "User Agent" "" |> Column.withCss [ Css.property "word-break" "break-word" ] |> Column.withLineClamp (Just 3)
@@ -71,7 +68,7 @@ port recvUserAgentBatch : (String -> msg) -> Sub msg
 
 
 type alias TableModel =
-    Components.Table.Model UserAgent
+    Table.Model UserAgent
 
 
 type alias Model =
@@ -189,10 +186,10 @@ appendRowsToModel x model =
         Ok newRows ->
             let
                 rows =
-                    model.table |> Components.Table.get
+                    model.table |> Table.get
 
                 table =
-                    model.table |> Components.Table.loadedStatic (rows ++ newRows)
+                    model.table |> Table.loadedStatic (rows ++ newRows)
             in
             { model | table = table }
 
@@ -210,7 +207,7 @@ port recvCopyRowStatus : (Bool -> msg) -> Sub msg
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Components.Table.subscriptions config model.table
+        [ Table.subscriptions config model.table
         , recvUserAgentBatch RecvUserAgentBatch
         -- , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
         , recvCopyAllStatus (ClipboardMsg << Clipboard.CopyStatus)
@@ -219,26 +216,18 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    Components.Table.view config model.toolbarState model.table
+    Table.view config model.toolbarState model.table
 
 
 copyAllButton : ToolbarState -> Html Msg
 copyAllButton { copyAllState } =
-    let
-        icon =
-            if copyAllState == Clipboard.Idle then
-                Icon.clipboardList
-
-            else
-                Icon.clipboardCheck
-    in
     button
         [ onClick <|
             ClipboardMsg <|
                 Clipboard.CopyAction <|
                     String.join "\n"
                         << List.map .ua
-                        << Components.Table.getFiltered config
+                        << Table.getFiltered config
         , css <|
             [ Tw.flex
             , Tw.justify_center
@@ -253,8 +242,5 @@ copyAllButton { copyAllState } =
             ]
                 ++ TwUtil.border
         ]
-        [ icon
-            |> Icon.styled [ SvgA.width "20", SvgA.height "20" ]
-            |> Icon.view
-            |> Svg.Styled.fromUnstyled
+        [ TwUtil.icon <| iff (copyAllState == Clipboard.Idle) Icon.clipboardList Icon.clipboardCheck
         ]
