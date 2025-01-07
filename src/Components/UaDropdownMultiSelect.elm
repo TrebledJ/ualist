@@ -1,7 +1,7 @@
-module UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, init2, getSelected, toggleDropdown, view)
+module Components.UaDropdownMultiSelect exposing (Align(..), State, clickDropdown, init, init2, getSelected, toggleDropdown, view)
 
 import Css
-import Dropdown exposing (dropdown)
+import Components.Dropdown as Dropdown exposing (dropdown)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)

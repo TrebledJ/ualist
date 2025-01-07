@@ -1,8 +1,8 @@
-module Internal.Data exposing (..)
+module Components.Internal.Data exposing (..)
 
-import Internal.State exposing (Pagination, RowID, State)
+import Components.Internal.State exposing (Pagination, RowID, State)
 import Monocle.Lens exposing (Lens)
-import Table.Types exposing (..)
+import Components.Table.Types exposing (..)
 
 
 type alias Statable p =
@@ -56,7 +56,7 @@ failed (Model model) msg =
 
 pagination : Model a -> Pagination
 pagination (Model { state }) =
-    Internal.State.pagination state
+    Components.Internal.State.pagination state
 
 
 getState : Model a -> State
@@ -81,9 +81,9 @@ rowsLens =
 
 selected : Model a -> List RowID
 selected (Model { state }) =
-    Internal.State.selected state
+    Components.Internal.State.selected state
 
 
 subSelected : Model a -> List RowID
 subSelected (Model { state }) =
-    Internal.State.subSelected state
+    Components.Internal.State.subSelected state

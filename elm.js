@@ -5375,7 +5375,7 @@ var $author$project$View$TableMsg = function (a) {
 	return {$: 'TableMsg', a: a};
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $author$project$UaTable$OnData = function (a) {
+var $author$project$Components$UaTable$OnData = function (a) {
 	return {$: 'OnData', a: a};
 };
 var $elm$http$Http$BadStatus_ = F2(
@@ -6157,26 +6157,26 @@ var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
 		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
-var $author$project$UaTable$fetchData = $elm$http$Http$get(
+var $author$project$Components$UaTable$fetchData = $elm$http$Http$get(
 	{
-		expect: $elm$http$Http$expectString($author$project$UaTable$OnData),
+		expect: $elm$http$Http$expectString($author$project$Components$UaTable$OnData),
 		url: 'data/data.txt'
 	});
 var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$UaTable$fetchUserAgent = _Platform_outgoingPort('fetchUserAgent', $elm$json$Json$Encode$string);
-var $author$project$UaTable$OnTable = function (a) {
+var $author$project$Components$UaTable$fetchUserAgent = _Platform_outgoingPort('fetchUserAgent', $elm$json$Json$Encode$string);
+var $author$project$Components$UaTable$OnTable = function (a) {
 	return {$: 'OnTable', a: a};
 };
-var $author$project$Internal$Config$ConfTable = F3(
+var $author$project$Components$Internal$Config$ConfTable = F3(
 	function (columns, getID, expand) {
 		return {columns: columns, expand: expand, getID: getID};
 	});
-var $author$project$Internal$Config$Config = function (a) {
+var $author$project$Components$Internal$Config$Config = function (a) {
 	return {$: 'Config', a: a};
 };
-var $author$project$Table$Types$Disable = {$: 'Disable'};
-var $author$project$Internal$Config$None = {$: 'None'};
-var $author$project$Table$Types$Static = {$: 'Static'};
+var $author$project$Components$Table$Types$Disable = {$: 'Disable'};
+var $author$project$Components$Internal$Config$None = {$: 'None'};
+var $author$project$Components$Table$Types$Static = {$: 'Static'};
 var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
 	function (a, b, c) {
 		return {$: 'Attribute', a: a, b: b, c: c};
@@ -6220,7 +6220,7 @@ var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 		$elm$virtual_dom$VirtualDom$text(str));
 };
 var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
-var $author$project$Internal$Config$errorView = function (msg) {
+var $author$project$Components$Internal$Config$errorView = function (msg) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
@@ -6232,42 +6232,42 @@ var $author$project$Internal$Config$errorView = function (msg) {
 				$rtfeldman$elm_css$Html$Styled$text(msg)
 			]));
 };
-var $author$project$Internal$Config$static = F3(
+var $author$project$Components$Internal$Config$static = F3(
 	function (onChange, getID, columns) {
-		return $author$project$Internal$Config$Config(
+		return $author$project$Components$Internal$Config$Config(
 			{
-				errorView: $author$project$Internal$Config$errorView,
+				errorView: $author$project$Components$Internal$Config$errorView,
 				onChangeExt: onChange,
 				onChangeInt: onChange,
-				pagination: $author$project$Internal$Config$None,
-				selection: $author$project$Table$Types$Disable,
+				pagination: $author$project$Components$Internal$Config$None,
+				selection: $author$project$Components$Table$Types$Disable,
 				subtable: $elm$core$Maybe$Nothing,
-				table: A3($author$project$Internal$Config$ConfTable, columns, getID, $elm$core$Maybe$Nothing),
+				table: A3($author$project$Components$Internal$Config$ConfTable, columns, getID, $elm$core$Maybe$Nothing),
 				toolbar: _List_Nil,
-				type_: $author$project$Table$Types$Static
+				type_: $author$project$Components$Table$Types$Static
 			});
 	});
-var $author$project$Table$static = $author$project$Internal$Config$static;
-var $author$project$Internal$Column$Column = function (a) {
+var $author$project$Components$Table$static = $author$project$Components$Internal$Config$static;
+var $author$project$Components$Internal$Column$Column = function (a) {
 	return {$: 'Column', a: a};
 };
-var $author$project$Table$Types$Ascending = {$: 'Ascending'};
+var $author$project$Components$Table$Types$Ascending = {$: 'Ascending'};
 var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
 var $rtfeldman$elm_css$Html$Styled$abbr = $rtfeldman$elm_css$Html$Styled$node('abbr');
-var $author$project$Internal$Util$iff = F3(
+var $author$project$Components$Internal$Util$iff = F3(
 	function (cond, a, b) {
 		return cond ? a : b;
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
-var $author$project$Table$Types$Descending = {$: 'Descending'};
-var $author$project$Internal$State$next = function (status) {
+var $author$project$Components$Table$Types$Descending = {$: 'Descending'};
+var $author$project$Components$Internal$State$next = function (status) {
 	switch (status.$) {
 		case 'StandBy':
-			return $author$project$Table$Types$Descending;
+			return $author$project$Components$Table$Types$Descending;
 		case 'Descending':
-			return $author$project$Table$Types$Ascending;
+			return $author$project$Components$Table$Types$Ascending;
 		default:
-			return $author$project$Table$Types$Descending;
+			return $author$project$Components$Table$Types$Descending;
 	}
 };
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -6297,7 +6297,7 @@ var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 };
 var $rtfeldman$elm_css$Html$Styled$span = $rtfeldman$elm_css$Html$Styled$node('span');
 var $rtfeldman$elm_css$Html$Styled$Attributes$title = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('title');
-var $author$project$Internal$Column$viewHeader = F2(
+var $author$project$Components$Internal$Column$viewHeader = F2(
 	function (_v0, _v1) {
 		var col = _v0.a;
 		var state = _v1.a;
@@ -6305,7 +6305,7 @@ var $author$project$Internal$Column$viewHeader = F2(
 		return _List_fromArray(
 			[
 				A3(
-				$author$project$Internal$Util$iff,
+				$author$project$Components$Internal$Util$iff,
 				$elm$core$String$isEmpty(col.abbrev),
 				A2(
 					$rtfeldman$elm_css$Html$Styled$span,
@@ -6325,10 +6325,10 @@ var $author$project$Internal$Column$viewHeader = F2(
 							$rtfeldman$elm_css$Html$Styled$text(col.abbrev)
 						]))),
 				A3(
-				$author$project$Internal$Util$iff,
+				$author$project$Components$Internal$Util$iff,
 				!_Utils_eq(col.sortable, $elm$core$Maybe$Nothing),
 				A3(
-					$author$project$Internal$Util$iff,
+					$author$project$Components$Internal$Util$iff,
 					_Utils_eq(
 						state.orderBy,
 						$elm$core$Maybe$Just(col.name)),
@@ -6343,7 +6343,7 @@ var $author$project$Internal$Column$viewHeader = F2(
 										return _Utils_update(
 											s,
 											{
-												order: $author$project$Internal$State$next(s.order)
+												order: $author$project$Components$Internal$State$next(s.order)
 											});
 									}))
 							]),
@@ -6373,7 +6373,7 @@ var $author$project$Internal$Column$viewHeader = F2(
 										return _Utils_update(
 											s,
 											{
-												order: $author$project$Table$Types$Ascending,
+												order: $author$project$Components$Table$Types$Ascending,
 												orderBy: $elm$core$Maybe$Just(col.name)
 											});
 									}))
@@ -6385,9 +6385,9 @@ var $author$project$Internal$Column$viewHeader = F2(
 				$rtfeldman$elm_css$Html$Styled$text(''))
 			]);
 	});
-var $author$project$Internal$Column$string = F3(
+var $author$project$Components$Internal$Column$string = F3(
 	function (get, name, abbrev) {
-		return $author$project$Internal$Column$Column(
+		return $author$project$Components$Internal$Column$Column(
 			{
 				abbrev: abbrev,
 				_class: '',
@@ -6411,98 +6411,102 @@ var $author$project$Internal$Column$string = F3(
 								get(x))
 							]);
 					}),
-				viewHeader: $author$project$Internal$Column$viewHeader,
+				viewHeader: $author$project$Components$Internal$Column$viewHeader,
 				visible: true,
 				width: ''
 			});
 	});
-var $author$project$Table$Column$string = $author$project$Internal$Column$string;
-var $author$project$Internal$Config$ByPage = function (a) {
+var $author$project$Components$Table$Column$string = $author$project$Components$Internal$Column$string;
+var $author$project$Components$Internal$Config$ByPage = function (a) {
 	return {$: 'ByPage', a: a};
 };
-var $author$project$Internal$Config$withPagination = F3(
+var $author$project$Components$Internal$Config$withPagination = F3(
 	function (capabilities, initial, _v0) {
 		var c = _v0.a;
-		return $author$project$Internal$Config$Config(
+		return $author$project$Components$Internal$Config$Config(
 			_Utils_update(
 				c,
 				{
-					pagination: $author$project$Internal$Config$ByPage(
+					pagination: $author$project$Components$Internal$Config$ByPage(
 						{capabilities: capabilities, initial: initial})
 				}));
 	});
-var $author$project$Table$Config$withPagination = $author$project$Internal$Config$withPagination;
-var $author$project$Internal$Config$withToolbar = F2(
+var $author$project$Components$Table$Config$withPagination = $author$project$Components$Internal$Config$withPagination;
+var $author$project$Components$Internal$Config$withToolbar = F2(
 	function (t, _v0) {
 		var c = _v0.a;
-		return $author$project$Internal$Config$Config(
+		return $author$project$Components$Internal$Config$Config(
 			_Utils_update(
 				c,
 				{toolbar: t}));
 	});
-var $author$project$Table$Config$withToolbar = $author$project$Internal$Config$withToolbar;
-var $author$project$UaTable$config = A2(
-	$author$project$Table$Config$withToolbar,
+var $author$project$Components$Table$Config$withToolbar = $author$project$Components$Internal$Config$withToolbar;
+var $author$project$Components$UaTable$config = A2(
+	$author$project$Components$Table$Config$withToolbar,
 	_List_Nil,
 	A3(
-		$author$project$Table$Config$withPagination,
+		$author$project$Components$Table$Config$withPagination,
 		_List_fromArray(
 			[20, 50, 100]),
 		20,
 		A3(
-			$author$project$Table$static,
-			$author$project$UaTable$OnTable,
+			$author$project$Components$Table$static,
+			$author$project$Components$UaTable$OnTable,
 			function ($) {
 				return $.ua;
 			},
 			_List_fromArray(
 				[
 					A3(
-					$author$project$Table$Column$string,
+					$author$project$Components$Table$Column$string,
 					function ($) {
 						return $.ua;
 					},
 					'User Agent',
 					''),
 					A3(
-					$author$project$Table$Column$string,
+					$author$project$Components$Table$Column$string,
 					function ($) {
 						return $.browserName;
 					},
 					'Browser',
 					''),
 					A3(
-					$author$project$Table$Column$string,
+					$author$project$Components$Table$Column$string,
 					function ($) {
 						return $.deviceModel;
 					},
 					'Model',
 					''),
 					A3(
-					$author$project$Table$Column$string,
+					$author$project$Components$Table$Column$string,
 					function ($) {
 						return $.deviceVendor;
 					},
 					'Vendor',
 					''),
 					A3(
-					$author$project$Table$Column$string,
+					$author$project$Components$Table$Column$string,
 					function ($) {
 						return $.osName;
 					},
 					'OS',
 					'')
 				]))));
-var $author$project$Table$Types$Loading = {$: 'Loading'};
-var $author$project$Internal$Data$Model = function (a) {
+var $author$project$Components$Table$Types$Loading = {$: 'Loading'};
+var $author$project$Components$Internal$Data$Model = function (a) {
 	return {$: 'Model', a: a};
 };
-var $author$project$Internal$Data$Rows = function (a) {
+var $author$project$Components$Internal$Data$Rows = function (a) {
 	return {$: 'Rows', a: a};
 };
-var $author$project$Internal$State$StateTable = F4(
-	function (visible, selected, expanded, subtable) {
-		return {expanded: expanded, selected: selected, subtable: subtable, visible: visible};
+var $author$project$Components$Internal$State$StateTable = F3(
+	function (selected, expanded, subtable) {
+		return {expanded: expanded, selected: selected, subtable: subtable};
+	});
+var $author$project$Components$UaDropdownMultiSelect$init2 = F2(
+	function (items, selecteds) {
+		return {isOpen: false, items: items, selecteds: selecteds};
 	});
 var $elm$core$List$repeatHelp = F3(
 	function (result, n, value) {
@@ -6525,15 +6529,14 @@ var $elm$core$List$repeat = F2(
 	function (n, value) {
 		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
 	});
-var $author$project$UaDropdownMultiSelect$init = function (items) {
-	return {
-		isOpen: false,
-		items: items,
-		selecteds: A2(
+var $author$project$Components$UaDropdownMultiSelect$init = function (items) {
+	return A2(
+		$author$project$Components$UaDropdownMultiSelect$init2,
+		items,
+		A2(
 			$elm$core$List$repeat,
 			$elm$core$List$length(items),
-			false)
-	};
+			false));
 };
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
@@ -6545,6 +6548,23 @@ var $elm$core$Maybe$map = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $elm$core$List$unzip = function (pairs) {
+	var step = F2(
+		function (_v0, _v1) {
+			var x = _v0.a;
+			var y = _v0.b;
+			var xs = _v1.a;
+			var ys = _v1.b;
+			return _Utils_Tuple2(
+				A2($elm$core$List$cons, x, xs),
+				A2($elm$core$List$cons, y, ys));
+		});
+	return A3(
+		$elm$core$List$foldr,
+		step,
+		_Utils_Tuple2(_List_Nil, _List_Nil),
+		pairs);
+};
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -6554,13 +6574,13 @@ var $elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var $author$project$Internal$Table$init = function (_v0) {
+var $author$project$Components$Internal$Table$init = function (_v0) {
 	var cfg = _v0.a;
-	var fnVisible = function (_v4) {
-		var name = _v4.a.name;
-		var _default = _v4.a._default;
+	var fnVisible = function (_v6) {
+		var name = _v6.a.name;
+		var _default = _v6.a._default;
 		return A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			_default,
 			$elm$core$Maybe$Just(name),
 			$elm$core$Maybe$Nothing);
@@ -6571,74 +6591,83 @@ var $author$project$Internal$Table$init = function (_v0) {
 		_List_Nil,
 		A2(
 			$elm$core$Maybe$map,
-			function (_v3) {
-				var c = _v3.b;
+			function (_v5) {
+				var c = _v5.b;
 				return A2($elm$core$List$filterMap, fnVisible, c.columns);
 			},
 			cfg.subtable));
+	var fnNameSelected = function (_v4) {
+		var name = _v4.a.name;
+		var _default = _v4.a._default;
+		return _Utils_Tuple2(name, _default);
+	};
 	var ddPaginationInitState = function () {
-		var _v2 = cfg.pagination;
-		if (_v2.$ === 'ByPage') {
-			var capabilities = _v2.a.capabilities;
+		var _v3 = cfg.pagination;
+		if (_v3.$ === 'ByPage') {
+			var capabilities = _v3.a.capabilities;
 			return A2($elm$core$List$map, $elm$core$String$fromInt, capabilities);
 		} else {
 			return _List_Nil;
 		}
 	}();
-	return $author$project$Internal$Data$Model(
+	var _v1 = $elm$core$List$unzip(
+		A2($elm$core$List$map, fnNameSelected, cfg.table.columns));
+	var colNames = _v1.a;
+	var colSelecteds = _v1.b;
+	return $author$project$Components$Internal$Data$Model(
 		{
-			rows: $author$project$Internal$Data$Rows($author$project$Table$Types$Loading),
+			rows: $author$project$Components$Internal$Data$Rows($author$project$Components$Table$Types$Loading),
 			state: {
 				byPage: function () {
-					var _v1 = cfg.pagination;
-					switch (_v1.$) {
+					var _v2 = cfg.pagination;
+					switch (_v2.$) {
 						case 'ByPage':
-							var initial = _v1.a.initial;
+							var initial = _v2.a.initial;
 							return initial;
 						case 'Progressive':
-							var initial = _v1.a.initial;
+							var initial = _v2.a.initial;
 							return initial;
 						default:
 							return 0;
 					}
 				}(),
-				ddColumns: $author$project$UaDropdownMultiSelect$init(visibleColumns),
-				ddPagination: $author$project$UaDropdownMultiSelect$init(ddPaginationInitState),
-				ddSubColumns: $author$project$UaDropdownMultiSelect$init(visibleSubColumns),
-				order: $author$project$Table$Types$Ascending,
+				ddColumns: A2($author$project$Components$UaDropdownMultiSelect$init2, colNames, colSelecteds),
+				ddPagination: $author$project$Components$UaDropdownMultiSelect$init(ddPaginationInitState),
+				ddSubColumns: $author$project$Components$UaDropdownMultiSelect$init(visibleSubColumns),
+				order: $author$project$Components$Table$Types$Ascending,
 				orderBy: $elm$core$Maybe$Nothing,
 				page: 0,
 				search: '',
-				subtable: A4($author$project$Internal$State$StateTable, visibleSubColumns, _List_Nil, _List_Nil, _List_Nil),
-				table: A4($author$project$Internal$State$StateTable, visibleColumns, _List_Nil, _List_Nil, _List_Nil)
+				subtable: A3($author$project$Components$Internal$State$StateTable, _List_Nil, _List_Nil, _List_Nil),
+				table: A3($author$project$Components$Internal$State$StateTable, _List_Nil, _List_Nil, _List_Nil)
 			}
 		});
 };
-var $author$project$Table$init = $author$project$Internal$Table$init;
-var $author$project$UaTable$init = $author$project$Table$init($author$project$UaTable$config);
+var $author$project$Components$Table$init = $author$project$Components$Internal$Table$init;
+var $author$project$Components$UaTable$init = $author$project$Components$Table$init($author$project$Components$UaTable$config);
 var $elm$core$Platform$Cmd$map = _Platform_map;
 var $author$project$View$init = function (_v0) {
 	return _Utils_Tuple2(
-		{filterBrowser: 'firefox', filterHost: '', filterLimit: 10, filterOsDevice: 'linux', tableModel: $author$project$UaTable$init},
+		{filterBrowser: 'firefox', filterHost: '', filterLimit: 10, filterOsDevice: 'linux', tableModel: $author$project$Components$UaTable$init},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
-					A2($elm$core$Platform$Cmd$map, $author$project$View$TableMsg, $author$project$UaTable$fetchData),
-					$author$project$UaTable$fetchUserAgent('curl/2.0.0')
+					A2($elm$core$Platform$Cmd$map, $author$project$View$TableMsg, $author$project$Components$UaTable$fetchData),
+					$author$project$Components$UaTable$fetchUserAgent('curl/2.0.0')
 				])));
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$map = _Platform_map;
-var $author$project$UaTable$RecvUserAgent = function (a) {
+var $author$project$Components$UaTable$RecvUserAgent = function (a) {
 	return {$: 'RecvUserAgent', a: a};
 };
-var $author$project$UaTable$RecvUserAgentBatch = function (a) {
+var $author$project$Components$UaTable$RecvUserAgentBatch = function (a) {
 	return {$: 'RecvUserAgentBatch', a: a};
 };
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$UaTable$recvUserAgent = _Platform_incomingPort('recvUserAgent', $elm$json$Json$Decode$string);
-var $author$project$UaTable$recvUserAgentBatch = _Platform_incomingPort('recvUserAgentBatch', $elm$json$Json$Decode$string);
-var $author$project$Internal$Subscription$isModal = function (_v0) {
+var $author$project$Components$UaTable$recvUserAgent = _Platform_incomingPort('recvUserAgent', $elm$json$Json$Decode$string);
+var $author$project$Components$UaTable$recvUserAgentBatch = _Platform_incomingPort('recvUserAgentBatch', $elm$json$Json$Decode$string);
+var $author$project$Components$Internal$Subscription$isModal = function (_v0) {
 	var state = _v0.a.state;
 	return state.ddColumns.isOpen || state.ddPagination.isOpen;
 };
@@ -6923,7 +6952,7 @@ var $elm$json$Json$Decode$lazy = function (thunk) {
 		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
 };
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-var $author$project$Internal$Subscription$isOutsideDropdown = function (dropdownId) {
+var $author$project$Components$Internal$Subscription$isOutsideDropdown = function (dropdownId) {
 	return $elm$json$Json$Decode$oneOf(
 		_List_fromArray(
 			[
@@ -6938,12 +6967,12 @@ var $author$project$Internal$Subscription$isOutsideDropdown = function (dropdown
 					return A2(
 						$elm$json$Json$Decode$field,
 						'parentNode',
-						$author$project$Internal$Subscription$isOutsideDropdown(dropdownId));
+						$author$project$Components$Internal$Subscription$isOutsideDropdown(dropdownId));
 				}),
 				$elm$json$Json$Decode$succeed(true)
 			]));
 };
-var $author$project$Internal$Subscription$outsideTarget = F2(
+var $author$project$Components$Internal$Subscription$outsideTarget = F2(
 	function (pipe, dropdownId) {
 		return A2(
 			$elm$json$Json$Decode$andThen,
@@ -6957,36 +6986,36 @@ var $author$project$Internal$Subscription$outsideTarget = F2(
 			A2(
 				$elm$json$Json$Decode$field,
 				'target',
-				$author$project$Internal$Subscription$isOutsideDropdown(dropdownId)));
+				$author$project$Components$Internal$Subscription$isOutsideDropdown(dropdownId)));
 	});
-var $author$project$Internal$Config$pipeInternal = F3(
+var $author$project$Components$Internal$Config$pipeInternal = F3(
 	function (_v0, _v1, fn) {
 		var onChangeInt = _v0.a.onChangeInt;
 		var rows = _v1.a.rows;
 		var state = _v1.a.state;
 		return onChangeInt(
-			$author$project$Internal$Data$Model(
+			$author$project$Components$Internal$Data$Model(
 				{
 					rows: rows,
 					state: fn(state)
 				}));
 	});
-var $author$project$Internal$Subscription$subscriptions = F2(
+var $author$project$Components$Internal$Subscription$subscriptions = F2(
 	function (config, model) {
-		return $author$project$Internal$Subscription$isModal(model) ? $elm$browser$Browser$Events$onMouseDown(
+		return $author$project$Components$Internal$Subscription$isModal(model) ? $elm$browser$Browser$Events$onMouseDown(
 			A2(
-				$author$project$Internal$Subscription$outsideTarget,
-				A2($author$project$Internal$Config$pipeInternal, config, model),
+				$author$project$Components$Internal$Subscription$outsideTarget,
+				A2($author$project$Components$Internal$Config$pipeInternal, config, model),
 				'dropdown')) : $elm$core$Platform$Sub$none;
 	});
-var $author$project$Table$subscriptions = $author$project$Internal$Subscription$subscriptions;
-var $author$project$UaTable$subscriptions = function (model) {
+var $author$project$Components$Table$subscriptions = $author$project$Components$Internal$Subscription$subscriptions;
+var $author$project$Components$UaTable$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				A2($author$project$Table$subscriptions, $author$project$UaTable$config, model),
-				$author$project$UaTable$recvUserAgent($author$project$UaTable$RecvUserAgent),
-				$author$project$UaTable$recvUserAgentBatch($author$project$UaTable$RecvUserAgentBatch)
+				A2($author$project$Components$Table$subscriptions, $author$project$Components$UaTable$config, model),
+				$author$project$Components$UaTable$recvUserAgent($author$project$Components$UaTable$RecvUserAgent),
+				$author$project$Components$UaTable$recvUserAgentBatch($author$project$Components$UaTable$RecvUserAgentBatch)
 			]));
 };
 var $author$project$View$subscriptions = function (model) {
@@ -6996,12 +7025,12 @@ var $author$project$View$subscriptions = function (model) {
 				A2(
 				$elm$core$Platform$Sub$map,
 				$author$project$View$TableMsg,
-				$author$project$UaTable$subscriptions(model.tableModel))
+				$author$project$Components$UaTable$subscriptions(model.tableModel))
 			]));
 };
 var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Internal$Data$get = function (_v0) {
+var $author$project$Components$Internal$Data$get = function (_v0) {
 	var model = _v0.a;
 	var _v1 = model.rows;
 	if (_v1.a.$ === 'Loaded') {
@@ -7017,40 +7046,40 @@ var $author$project$Internal$Data$get = function (_v0) {
 		return _List_Nil;
 	}
 };
-var $author$project$Table$get = $author$project$Internal$Data$get;
-var $author$project$Table$Types$Loaded = function (a) {
+var $author$project$Components$Table$get = $author$project$Components$Internal$Data$get;
+var $author$project$Components$Table$Types$Loaded = function (a) {
 	return {$: 'Loaded', a: a};
 };
-var $author$project$Internal$Data$Row = function (a) {
+var $author$project$Components$Internal$Data$Row = function (a) {
 	return {$: 'Row', a: a};
 };
-var $author$project$Internal$Data$loaded = F3(
+var $author$project$Components$Internal$Data$loaded = F3(
 	function (_v0, rows, n) {
 		var model = _v0.a;
-		return $author$project$Internal$Data$Model(
+		return $author$project$Components$Internal$Data$Model(
 			_Utils_update(
 				model,
 				{
-					rows: $author$project$Internal$Data$Rows(
-						$author$project$Table$Types$Loaded(
+					rows: $author$project$Components$Internal$Data$Rows(
+						$author$project$Components$Table$Types$Loaded(
 							{
-								rows: A2($elm$core$List$map, $author$project$Internal$Data$Row, rows),
+								rows: A2($elm$core$List$map, $author$project$Components$Internal$Data$Row, rows),
 								total: n
 							}))
 				}));
 	});
-var $author$project$Table$loadedDynamic = F3(
+var $author$project$Components$Table$loadedDynamic = F3(
 	function (rows, total, model) {
-		return A3($author$project$Internal$Data$loaded, model, rows, total);
+		return A3($author$project$Components$Internal$Data$loaded, model, rows, total);
 	});
-var $author$project$UaTable$appendRowsToModel = F2(
+var $author$project$Components$UaTable$appendRowsToModel = F2(
 	function (x, model) {
 		if (x.$ === 'Ok') {
 			var res = x.a;
 			return A3(
-				$author$project$Table$loadedDynamic,
+				$author$project$Components$Table$loadedDynamic,
 				_Utils_ap(
-					$author$project$Table$get(model),
+					$author$project$Components$Table$get(model),
 					res),
 				$elm$core$List$length(res),
 				model);
@@ -7070,7 +7099,7 @@ var $elm$json$Json$Encode$list = F2(
 				_Json_emptyArray(_Utils_Tuple0),
 				entries));
 	});
-var $author$project$UaTable$fetchUserAgentBatch = _Platform_outgoingPort(
+var $author$project$Components$UaTable$fetchUserAgentBatch = _Platform_outgoingPort(
 	'fetchUserAgentBatch',
 	$elm$json$Json$Encode$list($elm$json$Json$Encode$string));
 var $elm$json$Json$Decode$list = _Json_decodeList;
@@ -7089,20 +7118,20 @@ var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
 };
-var $author$project$UaTable$UserAgent = F5(
+var $author$project$Components$UaTable$UserAgent = F5(
 	function (ua, browserName, deviceModel, deviceVendor, osName) {
 		return {browserName: browserName, deviceModel: deviceModel, deviceVendor: deviceVendor, osName: osName, ua: ua};
 	});
 var $elm$json$Json$Decode$map5 = _Json_map5;
-var $author$project$UaTable$uaDecoder = A6(
+var $author$project$Components$UaTable$uaDecoder = A6(
 	$elm$json$Json$Decode$map5,
-	$author$project$UaTable$UserAgent,
+	$author$project$Components$UaTable$UserAgent,
 	A2($elm$json$Json$Decode$field, 'ua', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'browser', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'model', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'vendor', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'os', $elm$json$Json$Decode$string));
-var $author$project$UaTable$update = F2(
+var $author$project$Components$UaTable$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'OnTable':
@@ -7115,7 +7144,7 @@ var $author$project$UaTable$update = F2(
 					var lines = A2($elm$core$String$split, '\n', res);
 					return _Utils_Tuple2(
 						model,
-						$author$project$UaTable$fetchUserAgentBatch(lines));
+						$author$project$Components$UaTable$fetchUserAgentBatch(lines));
 				} else {
 					var e = msg.a.a;
 					var _v2 = A2($elm$core$Debug$log, 'fetch error', e);
@@ -7123,10 +7152,10 @@ var $author$project$UaTable$update = F2(
 				}
 			case 'RecvUserAgent':
 				var val = msg.a;
-				var decoded = A2($elm$json$Json$Decode$decodeString, $author$project$UaTable$uaDecoder, val);
+				var decoded = A2($elm$json$Json$Decode$decodeString, $author$project$Components$UaTable$uaDecoder, val);
 				return _Utils_Tuple2(
 					A2(
-						$author$project$UaTable$appendRowsToModel,
+						$author$project$Components$UaTable$appendRowsToModel,
 						A2($elm$core$Result$map, $elm$core$List$singleton, decoded),
 						model),
 					$elm$core$Platform$Cmd$none);
@@ -7134,10 +7163,10 @@ var $author$project$UaTable$update = F2(
 				var val = msg.a;
 				var decoded = A2(
 					$elm$json$Json$Decode$decodeString,
-					$elm$json$Json$Decode$list($author$project$UaTable$uaDecoder),
+					$elm$json$Json$Decode$list($author$project$Components$UaTable$uaDecoder),
 					val);
 				return _Utils_Tuple2(
-					A2($author$project$UaTable$appendRowsToModel, decoded, model),
+					A2($author$project$Components$UaTable$appendRowsToModel, decoded, model),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -7158,7 +7187,7 @@ var $author$project$View$update = F2(
 			}
 		} else {
 			var m = msg.a;
-			var _v1 = A2($author$project$UaTable$update, m, model.tableModel);
+			var _v1 = A2($author$project$Components$UaTable$update, m, model.tableModel);
 			var newTableModel = _v1.a;
 			var cmd = _v1.b;
 			var _v2 = A2($elm$core$Debug$log, 'TableMsg called', '');
@@ -9606,13 +9635,13 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex = A2($rtfeld
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_32 = A2($rtfeldman$elm_css$Css$property, 'height', '8rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center = A2($rtfeldman$elm_css$Css$property, 'align-items', 'center');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_center = A2($rtfeldman$elm_css$Css$property, 'justify-content', 'center');
-var $author$project$Internal$Config$pipeExternal = F3(
+var $author$project$Components$Internal$Config$pipeExternal = F3(
 	function (_v0, _v1, fn) {
 		var onChangeExt = _v0.a.onChangeExt;
 		var rows = _v1.a.rows;
 		var state = _v1.a.state;
 		return onChangeExt(
-			$author$project$Internal$Data$Model(
+			$author$project$Components$Internal$Data$Model(
 				{
 					rows: rows,
 					state: fn(state)
@@ -9690,7 +9719,7 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
-var $author$project$Internal$Column$viewExpand = F4(
+var $author$project$Components$Internal$Column$viewExpand = F4(
 	function (lens, getID, v, _v0) {
 		var state = _v0.a;
 		var pipe = _v0.b;
@@ -9698,7 +9727,7 @@ var $author$project$Internal$Column$viewExpand = F4(
 		var conf = lens.get(state);
 		var isExpanded = A2($elm$core$List$member, id, conf.expanded);
 		var updatedExpand = A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			isExpanded,
 			A2(
 				$elm$core$List$filter,
@@ -9730,15 +9759,15 @@ var $author$project$Internal$Column$viewExpand = F4(
 						_List_fromArray(
 							[
 								$rtfeldman$elm_css$Html$Styled$Attributes$class(
-								A3($author$project$Internal$Util$iff, isExpanded, 'gg-collapse', 'gg-expand'))
+								A3($author$project$Components$Internal$Util$iff, isExpanded, 'gg-collapse', 'gg-expand'))
 							]),
 						_List_Nil)
 					]))
 			]);
 	});
-var $author$project$Internal$Column$expand = F3(
+var $author$project$Components$Internal$Column$expand = F3(
 	function (pipe, lens, getID) {
-		return $author$project$Internal$Column$Column(
+		return $author$project$Components$Internal$Column$Column(
 			{
 				abbrev: '',
 				_class: 'col-btn-expand',
@@ -9751,13 +9780,13 @@ var $author$project$Internal$Column$expand = F3(
 					function (v, _v0) {
 						var s = _v0.a;
 						return A4(
-							$author$project$Internal$Column$viewExpand,
+							$author$project$Components$Internal$Column$viewExpand,
 							lens,
 							getID,
 							v,
 							_Utils_Tuple2(s, pipe));
 					}),
-				viewHeader: $author$project$Internal$Column$viewHeader,
+				viewHeader: $author$project$Components$Internal$Column$viewHeader,
 				visible: true,
 				width: '30px'
 			});
@@ -9797,7 +9826,22 @@ var $elm$core$Array$fromList = function (list) {
 		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
 	}
 };
-var $author$project$Internal$Util$ifMaybe = F2(
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$Components$UaDropdownMultiSelect$zip = $elm$core$List$map2($elm$core$Tuple$pair);
+var $author$project$Components$UaDropdownMultiSelect$getSelected = function (st) {
+	return A2(
+		$elm$core$List$filterMap,
+		function (_v0) {
+			var name = _v0.a;
+			var sel = _v0.b;
+			return sel ? $elm$core$Maybe$Just(name) : $elm$core$Maybe$Nothing;
+		},
+		A2($author$project$Components$UaDropdownMultiSelect$zip, st.items, st.selecteds));
+};
+var $author$project$Components$Internal$Util$ifMaybe = F2(
 	function (c, a) {
 		return c ? $elm$core$Maybe$Just(a) : $elm$core$Maybe$Nothing;
 	});
@@ -9805,7 +9849,7 @@ var $arturopala$elm_monocle$Monocle$Lens$Lens = F2(
 	function (get, set) {
 		return {get: get, set: set};
 	});
-var $author$project$Internal$State$lensTable = A2(
+var $author$project$Components$Internal$State$lensTable = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.table;
@@ -9817,7 +9861,7 @@ var $author$project$Internal$State$lensTable = A2(
 				{table: b});
 		}));
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$overflow_auto = A2($rtfeldman$elm_css$Css$property, 'overflow', 'auto');
-var $author$project$Internal$Util$prependMaybe = F2(
+var $author$project$Components$Internal$Util$prependMaybe = F2(
 	function (m, l) {
 		if (m.$ === 'Just') {
 			var a = m.a;
@@ -9854,7 +9898,7 @@ var $arturopala$elm_monocle$Monocle$Lens$compose = F2(
 			A2($elm$core$Basics$composeR, outer.get, inner.get),
 			set);
 	});
-var $author$project$Internal$State$lensSelected = A2(
+var $author$project$Components$Internal$State$lensSelected = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.selected;
@@ -9865,7 +9909,7 @@ var $author$project$Internal$State$lensSelected = A2(
 				a,
 				{selected: b});
 		}));
-var $author$project$Internal$State$lensSubTable = A2(
+var $author$project$Components$Internal$State$lensSubTable = A2(
 	$arturopala$elm_monocle$Monocle$Lens$Lens,
 	function ($) {
 		return $.subtable;
@@ -9876,9 +9920,9 @@ var $author$project$Internal$State$lensSubTable = A2(
 				a,
 				{subtable: b});
 		}));
-var $author$project$Internal$Selection$lensSubTableSelected = A2($arturopala$elm_monocle$Monocle$Lens$compose, $author$project$Internal$State$lensSubTable, $author$project$Internal$State$lensSelected);
-var $author$project$Internal$Selection$lensTableSelected = A2($arturopala$elm_monocle$Monocle$Lens$compose, $author$project$Internal$State$lensTable, $author$project$Internal$State$lensSelected);
-var $author$project$Internal$Selection$linkedState = F7(
+var $author$project$Components$Internal$Selection$lensSubTableSelected = A2($arturopala$elm_monocle$Monocle$Lens$compose, $author$project$Components$Internal$State$lensSubTable, $author$project$Components$Internal$State$lensSelected);
+var $author$project$Components$Internal$Selection$lensTableSelected = A2($arturopala$elm_monocle$Monocle$Lens$compose, $author$project$Components$Internal$State$lensTable, $author$project$Components$Internal$State$lensSelected);
+var $author$project$Components$Internal$Selection$linkedState = F7(
 	function (conf, getValues, value, subSelected, updatedSelected, check, state) {
 		var children = A2(
 			$elm$core$List$map,
@@ -9887,9 +9931,9 @@ var $author$project$Internal$Selection$linkedState = F7(
 			},
 			getValues(value));
 		return A2(
-			$author$project$Internal$Selection$lensSubTableSelected.set,
+			$author$project$Components$Internal$Selection$lensSubTableSelected.set,
 			A3(
-				$author$project$Internal$Util$iff,
+				$author$project$Components$Internal$Util$iff,
 				check,
 				_Utils_ap(subSelected, children),
 				A2(
@@ -9898,16 +9942,16 @@ var $author$project$Internal$Selection$linkedState = F7(
 						return !A2($elm$core$List$member, x, children);
 					},
 					subSelected)),
-			A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state));
+			A2($author$project$Components$Internal$Selection$lensTableSelected.set, updatedSelected, state));
 	});
-var $author$project$Internal$Selection$logicParentCell = F5(
+var $author$project$Components$Internal$Selection$logicParentCell = F5(
 	function (_v0, _v1, value, state, check) {
 		var cfg = _v0.a;
 		var subSelected = state.subtable.selected;
 		var selected = state.table.selected;
 		var id = cfg.table.getID(value);
 		var updatedSelected = A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			check,
 			A2($elm$core$List$cons, id, selected),
 			A2(
@@ -9927,7 +9971,7 @@ var $author$project$Internal$Selection$logicParentCell = F5(
 						var _v5 = _v2.b.a;
 						var getValues = _v5.a;
 						var conf = _v5.b;
-						return A7($author$project$Internal$Selection$linkedState, conf, getValues, value, subSelected, updatedSelected, check, state);
+						return A7($author$project$Components$Internal$Selection$linkedState, conf, getValues, value, subSelected, updatedSelected, check, state);
 					} else {
 						break _v2$5;
 					}
@@ -9937,27 +9981,27 @@ var $author$project$Internal$Selection$logicParentCell = F5(
 						var _v7 = _v2.b.a;
 						var getValues = _v7.a;
 						var conf = _v7.b;
-						return A7($author$project$Internal$Selection$linkedState, conf, getValues, value, subSelected, updatedSelected, check, state);
+						return A7($author$project$Components$Internal$Selection$linkedState, conf, getValues, value, subSelected, updatedSelected, check, state);
 					} else {
 						break _v2$5;
 					}
 				case 'Exclusive':
 					var _v8 = _v2.a;
 					return A2(
-						$author$project$Internal$Selection$lensSubTableSelected.set,
-						A3($author$project$Internal$Util$iff, check, _List_Nil, state.subtable.selected),
-						A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state));
+						$author$project$Components$Internal$Selection$lensSubTableSelected.set,
+						A3($author$project$Components$Internal$Util$iff, check, _List_Nil, state.subtable.selected),
+						A2($author$project$Components$Internal$Selection$lensTableSelected.set, updatedSelected, state));
 				case 'ExclusiveStrict':
 					var _v9 = _v2.a;
 					return A2(
-						$author$project$Internal$Selection$lensSubTableSelected.set,
+						$author$project$Components$Internal$Selection$lensSubTableSelected.set,
 						_List_Nil,
-						A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state));
+						A2($author$project$Components$Internal$Selection$lensTableSelected.set, updatedSelected, state));
 				default:
 					break _v2$5;
 			}
 		}
-		return A2($author$project$Internal$Selection$lensTableSelected.set, updatedSelected, state);
+		return A2($author$project$Components$Internal$Selection$lensTableSelected.set, updatedSelected, state);
 	});
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
@@ -9976,7 +10020,7 @@ var $rtfeldman$elm_css$Html$Styled$Events$onCheck = function (tagger) {
 		A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetChecked));
 };
 var $rtfeldman$elm_css$Html$Styled$Attributes$type_ = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('type');
-var $author$project$Internal$Selection$viewParentCell = F4(
+var $author$project$Components$Internal$Selection$viewParentCell = F4(
 	function (config, rows, value, _v0) {
 		var cfg = config.a;
 		var state = _v0.a;
@@ -9998,17 +10042,17 @@ var $author$project$Internal$Selection$viewParentCell = F4(
 						function (b) {
 							return pipe(
 								function (s) {
-									return A5($author$project$Internal$Selection$logicParentCell, config, rows, value, s, b);
+									return A5($author$project$Components$Internal$Selection$logicParentCell, config, rows, value, s, b);
 								});
 						})
 					]),
 				_List_Nil)
 			]);
 	});
-var $author$project$Internal$Selection$selectAll = F6(
+var $author$project$Components$Internal$Selection$selectAll = F6(
 	function (check, conf, getValues, state, rows, selected) {
 		var subselected = A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			check,
 			$elm$core$List$concat(
 				A2(
@@ -10023,15 +10067,15 @@ var $author$project$Internal$Selection$selectAll = F6(
 					rows)),
 			_List_Nil);
 		return A2(
-			$author$project$Internal$Selection$lensSubTableSelected.set,
+			$author$project$Components$Internal$Selection$lensSubTableSelected.set,
 			subselected,
-			A2($author$project$Internal$Selection$lensTableSelected.set, selected, state));
+			A2($author$project$Components$Internal$Selection$lensTableSelected.set, selected, state));
 	});
-var $author$project$Internal$Selection$logicParentHeader = F4(
+var $author$project$Components$Internal$Selection$logicParentHeader = F4(
 	function (_v0, rows, state, check) {
 		var cfg = _v0.a;
 		var selected = A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			check,
 			A2(
 				$elm$core$List$map,
@@ -10051,19 +10095,19 @@ var $author$project$Internal$Selection$logicParentHeader = F4(
 						var _v3 = _v1.b.a;
 						var getValues = _v3.a;
 						var conf = _v3.b;
-						return A6($author$project$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
+						return A6($author$project$Components$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
 					case 'Linked':
 						var _v4 = _v1.a;
 						var _v5 = _v1.b.a;
 						var getValues = _v5.a;
 						var conf = _v5.b;
-						return A6($author$project$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
+						return A6($author$project$Components$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
 					case 'LinkedStrict':
 						var _v6 = _v1.a;
 						var _v7 = _v1.b.a;
 						var getValues = _v7.a;
 						var conf = _v7.b;
-						return A6($author$project$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
+						return A6($author$project$Components$Internal$Selection$selectAll, check, conf, getValues, state, rows, selected);
 					default:
 						break _v1$3;
 				}
@@ -10071,9 +10115,9 @@ var $author$project$Internal$Selection$logicParentHeader = F4(
 				break _v1$3;
 			}
 		}
-		return A2($author$project$Internal$Selection$lensTableSelected.set, selected, state);
+		return A2($author$project$Components$Internal$Selection$lensTableSelected.set, selected, state);
 	});
-var $author$project$Internal$Selection$viewParentHeader = F4(
+var $author$project$Components$Internal$Selection$viewParentHeader = F4(
 	function (config, rows, _v0, _v1) {
 		var state = _v1.a;
 		var pipe = _v1.b;
@@ -10089,16 +10133,16 @@ var $author$project$Internal$Selection$viewParentHeader = F4(
 						function (b) {
 							return pipe(
 								function (s) {
-									return A4($author$project$Internal$Selection$logicParentHeader, config, rows, s, b);
+									return A4($author$project$Components$Internal$Selection$logicParentHeader, config, rows, s, b);
 								});
 						})
 					]),
 				_List_Nil)
 			]);
 	});
-var $author$project$Internal$Selection$selectionParent = F3(
+var $author$project$Components$Internal$Selection$selectionParent = F3(
 	function (pipe, config, rows) {
-		return $author$project$Internal$Column$Column(
+		return $author$project$Components$Internal$Column$Column(
 			{
 				abbrev: '',
 				_class: 'col-selection',
@@ -10111,7 +10155,7 @@ var $author$project$Internal$Selection$selectionParent = F3(
 					function (v, _v0) {
 						var s = _v0.a;
 						return A4(
-							$author$project$Internal$Selection$viewParentCell,
+							$author$project$Components$Internal$Selection$viewParentCell,
 							config,
 							rows,
 							v,
@@ -10121,7 +10165,7 @@ var $author$project$Internal$Selection$selectionParent = F3(
 					function (c, _v1) {
 						var s = _v1.a;
 						return A4(
-							$author$project$Internal$Selection$viewParentHeader,
+							$author$project$Components$Internal$Selection$viewParentHeader,
 							config,
 							rows,
 							c,
@@ -10377,7 +10421,7 @@ var $elm$core$Maybe$andThen = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Internal$Util$find = F2(
+var $author$project$Components$Internal$Util$find = F2(
 	function (predicate, list) {
 		find:
 		while (true) {
@@ -10398,7 +10442,7 @@ var $author$project$Internal$Util$find = F2(
 			}
 		}
 	});
-var $author$project$Internal$Util$maybe = F3(
+var $author$project$Components$Internal$Util$maybe = F3(
 	function (_default, fn, value) {
 		if (value.$ === 'Nothing') {
 			return _default;
@@ -10408,7 +10452,7 @@ var $author$project$Internal$Util$maybe = F3(
 		}
 	});
 var $elm$core$List$sortWith = _List_sortWith;
-var $author$project$Internal$Table$sortRows = F2(
+var $author$project$Components$Internal$Table$sortRows = F2(
 	function (comp, rows) {
 		return A2(
 			$elm$core$List$sortWith,
@@ -10420,19 +10464,19 @@ var $author$project$Internal$Table$sortRows = F2(
 				}),
 			rows);
 	});
-var $author$project$Internal$Table$sortRowsFromStatus = F3(
+var $author$project$Components$Internal$Table$sortRowsFromStatus = F3(
 	function (order, rows, comp) {
 		switch (order.$) {
 			case 'StandBy':
 				return rows;
 			case 'Descending':
-				return A2($author$project$Internal$Table$sortRows, comp, rows);
+				return A2($author$project$Components$Internal$Table$sortRows, comp, rows);
 			default:
 				return $elm$core$List$reverse(
-					A2($author$project$Internal$Table$sortRows, comp, rows));
+					A2($author$project$Components$Internal$Table$sortRows, comp, rows));
 		}
 	});
-var $author$project$Internal$Table$sort = F3(
+var $author$project$Components$Internal$Table$sort = F3(
 	function (columns, state, rows) {
 		var compFn = A2(
 			$elm$core$Maybe$andThen,
@@ -10441,7 +10485,7 @@ var $author$project$Internal$Table$sort = F3(
 				return c.sortable;
 			},
 			A2(
-				$author$project$Internal$Util$find,
+				$author$project$Components$Internal$Util$find,
 				function (_v1) {
 					var c = _v1.a;
 					return _Utils_eq(
@@ -10450,13 +10494,13 @@ var $author$project$Internal$Table$sort = F3(
 				},
 				columns));
 		return A3(
-			$author$project$Internal$Util$maybe,
+			$author$project$Components$Internal$Util$maybe,
 			rows,
-			A2($author$project$Internal$Table$sortRowsFromStatus, state.order, rows),
+			A2($author$project$Components$Internal$Table$sortRowsFromStatus, state.order, rows),
 			compFn);
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$disabled = $rtfeldman$elm_css$Html$Styled$Attributes$boolProperty('disabled');
-var $author$project$Internal$Column$viewSubtable = F5(
+var $author$project$Components$Internal$Column$viewSubtable = F5(
 	function (isDisable, lens, getID, v, _v0) {
 		var state = _v0.a;
 		var pipe = _v0.b;
@@ -10486,7 +10530,7 @@ var $author$project$Internal$Column$viewSubtable = F5(
 			var conf = lens.get(state);
 			var isExpanded = A2($elm$core$List$member, id, conf.subtable);
 			var updatedExpand = A3(
-				$author$project$Internal$Util$iff,
+				$author$project$Components$Internal$Util$iff,
 				isExpanded,
 				A2(
 					$elm$core$List$filter,
@@ -10518,16 +10562,16 @@ var $author$project$Internal$Column$viewSubtable = F5(
 							_List_fromArray(
 								[
 									$rtfeldman$elm_css$Html$Styled$Attributes$class(
-									A3($author$project$Internal$Util$iff, isExpanded, 'gg-minus', 'gg-plus'))
+									A3($author$project$Components$Internal$Util$iff, isExpanded, 'gg-minus', 'gg-plus'))
 								]),
 							_List_Nil)
 						]))
 				]);
 		}
 	});
-var $author$project$Internal$Column$subtable = F4(
+var $author$project$Components$Internal$Column$subtable = F4(
 	function (isDisable, pipe, lens, getID) {
-		return $author$project$Internal$Column$Column(
+		return $author$project$Components$Internal$Column$Column(
 			{
 				abbrev: '',
 				_class: 'col-btn-substable',
@@ -10540,14 +10584,14 @@ var $author$project$Internal$Column$subtable = F4(
 					function (v, _v0) {
 						var s = _v0.a;
 						return A5(
-							$author$project$Internal$Column$viewSubtable,
+							$author$project$Components$Internal$Column$viewSubtable,
 							isDisable,
 							lens,
 							getID,
 							v,
 							_Utils_Tuple2(s, pipe));
 					}),
-				viewHeader: $author$project$Internal$Column$viewHeader,
+				viewHeader: $author$project$Components$Internal$Column$viewHeader,
 				visible: true,
 				width: '30px'
 			});
@@ -10598,14 +10642,14 @@ var $rtfeldman$elm_css$Css$pseudoClass = function (_class) {
 };
 var $rtfeldman$elm_css$Css$hover = $rtfeldman$elm_css$Css$pseudoClass('hover');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$p_2 = A2($rtfeldman$elm_css$Css$property, 'padding', '0.5rem');
-var $author$project$Table$Types$LinkedStrict = {$: 'LinkedStrict'};
-var $author$project$Internal$Selection$logicChildCell = F7(
+var $author$project$Components$Table$Types$LinkedStrict = {$: 'LinkedStrict'};
+var $author$project$Components$Internal$Selection$logicChildCell = F7(
 	function (_v0, _v1, conf, rows, value, state, check) {
 		var cfg = _v1.a;
 		var selected = state.subtable.selected;
 		var id = conf.getID(value);
 		var updatedSelected = A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			check,
 			A2($elm$core$List$cons, id, selected),
 			A2(
@@ -10618,11 +10662,11 @@ var $author$project$Internal$Selection$logicChildCell = F7(
 				return state;
 			case 'Exclusive':
 				return A2(
-					$author$project$Internal$Selection$lensSubTableSelected.set,
+					$author$project$Components$Internal$Selection$lensSubTableSelected.set,
 					updatedSelected,
 					A2(
-						$author$project$Internal$Selection$lensTableSelected.set,
-						A3($author$project$Internal$Util$iff, check, _List_Nil, state.table.selected),
+						$author$project$Components$Internal$Selection$lensTableSelected.set,
+						A3($author$project$Components$Internal$Util$iff, check, _List_Nil, state.table.selected),
 						state));
 			case 'ExclusiveStrict':
 				var rs = A2(
@@ -10639,21 +10683,21 @@ var $author$project$Internal$Selection$logicChildCell = F7(
 					},
 					selected);
 				return A2(
-					$author$project$Internal$Selection$lensSubTableSelected.set,
+					$author$project$Components$Internal$Selection$lensSubTableSelected.set,
 					A3(
-						$author$project$Internal$Util$iff,
+						$author$project$Components$Internal$Util$iff,
 						check,
 						A2($elm$core$List$cons, id, ss),
 						A2(
 							$elm$core$List$filter,
 							$elm$core$Basics$neq(id),
 							ss)),
-					A2($author$project$Internal$Selection$lensTableSelected.set, _List_Nil, state));
+					A2($author$project$Components$Internal$Selection$lensTableSelected.set, _List_Nil, state));
 			default:
-				return A2($author$project$Internal$Selection$lensSubTableSelected.set, updatedSelected, state);
+				return A2($author$project$Components$Internal$Selection$lensSubTableSelected.set, updatedSelected, state);
 		}
 	});
-var $author$project$Internal$Selection$viewChildCell = F5(
+var $author$project$Components$Internal$Selection$viewChildCell = F5(
 	function (config, rows, id, value, _v0) {
 		var cfg = config.a;
 		var state = _v0.a;
@@ -10679,11 +10723,11 @@ var $author$project$Internal$Selection$viewChildCell = F5(
 							function (check) {
 								return pipe(
 									function (s) {
-										return A7($author$project$Internal$Selection$logicChildCell, id, config, conf, rows, value, s, check);
+										return A7($author$project$Components$Internal$Selection$logicChildCell, id, config, conf, rows, value, s, check);
 									});
 							}),
 							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
-							_Utils_eq(cfg.selection, $author$project$Table$Types$LinkedStrict))
+							_Utils_eq(cfg.selection, $author$project$Components$Table$Types$LinkedStrict))
 						]),
 					_List_Nil)
 				]);
@@ -10691,10 +10735,10 @@ var $author$project$Internal$Selection$viewChildCell = F5(
 			return _List_Nil;
 		}
 	});
-var $author$project$Internal$Selection$logicChildHeader = F6(
+var $author$project$Components$Internal$Selection$logicChildHeader = F6(
 	function (_v0, _v1, conf, rows, state, check) {
 		var cfg = _v1.a;
-		var original = $author$project$Internal$Selection$lensSubTableSelected.get(state);
+		var original = $author$project$Components$Internal$Selection$lensSubTableSelected.get(state);
 		var ids = A2(
 			$elm$core$List$map,
 			function (_v3) {
@@ -10703,7 +10747,7 @@ var $author$project$Internal$Selection$logicChildHeader = F6(
 			},
 			rows);
 		var selected = A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			check,
 			$elm$core$List$concat(
 				_List_fromArray(
@@ -10715,9 +10759,9 @@ var $author$project$Internal$Selection$logicChildHeader = F6(
 				},
 				original));
 		var _v2 = cfg.selection;
-		return A2($author$project$Internal$Selection$lensSubTableSelected.set, selected, state);
+		return A2($author$project$Components$Internal$Selection$lensSubTableSelected.set, selected, state);
 	});
-var $author$project$Internal$Selection$viewChildHeader = F5(
+var $author$project$Components$Internal$Selection$viewChildHeader = F5(
 	function (config, rows, id, _v0, _v1) {
 		var cfg = config.a;
 		var state = _v1.a;
@@ -10738,11 +10782,11 @@ var $author$project$Internal$Selection$viewChildHeader = F5(
 							function (b) {
 								return pipe(
 									function (s) {
-										return A6($author$project$Internal$Selection$logicChildHeader, id, config, conf, rows, s, b);
+										return A6($author$project$Components$Internal$Selection$logicChildHeader, id, config, conf, rows, s, b);
 									});
 							}),
 							$rtfeldman$elm_css$Html$Styled$Attributes$disabled(
-							_Utils_eq(cfg.selection, $author$project$Table$Types$LinkedStrict))
+							_Utils_eq(cfg.selection, $author$project$Components$Table$Types$LinkedStrict))
 						]),
 					_List_Nil)
 				]);
@@ -10750,9 +10794,9 @@ var $author$project$Internal$Selection$viewChildHeader = F5(
 			return _List_Nil;
 		}
 	});
-var $author$project$Internal$Selection$selectionChild = F4(
+var $author$project$Components$Internal$Selection$selectionChild = F4(
 	function (pipe, config, rows, id) {
-		return $author$project$Internal$Column$Column(
+		return $author$project$Components$Internal$Column$Column(
 			{
 				abbrev: '',
 				_class: 'col-selection',
@@ -10765,7 +10809,7 @@ var $author$project$Internal$Selection$selectionChild = F4(
 					function (v, _v0) {
 						var s = _v0.a;
 						return A5(
-							$author$project$Internal$Selection$viewChildCell,
+							$author$project$Components$Internal$Selection$viewChildCell,
 							config,
 							rows,
 							id,
@@ -10776,7 +10820,7 @@ var $author$project$Internal$Selection$selectionChild = F4(
 					function (c, _v1) {
 						var s = _v1.a;
 						return A5(
-							$author$project$Internal$Selection$viewChildHeader,
+							$author$project$Components$Internal$Selection$viewChildHeader,
 							config,
 							rows,
 							id,
@@ -10800,7 +10844,7 @@ var $rtfeldman$elm_css$VirtualDom$Styled$style = F2(
 var $rtfeldman$elm_css$Html$Styled$Attributes$style = $rtfeldman$elm_css$VirtualDom$Styled$style;
 var $rtfeldman$elm_css$Html$Styled$td = $rtfeldman$elm_css$Html$Styled$node('td');
 var $rtfeldman$elm_css$Html$Styled$tr = $rtfeldman$elm_css$Html$Styled$node('tr');
-var $author$project$Internal$Table$subtableContentBodyRow = F5(
+var $author$project$Components$Internal$Table$subtableContentBodyRow = F5(
 	function (pipeExt, cfg, columns, state, _v0) {
 		var r = _v0.a;
 		return _List_fromArray(
@@ -10871,7 +10915,7 @@ var $author$project$Internal$Table$subtableContentBodyRow = F5(
 			]);
 	});
 var $rtfeldman$elm_css$Html$Styled$tbody = $rtfeldman$elm_css$Html$Styled$node('tbody');
-var $author$project$Internal$Table$subtableContentBody = F5(
+var $author$project$Components$Internal$Table$subtableContentBody = F5(
 	function (pipeExt, cfg, columns, state, rows) {
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$tbody,
@@ -10879,14 +10923,14 @@ var $author$project$Internal$Table$subtableContentBody = F5(
 			$elm$core$List$concat(
 				A2(
 					$elm$core$List$map,
-					A4($author$project$Internal$Table$subtableContentBodyRow, pipeExt, cfg, columns, state),
+					A4($author$project$Components$Internal$Table$subtableContentBodyRow, pipeExt, cfg, columns, state),
 					rows)));
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$gray_200 = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '229', '231', '235', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_center = A2($rtfeldman$elm_css$Css$property, 'text-align', 'center');
 var $rtfeldman$elm_css$Html$Styled$th = $rtfeldman$elm_css$Html$Styled$node('th');
 var $rtfeldman$elm_css$Html$Styled$thead = $rtfeldman$elm_css$Html$Styled$node('thead');
-var $author$project$Internal$Table$tableContentHead = F5(
+var $author$project$Components$Internal$Table$tableContentHead = F5(
 	function (hasSelection, pipeExt, pipeInt, columns, state) {
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$thead,
@@ -10923,29 +10967,32 @@ var $author$project$Internal$Table$tableContentHead = F5(
 						columns))
 				]));
 	});
-var $author$project$Internal$Table$subtableContent = F7(
+var $author$project$Components$Internal$Table$subtableContent = F7(
 	function (config, pipeExt, pipeInt, parent, subConfig, state, data) {
 		var cfg = config.a;
 		var visibleColumns = A2(
 			$elm$core$List$filter,
 			function (_v0) {
 				var c = _v0.a;
-				return A2($elm$core$List$member, c.name, state.subtable.visible);
+				return A2(
+					$elm$core$List$member,
+					c.name,
+					$author$project$Components$UaDropdownMultiSelect$getSelected(state.ddSubColumns));
 			},
 			subConfig.columns);
-		var rows = A2($elm$core$List$map, $author$project$Internal$Data$Row, data);
+		var rows = A2($elm$core$List$map, $author$project$Components$Internal$Data$Row, data);
 		var selectColumn = A2(
-			$author$project$Internal$Util$ifMaybe,
-			!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
-			A4($author$project$Internal$Selection$selectionChild, pipeInt, config, rows, parent));
+			$author$project$Components$Internal$Util$ifMaybe,
+			!_Utils_eq(cfg.selection, $author$project$Components$Table$Types$Disable),
+			A4($author$project$Components$Internal$Selection$selectionChild, pipeInt, config, rows, parent));
 		var expandColumn = A2(
-			$author$project$Internal$Util$ifMaybe,
+			$author$project$Components$Internal$Util$ifMaybe,
 			!_Utils_eq(subConfig.expand, $elm$core$Maybe$Nothing),
-			A3($author$project$Internal$Column$expand, pipeInt, $author$project$Internal$State$lensTable, subConfig.getID));
+			A3($author$project$Components$Internal$Column$expand, pipeInt, $author$project$Components$Internal$State$lensTable, subConfig.getID));
 		var columns = A2(
-			$author$project$Internal$Util$prependMaybe,
+			$author$project$Components$Internal$Util$prependMaybe,
 			selectColumn,
-			A2($author$project$Internal$Util$prependMaybe, expandColumn, visibleColumns));
+			A2($author$project$Components$Internal$Util$prependMaybe, expandColumn, visibleColumns));
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
@@ -10960,17 +11007,17 @@ var $author$project$Internal$Table$subtableContent = F7(
 					_List_fromArray(
 						[
 							A5(
-							$author$project$Internal$Table$tableContentHead,
-							!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
+							$author$project$Components$Internal$Table$tableContentHead,
+							!_Utils_eq(cfg.selection, $author$project$Components$Table$Types$Disable),
 							pipeInt,
 							pipeExt,
 							columns,
 							state),
-							A5($author$project$Internal$Table$subtableContentBody, pipeExt, subConfig, columns, state, rows)
+							A5($author$project$Components$Internal$Table$subtableContentBody, pipeExt, subConfig, columns, state, rows)
 						]))
 				]));
 	});
-var $author$project$Internal$Table$tableContentBodyRow = F6(
+var $author$project$Components$Internal$Table$tableContentBodyRow = F6(
 	function (config, pipeExt, pipeInt, columns, state, _v0) {
 		var cfg = config.a;
 		var r = _v0.a;
@@ -11068,7 +11115,7 @@ var $author$project$Internal$Table$tableContentBodyRow = F6(
 								_List_fromArray(
 									[
 										A7(
-										$author$project$Internal$Table$subtableContent,
+										$author$project$Components$Internal$Table$subtableContent,
 										config,
 										pipeExt,
 										pipeInt,
@@ -11084,7 +11131,7 @@ var $author$project$Internal$Table$tableContentBodyRow = F6(
 			}()
 			]);
 	});
-var $author$project$Internal$Table$tableContentBody = F6(
+var $author$project$Components$Internal$Table$tableContentBody = F6(
 	function (config, pipeExt, pipeInt, columns, state, rows) {
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$tbody,
@@ -11092,64 +11139,67 @@ var $author$project$Internal$Table$tableContentBody = F6(
 			$elm$core$List$concat(
 				A2(
 					$elm$core$List$map,
-					A5($author$project$Internal$Table$tableContentBodyRow, config, pipeExt, pipeInt, columns, state),
+					A5($author$project$Components$Internal$Table$tableContentBodyRow, config, pipeExt, pipeInt, columns, state),
 					rows)));
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_full = A2($rtfeldman$elm_css$Css$property, 'width', '100%');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Theme$white = A5($matheus23$elm_tailwind_modules_base$Tailwind$Color$Color, 'rgb', '255', '255', '255', $matheus23$elm_tailwind_modules_base$Tailwind$Color$ViaVariable);
-var $author$project$Internal$Table$tableContent = F5(
+var $author$project$Components$Internal$Table$tableContent = F5(
 	function (config, pipeExt, pipeInt, state, rows) {
 		var cfg = config.a;
 		var visibleColumns = A2(
 			$elm$core$List$filter,
-			function (_v5) {
-				var c = _v5.a;
-				return A2($elm$core$List$member, c.name, state.table.visible);
+			function (_v6) {
+				var c = _v6.a;
+				return A2(
+					$elm$core$List$member,
+					c.name,
+					$author$project$Components$UaDropdownMultiSelect$getSelected(state.ddColumns));
 			},
 			cfg.table.columns);
 		var subtableColumn = function () {
-			var _v3 = cfg.subtable;
-			if (_v3.$ === 'Just') {
-				var _v4 = _v3.a;
-				var get = _v4.a;
+			var _v4 = cfg.subtable;
+			if (_v4.$ === 'Just') {
+				var _v5 = _v4.a;
+				var get = _v5.a;
 				return $elm$core$Maybe$Just(
 					A4(
-						$author$project$Internal$Column$subtable,
+						$author$project$Components$Internal$Column$subtable,
 						A2($elm$core$Basics$composeR, get, $elm$core$List$isEmpty),
 						pipeInt,
-						$author$project$Internal$State$lensTable,
+						$author$project$Components$Internal$State$lensTable,
 						cfg.table.getID));
 			} else {
 				return $elm$core$Maybe$Nothing;
 			}
 		}();
 		var srows = A3(
-			$author$project$Internal$Util$iff,
-			_Utils_eq(cfg.type_, $author$project$Table$Types$Static),
-			A3($author$project$Internal$Table$sort, cfg.table.columns, state, rows),
+			$author$project$Components$Internal$Util$iff,
+			_Utils_eq(cfg.type_, $author$project$Components$Table$Types$Static),
+			A3($author$project$Components$Internal$Table$sort, cfg.table.columns, state, rows),
 			rows);
 		var selectColumn = A2(
-			$author$project$Internal$Util$ifMaybe,
-			!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
-			A3($author$project$Internal$Selection$selectionParent, pipeInt, config, rows));
+			$author$project$Components$Internal$Util$ifMaybe,
+			!_Utils_eq(cfg.selection, $author$project$Components$Table$Types$Disable),
+			A3($author$project$Components$Internal$Selection$selectionParent, pipeInt, config, rows));
 		var filter = function (rs) {
 			return A3(
-				$author$project$Internal$Util$iff,
+				$author$project$Components$Internal$Util$iff,
 				$elm$core$String$isEmpty(state.search),
 				rs,
 				A2(
 					$elm$core$List$filter,
-					function (_v0) {
-						var a = _v0.a;
+					function (_v1) {
+						var a = _v1.a;
 						return A2(
 							$elm$core$List$any,
-							function (_v1) {
-								var c = _v1.a;
-								var _v2 = c.searchable;
-								if (_v2.$ === 'Nothing') {
+							function (_v2) {
+								var c = _v2.a;
+								var _v3 = c.searchable;
+								if (_v3.$ === 'Nothing') {
 									return false;
 								} else {
-									var fn = _v2.a;
+									var fn = _v3.a;
 									return A2(
 										$elm$core$String$contains,
 										state.search,
@@ -11161,14 +11211,14 @@ var $author$project$Internal$Table$tableContent = F5(
 					rows));
 		};
 		var frows = A3(
-			$author$project$Internal$Util$iff,
-			_Utils_eq(cfg.type_, $author$project$Table$Types$Static),
+			$author$project$Components$Internal$Util$iff,
+			_Utils_eq(cfg.type_, $author$project$Components$Table$Types$Static),
 			filter(srows),
 			srows);
 		var expandColumn = A2(
-			$author$project$Internal$Util$ifMaybe,
+			$author$project$Components$Internal$Util$ifMaybe,
 			!_Utils_eq(cfg.table.expand, $elm$core$Maybe$Nothing),
-			A3($author$project$Internal$Column$expand, pipeInt, $author$project$Internal$State$lensTable, cfg.table.getID));
+			A3($author$project$Components$Internal$Column$expand, pipeInt, $author$project$Components$Internal$State$lensTable, cfg.table.getID));
 		var cut = function (rs) {
 			return $elm$core$Array$toList(
 				A3(
@@ -11178,17 +11228,21 @@ var $author$project$Internal$Table$tableContent = F5(
 					$elm$core$Array$fromList(rs)));
 		};
 		var prows = A3(
-			$author$project$Internal$Util$iff,
-			_Utils_eq(cfg.type_, $author$project$Table$Types$Static) && (!_Utils_eq(cfg.pagination, $author$project$Internal$Config$None)),
+			$author$project$Components$Internal$Util$iff,
+			_Utils_eq(cfg.type_, $author$project$Components$Table$Types$Static) && (!_Utils_eq(cfg.pagination, $author$project$Components$Internal$Config$None)),
 			cut(frows),
 			frows);
 		var columns = A2(
-			$author$project$Internal$Util$prependMaybe,
+			$author$project$Components$Internal$Util$prependMaybe,
 			selectColumn,
 			A2(
-				$author$project$Internal$Util$prependMaybe,
+				$author$project$Components$Internal$Util$prependMaybe,
 				expandColumn,
-				A2($author$project$Internal$Util$prependMaybe, subtableColumn, visibleColumns)));
+				A2($author$project$Components$Internal$Util$prependMaybe, subtableColumn, visibleColumns)));
+		var _v0 = A2(
+			$elm$core$Debug$log,
+			'selected',
+			$author$project$Components$UaDropdownMultiSelect$getSelected(state.ddColumns));
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
@@ -11215,27 +11269,27 @@ var $author$project$Internal$Table$tableContent = F5(
 					_List_fromArray(
 						[
 							A5(
-							$author$project$Internal$Table$tableContentHead,
-							!_Utils_eq(cfg.selection, $author$project$Table$Types$Disable),
+							$author$project$Components$Internal$Table$tableContentHead,
+							!_Utils_eq(cfg.selection, $author$project$Components$Table$Types$Disable),
 							pipeExt,
 							pipeInt,
 							columns,
 							state),
-							A6($author$project$Internal$Table$tableContentBody, config, pipeExt, pipeInt, columns, state, prows)
+							A6($author$project$Components$Internal$Table$tableContentBody, config, pipeExt, pipeInt, columns, state, prows)
 						]))
 				]));
 	});
 var $rtfeldman$elm_css$Html$Styled$Attributes$attribute = $rtfeldman$elm_css$VirtualDom$Styled$attribute;
-var $author$project$Internal$Util$ifh = F2(
+var $author$project$Components$Internal$Util$ifh = F2(
 	function (c, a) {
 		return A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			c,
 			a,
 			$rtfeldman$elm_css$Html$Styled$text(''));
 	});
 var $rtfeldman$elm_css$Html$Styled$nav = $rtfeldman$elm_css$Html$Styled$node('nav');
-var $author$project$Internal$Pagination$pagIndex = F2(
+var $author$project$Components$Internal$Pagination$pagIndex = F2(
 	function (n, c) {
 		if (!c) {
 			if (n > 3) {
@@ -11260,7 +11314,7 @@ var $author$project$Internal$Pagination$pagIndex = F2(
 			}
 		}
 	});
-var $author$project$Internal$Pagination$paginationEllipsis = A2(
+var $author$project$Components$Internal$Pagination$paginationEllipsis = A2(
 	$rtfeldman$elm_css$Html$Styled$span,
 	_List_fromArray(
 		[
@@ -11270,7 +11324,7 @@ var $author$project$Internal$Pagination$paginationEllipsis = A2(
 		[
 			$rtfeldman$elm_css$Html$Styled$text('…')
 		]));
-var $author$project$Internal$Pagination$paginationLink = F3(
+var $author$project$Components$Internal$Pagination$paginationLink = F3(
 	function (pipe, page, i) {
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$a,
@@ -11278,7 +11332,7 @@ var $author$project$Internal$Pagination$paginationLink = F3(
 				[
 					$rtfeldman$elm_css$Html$Styled$Attributes$class(
 					'pagination-link ' + A3(
-						$author$project$Internal$Util$iff,
+						$author$project$Components$Internal$Util$iff,
 						_Utils_eq(page, i),
 						'is-current',
 						'')),
@@ -11290,7 +11344,7 @@ var $author$project$Internal$Pagination$paginationLink = F3(
 					$rtfeldman$elm_css$Html$Styled$Attributes$attribute,
 					'aria-current',
 					A3(
-						$author$project$Internal$Util$iff,
+						$author$project$Components$Internal$Util$iff,
 						_Utils_eq(page, i),
 						'page',
 						'')),
@@ -11309,19 +11363,19 @@ var $author$project$Internal$Pagination$paginationLink = F3(
 				]));
 	});
 var $rtfeldman$elm_css$Html$Styled$ul = $rtfeldman$elm_css$Html$Styled$node('ul');
-var $author$project$Internal$Pagination$tableFooterContent = F6(
+var $author$project$Components$Internal$Pagination$tableFooterContent = F6(
 	function (type_, pipeInt, pipeExt, byPage, page, total) {
 		var pipe = A3(
-			$author$project$Internal$Util$iff,
-			_Utils_eq(type_, $author$project$Table$Types$Static),
+			$author$project$Components$Internal$Util$iff,
+			_Utils_eq(type_, $author$project$Components$Table$Types$Static),
 			pipeInt,
 			pipeExt);
 		var nb = $elm$core$Basics$ceiling(total / byPage);
 		var _v0 = A3(
-			$author$project$Internal$Util$iff,
+			$author$project$Components$Internal$Util$iff,
 			nb === 1,
 			_Utils_Tuple3(0, 0, 0),
-			A2($author$project$Internal$Pagination$pagIndex, nb, page));
+			A2($author$project$Components$Internal$Pagination$pagIndex, nb, page));
 		var ia = _v0.a;
 		var ib = _v0.b;
 		var ic = _v0.c;
@@ -11344,14 +11398,14 @@ var $author$project$Internal$Pagination$tableFooterContent = F6(
 					_List_fromArray(
 						[
 							A2(
-							$author$project$Internal$Util$ifh,
+							$author$project$Components$Internal$Util$ifh,
 							nb > 1,
 							A2(
 								$rtfeldman$elm_css$Html$Styled$a,
 								_List_fromArray(
 									[
 										$rtfeldman$elm_css$Html$Styled$Attributes$class(
-										'pagination-previous' + A3($author$project$Internal$Util$iff, !page, ' is-disabled', '')),
+										'pagination-previous' + A3($author$project$Components$Internal$Util$iff, !page, ' is-disabled', '')),
 										$rtfeldman$elm_css$Html$Styled$Events$onClick(
 										pipe(
 											function (state) {
@@ -11365,7 +11419,7 @@ var $author$project$Internal$Pagination$tableFooterContent = F6(
 										$rtfeldman$elm_css$Html$Styled$text('Previous')
 									]))),
 							A2(
-							$author$project$Internal$Util$ifh,
+							$author$project$Components$Internal$Util$ifh,
 							nb > 1,
 							A2(
 								$rtfeldman$elm_css$Html$Styled$a,
@@ -11373,7 +11427,7 @@ var $author$project$Internal$Pagination$tableFooterContent = F6(
 									[
 										$rtfeldman$elm_css$Html$Styled$Attributes$class(
 										'pagination-next' + A3(
-											$author$project$Internal$Util$iff,
+											$author$project$Components$Internal$Util$iff,
 											_Utils_eq(page, nb - 1),
 											' is-disabled',
 											'')),
@@ -11398,35 +11452,35 @@ var $author$project$Internal$Pagination$tableFooterContent = F6(
 							_List_fromArray(
 								[
 									A2(
-									$author$project$Internal$Util$ifh,
+									$author$project$Components$Internal$Util$ifh,
 									nb > 3,
-									A3($author$project$Internal$Pagination$paginationLink, pipe, page, 0)),
-									A2($author$project$Internal$Util$ifh, nb > 3, $author$project$Internal$Pagination$paginationEllipsis),
+									A3($author$project$Components$Internal$Pagination$paginationLink, pipe, page, 0)),
+									A2($author$project$Components$Internal$Util$ifh, nb > 3, $author$project$Components$Internal$Pagination$paginationEllipsis),
 									A2(
-									$author$project$Internal$Util$ifh,
+									$author$project$Components$Internal$Util$ifh,
 									nb > 1,
-									A3($author$project$Internal$Pagination$paginationLink, pipe, page, ia)),
+									A3($author$project$Components$Internal$Pagination$paginationLink, pipe, page, ia)),
 									A2(
-									$author$project$Internal$Util$ifh,
+									$author$project$Components$Internal$Util$ifh,
 									nb > 0,
-									A3($author$project$Internal$Pagination$paginationLink, pipe, page, ib)),
+									A3($author$project$Components$Internal$Pagination$paginationLink, pipe, page, ib)),
 									A2(
-									$author$project$Internal$Util$ifh,
+									$author$project$Components$Internal$Util$ifh,
 									nb > 2,
-									A3($author$project$Internal$Pagination$paginationLink, pipe, page, ic)),
-									A2($author$project$Internal$Util$ifh, nb > 4, $author$project$Internal$Pagination$paginationEllipsis),
+									A3($author$project$Components$Internal$Pagination$paginationLink, pipe, page, ic)),
+									A2($author$project$Components$Internal$Util$ifh, nb > 4, $author$project$Components$Internal$Pagination$paginationEllipsis),
 									A2(
-									$author$project$Internal$Util$ifh,
+									$author$project$Components$Internal$Util$ifh,
 									nb > 4,
-									A3($author$project$Internal$Pagination$paginationLink, pipe, page, nb - 1))
+									A3($author$project$Components$Internal$Pagination$paginationLink, pipe, page, nb - 1))
 								]))
 						]))
 				]));
 	});
-var $author$project$Internal$Table$tableFooter = F5(
+var $author$project$Components$Internal$Table$tableFooter = F5(
 	function (_v0, pipeExt, pipeInt, state, total) {
 		var cfg = _v0.a;
-		return _Utils_eq(cfg.pagination, $author$project$Internal$Config$None) ? $rtfeldman$elm_css$Html$Styled$text('') : A6($author$project$Internal$Pagination$tableFooterContent, cfg.type_, pipeInt, pipeExt, state.byPage, state.page, total);
+		return _Utils_eq(cfg.pagination, $author$project$Components$Internal$Config$None) ? $rtfeldman$elm_css$Html$Styled$text('') : A6($author$project$Components$Internal$Pagination$tableFooterContent, cfg.type_, pipeInt, pipeExt, state.byPage, state.page, total);
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$gap_2 = A2($rtfeldman$elm_css$Css$property, 'gap', '0.5rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grow = A2($rtfeldman$elm_css$Css$property, 'flex-grow', '1');
@@ -11484,7 +11538,7 @@ var $rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $rtfeldman$elm_css$Html$Styled$Events$keyCode = A2($elm$json$Json$Decode$field, 'keyCode', $elm$json$Json$Decode$int);
-var $author$project$Internal$Util$onKeyDown = function (tagger) {
+var $author$project$Components$Internal$Util$onKeyDown = function (tagger) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$Events$on,
 		'keydown',
@@ -11780,7 +11834,7 @@ var $lattyware$elm_fontawesome$FontAwesome$Svg$view = $lattyware$elm_fontawesome
 var $rtfeldman$elm_css$Svg$Styled$Attributes$viewBox = $rtfeldman$elm_css$VirtualDom$Styled$attribute('viewBox');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10 = A2($rtfeldman$elm_css$Css$property, 'width', '2.5rem');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$z_10 = A2($rtfeldman$elm_css$Css$property, 'z-index', '10');
-var $author$project$Internal$Table$headerSearch = F2(
+var $author$project$Components$Internal$Table$headerSearch = F2(
 	function (pipeExt, pipeInt) {
 		return _List_fromArray(
 			[
@@ -11802,10 +11856,10 @@ var $author$project$Internal$Table$headerSearch = F2(
 										{search: s});
 								});
 						}),
-						$author$project$Internal$Util$onKeyDown(
+						$author$project$Components$Internal$Util$onKeyDown(
 						function (i) {
 							return A3(
-								$author$project$Internal$Util$iff,
+								$author$project$Components$Internal$Util$iff,
 								i === 13,
 								pipeExt(
 									function (state) {
@@ -11865,15 +11919,15 @@ var $author$project$Internal$Table$headerSearch = F2(
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_between = A2($rtfeldman$elm_css$Css$property, 'justify-content', 'space-between');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$mb_4 = A2($rtfeldman$elm_css$Css$property, 'margin-bottom', '1rem');
-var $author$project$UaDropdownMultiSelect$Right = {$: 'Right'};
-var $author$project$UaDropdownMultiSelect$nth = F2(
+var $author$project$Components$UaDropdownMultiSelect$Right = {$: 'Right'};
+var $author$project$Components$UaDropdownMultiSelect$nth = F2(
 	function (n, xs) {
 		return $elm$core$List$head(
 			A2($elm$core$List$drop, n, xs));
 	});
-var $author$project$UaDropdownMultiSelect$clickDropdown = F2(
+var $author$project$Components$UaDropdownMultiSelect$clickDropdown = F2(
 	function (idx, st) {
-		var isSelected = A2($author$project$UaDropdownMultiSelect$nth, idx, st.selecteds);
+		var isSelected = A2($author$project$Components$UaDropdownMultiSelect$nth, idx, st.selecteds);
 		var front = A2($elm$core$List$take, idx, st.selecteds);
 		var back = A2($elm$core$List$drop, idx + 1, st.selecteds);
 		if (isSelected.$ === 'Nothing') {
@@ -11896,7 +11950,7 @@ var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns = A4(
 	_Utils_Tuple2(512, 512),
 	_Utils_Tuple2('M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm64 64l0 256 160 0 0-256L64 160zm384 0l-160 0 0 256 160 0 0-256z', $elm$core$Maybe$Nothing));
 var $lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$tableColumns);
-var $author$project$Internal$Toolbar$faTableColumnsIcon = A2(
+var $author$project$Components$Internal$Toolbar$faTableColumnsIcon = A2(
 	$rtfeldman$elm_css$Svg$Styled$svg,
 	_List_fromArray(
 		[
@@ -11908,14 +11962,14 @@ var $author$project$Internal$Toolbar$faTableColumnsIcon = A2(
 			$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
 			$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$tableColumns))
 		]));
-var $author$project$UaDropdownMultiSelect$toggleDropdown = F2(
+var $author$project$Components$UaDropdownMultiSelect$toggleDropdown = F2(
 	function (_new, st) {
 		return _Utils_update(
 			st,
 			{isOpen: _new});
 	});
-var $author$project$Dropdown$OnClick = {$: 'OnClick'};
-var $author$project$Dropdown$drawer = F4(
+var $author$project$Components$Dropdown$OnClick = {$: 'OnClick'};
+var $author$project$Components$Dropdown$drawer = F4(
 	function (_v0, element, givenAttributes, children) {
 		var drawerVisibleAttribute = _v0.drawerVisibleAttribute;
 		var isToggled = _v0.isToggled;
@@ -11937,14 +11991,14 @@ var $author$project$Dropdown$drawer = F4(
 			givenAttributes);
 		return A2(element, attributes, children);
 	});
-var $author$project$Dropdown$DomElement = F2(
+var $author$project$Components$Dropdown$DomElement = F2(
 	function (isDropdown, parentElement) {
 		return {isDropdown: isDropdown, parentElement: parentElement};
 	});
-var $author$project$Dropdown$ParentElement = function (a) {
+var $author$project$Components$Dropdown$ParentElement = function (a) {
 	return {$: 'ParentElement', a: a};
 };
-var $author$project$Dropdown$isDropdown = F2(
+var $author$project$Components$Dropdown$isDropdown = F2(
 	function (identifier, identifier2) {
 		return $elm$json$Json$Decode$succeed(
 			_Utils_eq(identifier, identifier2));
@@ -11964,16 +12018,16 @@ var $elm_community$json_extra$Json$Decode$Extra$withDefault = F2(
 			$elm$core$Maybe$withDefault(fallback),
 			$elm$json$Json$Decode$maybe(decoder));
 	});
-var $author$project$Dropdown$decodeDomElement = function (identifier) {
+var $author$project$Components$Dropdown$decodeDomElement = function (identifier) {
 	return A3(
 		$elm$json$Json$Decode$map2,
-		$author$project$Dropdown$DomElement,
+		$author$project$Components$Dropdown$DomElement,
 		A2(
 			$elm_community$json_extra$Json$Decode$Extra$withDefault,
 			false,
 			A2(
 				$elm$json$Json$Decode$andThen,
-				$author$project$Dropdown$isDropdown(identifier),
+				$author$project$Components$Dropdown$isDropdown(identifier),
 				A2($elm$json$Json$Decode$field, 'dropdownId', $elm$json$Json$Decode$string))),
 		A2(
 			$elm$json$Json$Decode$field,
@@ -11981,13 +12035,13 @@ var $author$project$Dropdown$decodeDomElement = function (identifier) {
 			$elm$json$Json$Decode$maybe(
 				A2(
 					$elm$json$Json$Decode$map,
-					$author$project$Dropdown$ParentElement,
+					$author$project$Components$Dropdown$ParentElement,
 					$elm$json$Json$Decode$lazy(
 						function (_v0) {
-							return $author$project$Dropdown$decodeDomElement(identifier);
+							return $author$project$Components$Dropdown$decodeDomElement(identifier);
 						})))));
 };
-var $author$project$Dropdown$isChildOfSelf = function (cfg) {
+var $author$project$Components$Dropdown$isChildOfSelf = function (cfg) {
 	isChildOfSelf:
 	while (true) {
 		if (cfg.isDropdown) {
@@ -12005,17 +12059,17 @@ var $author$project$Dropdown$isChildOfSelf = function (cfg) {
 		}
 	}
 };
-var $author$project$Dropdown$isFocusOnSelf = function (identifier) {
+var $author$project$Components$Dropdown$isFocusOnSelf = function (identifier) {
 	return A2(
 		$elm_community$json_extra$Json$Decode$Extra$withDefault,
 		false,
 		A2(
 			$elm$json$Json$Decode$andThen,
-			$author$project$Dropdown$isChildOfSelf,
+			$author$project$Components$Dropdown$isChildOfSelf,
 			A2(
 				$elm$json$Json$Decode$field,
 				'relatedTarget',
-				$author$project$Dropdown$decodeDomElement(identifier))));
+				$author$project$Components$Dropdown$decodeDomElement(identifier))));
 };
 var $rtfeldman$elm_css$Html$Styled$Attributes$property = $rtfeldman$elm_css$VirtualDom$Styled$property;
 var $rtfeldman$elm_css$Html$Styled$Attributes$tabindex = function (n) {
@@ -12024,7 +12078,7 @@ var $rtfeldman$elm_css$Html$Styled$Attributes$tabindex = function (n) {
 		'tabIndex',
 		$elm$core$String$fromInt(n));
 };
-var $author$project$Dropdown$root = F4(
+var $author$project$Components$Dropdown$root = F4(
 	function (_v0, element, attributes, children) {
 		var toggleEvent = _v0.toggleEvent;
 		var identifier = _v0.identifier;
@@ -12049,7 +12103,7 @@ var $author$project$Dropdown$root = F4(
 		var handleFocusChanged = A2(
 			$elm$json$Json$Decode$map,
 			onToggle,
-			$author$project$Dropdown$isFocusOnSelf(identifier));
+			$author$project$Components$Dropdown$isFocusOnSelf(identifier));
 		var toggleEvents = function () {
 			if (toggleEvent.$ === 'OnHover') {
 				return _List_fromArray(
@@ -12110,7 +12164,7 @@ var $rtfeldman$elm_css$Html$Styled$Events$onMouseEnter = function (msg) {
 		'mouseenter',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $author$project$Dropdown$toggle = F4(
+var $author$project$Components$Dropdown$toggle = F4(
 	function (_v0, element, attributes, children) {
 		var onToggle = _v0.onToggle;
 		var toggleEvent = _v0.toggleEvent;
@@ -12151,17 +12205,17 @@ var $author$project$Dropdown$toggle = F4(
 			_Utils_ap(toggleEvents, attributes),
 			children);
 	});
-var $author$project$Dropdown$dropdown = function (config) {
+var $author$project$Components$Dropdown$dropdown = function (config) {
 	return config.layout(
 		{
-			toDrawer: $author$project$Dropdown$drawer(config),
-			toDropdown: $author$project$Dropdown$root(config),
-			toToggle: $author$project$Dropdown$toggle(config)
+			toDrawer: $author$project$Components$Dropdown$drawer(config),
+			toDropdown: $author$project$Components$Dropdown$root(config),
+			toToggle: $author$project$Components$Dropdown$toggle(config)
 		});
 };
-var $author$project$UaDropdownMultiSelect$Left = {$: 'Left'};
+var $author$project$Components$UaDropdownMultiSelect$Left = {$: 'Left'};
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_solid = A2($rtfeldman$elm_css$Css$property, 'border-style', 'solid');
-var $author$project$UaDropdownMultiSelect$border = _List_fromArray(
+var $author$project$Components$UaDropdownMultiSelect$border = _List_fromArray(
 	[
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border_solid,
 		$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$border,
@@ -12182,7 +12236,7 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$px_3 = $rtfeldman
 		]));
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_ellipsis = A2($rtfeldman$elm_css$Css$property, 'text-overflow', 'ellipsis');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$whitespace_nowrap = A2($rtfeldman$elm_css$Css$property, 'white-space', 'nowrap');
-var $author$project$UaDropdownMultiSelect$dropdownItem = F3(
+var $author$project$Components$UaDropdownMultiSelect$dropdownItem = F3(
 	function (clickMsg, idx, _v0) {
 		var selected = _v0.a;
 		var str = _v0.b;
@@ -12245,12 +12299,7 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$shadow_md = $rtfe
 			A2($rtfeldman$elm_css$Css$property, 'box-shadow', 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)')
 		]));
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_56 = A2($rtfeldman$elm_css$Css$property, 'width', '14rem');
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
-var $author$project$UaDropdownMultiSelect$zip = $elm$core$List$map2($elm$core$Tuple$pair);
-var $author$project$UaDropdownMultiSelect$dropdownMenu = F5(
+var $author$project$Components$UaDropdownMultiSelect$dropdownMenu = F5(
 	function (toDrawer, align, onClick, items, selected) {
 		return A3(
 			toDrawer,
@@ -12270,19 +12319,19 @@ var $author$project$UaDropdownMultiSelect$dropdownMenu = F5(
 								$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$py_2
 							]),
 						_Utils_ap(
-							$author$project$UaDropdownMultiSelect$border,
-							_Utils_eq(align, $author$project$UaDropdownMultiSelect$Left) ? _List_fromArray(
+							$author$project$Components$UaDropdownMultiSelect$border,
+							_Utils_eq(align, $author$project$Components$UaDropdownMultiSelect$Left) ? _List_fromArray(
 								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$left_0, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_auto]) : _List_fromArray(
 								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$left_auto, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$right_0]))))
 				]),
 			A2(
 				$elm$core$List$indexedMap,
-				$author$project$UaDropdownMultiSelect$dropdownItem(onClick),
-				A2($author$project$UaDropdownMultiSelect$zip, selected, items)));
+				$author$project$Components$UaDropdownMultiSelect$dropdownItem(onClick),
+				A2($author$project$Components$UaDropdownMultiSelect$zip, selected, items)));
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$block = A2($rtfeldman$elm_css$Css$property, 'display', 'block');
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$m_auto = A2($rtfeldman$elm_css$Css$property, 'margin', 'auto');
-var $author$project$UaDropdownMultiSelect$dropdownToggle = function (icon) {
+var $author$project$Components$UaDropdownMultiSelect$dropdownToggle = function (icon) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$a,
 		_List_fromArray(
@@ -12291,7 +12340,7 @@ var $author$project$UaDropdownMultiSelect$dropdownToggle = function (icon) {
 				_Utils_ap(
 					_List_fromArray(
 						[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$inline_flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$w_10, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$h_10]),
-					$author$project$UaDropdownMultiSelect$border))
+					$author$project$Components$UaDropdownMultiSelect$border))
 			]),
 		_List_fromArray(
 			[
@@ -12307,7 +12356,7 @@ var $author$project$UaDropdownMultiSelect$dropdownToggle = function (icon) {
 					[icon]))
 			]));
 };
-var $author$project$UaDropdownMultiSelect$view = F2(
+var $author$project$Components$UaDropdownMultiSelect$view = F2(
 	function (_v0, _v1) {
 		var onClick = _v0.onClick;
 		var onToggle = _v0.onToggle;
@@ -12321,7 +12370,7 @@ var $author$project$UaDropdownMultiSelect$view = F2(
 			_List_Nil,
 			_List_fromArray(
 				[
-					$author$project$Dropdown$dropdown(
+					$author$project$Components$Dropdown$dropdown(
 					{
 						drawerVisibleAttribute: $rtfeldman$elm_css$Html$Styled$Attributes$class(''),
 						identifier: '',
@@ -12342,30 +12391,30 @@ var $author$project$UaDropdownMultiSelect$view = F2(
 										_List_Nil,
 										_List_fromArray(
 											[
-												$author$project$UaDropdownMultiSelect$dropdownToggle(icon)
+												$author$project$Components$UaDropdownMultiSelect$dropdownToggle(icon)
 											])),
-										A5($author$project$UaDropdownMultiSelect$dropdownMenu, toDrawer, align, onClick, items, selecteds)
+										A5($author$project$Components$UaDropdownMultiSelect$dropdownMenu, toDrawer, align, onClick, items, selecteds)
 									]));
 						},
 						onToggle: onToggle,
-						toggleEvent: $author$project$Dropdown$OnClick
+						toggleEvent: $author$project$Components$Dropdown$OnClick
 					})
 				]));
 	});
-var $author$project$Internal$Toolbar$toolbarMenuColumns = F3(
+var $author$project$Components$Internal$Toolbar$toolbarMenuColumns = F3(
 	function (columns, pipeInt, state) {
 		return A2(
-			$author$project$UaDropdownMultiSelect$view,
+			$author$project$Components$UaDropdownMultiSelect$view,
 			{
-				align: $author$project$UaDropdownMultiSelect$Right,
-				icon: $author$project$Internal$Toolbar$faTableColumnsIcon,
+				align: $author$project$Components$UaDropdownMultiSelect$Right,
+				icon: $author$project$Components$Internal$Toolbar$faTableColumnsIcon,
 				onClick: function (idx) {
 					return pipeInt(
 						function (s) {
 							return _Utils_update(
 								s,
 								{
-									ddColumns: A2($author$project$UaDropdownMultiSelect$clickDropdown, idx, s.ddColumns)
+									ddColumns: A2($author$project$Components$UaDropdownMultiSelect$clickDropdown, idx, s.ddColumns)
 								});
 						});
 				},
@@ -12375,9 +12424,9 @@ var $author$project$Internal$Toolbar$toolbarMenuColumns = F3(
 							return _Utils_update(
 								s,
 								{
-									ddColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddColumns),
-									ddPagination: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddPagination),
-									ddSubColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddSubColumns)
+									ddColumns: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddColumns),
+									ddPagination: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, false, s.ddPagination),
+									ddSubColumns: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, false, s.ddSubColumns)
 								});
 						});
 				}
@@ -12391,7 +12440,7 @@ var $lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$bars = A4(
 	_Utils_Tuple2(448, 512),
 	_Utils_Tuple2('M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z', $elm$core$Maybe$Nothing));
 var $lattyware$elm_fontawesome$FontAwesome$Solid$bars = $lattyware$elm_fontawesome$FontAwesome$present($lattyware$elm_fontawesome$FontAwesome$Solid$Definitions$bars);
-var $author$project$Internal$Toolbar$faBarsIcon = A2(
+var $author$project$Components$Internal$Toolbar$faBarsIcon = A2(
 	$rtfeldman$elm_css$Svg$Styled$svg,
 	_List_fromArray(
 		[
@@ -12403,20 +12452,20 @@ var $author$project$Internal$Toolbar$faBarsIcon = A2(
 			$rtfeldman$elm_css$Svg$Styled$fromUnstyled(
 			$lattyware$elm_fontawesome$FontAwesome$Svg$view($lattyware$elm_fontawesome$FontAwesome$Solid$bars))
 		]));
-var $author$project$Internal$Toolbar$toolbarMenuPagination = F4(
+var $author$project$Components$Internal$Toolbar$toolbarMenuPagination = F4(
 	function (pipeExt, pipeInt, state, capabilities) {
 		return A2(
-			$author$project$UaDropdownMultiSelect$view,
+			$author$project$Components$UaDropdownMultiSelect$view,
 			{
-				align: $author$project$UaDropdownMultiSelect$Right,
-				icon: $author$project$Internal$Toolbar$faBarsIcon,
+				align: $author$project$Components$UaDropdownMultiSelect$Right,
+				icon: $author$project$Components$Internal$Toolbar$faBarsIcon,
 				onClick: function (idx) {
 					return pipeInt(
 						function (s) {
 							return _Utils_update(
 								s,
 								{
-									ddPagination: A2($author$project$UaDropdownMultiSelect$clickDropdown, idx, s.ddPagination)
+									ddPagination: A2($author$project$Components$UaDropdownMultiSelect$clickDropdown, idx, s.ddPagination)
 								});
 						});
 				},
@@ -12426,29 +12475,29 @@ var $author$project$Internal$Toolbar$toolbarMenuPagination = F4(
 							return _Utils_update(
 								s,
 								{
-									ddColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddColumns),
-									ddPagination: A2($author$project$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddPagination),
-									ddSubColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddSubColumns)
+									ddColumns: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, false, s.ddColumns),
+									ddPagination: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddPagination),
+									ddSubColumns: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, false, s.ddSubColumns)
 								});
 						});
 				}
 			},
 			state.ddPagination);
 	});
-var $author$project$Internal$Toolbar$toolbarMenuSubColumns = F3(
+var $author$project$Components$Internal$Toolbar$toolbarMenuSubColumns = F3(
 	function (columns, pipeInt, state) {
 		return A2(
-			$author$project$UaDropdownMultiSelect$view,
+			$author$project$Components$UaDropdownMultiSelect$view,
 			{
-				align: $author$project$UaDropdownMultiSelect$Right,
-				icon: $author$project$Internal$Toolbar$faTableColumnsIcon,
+				align: $author$project$Components$UaDropdownMultiSelect$Right,
+				icon: $author$project$Components$Internal$Toolbar$faTableColumnsIcon,
 				onClick: function (idx) {
 					return pipeInt(
 						function (s) {
 							return _Utils_update(
 								s,
 								{
-									ddSubColumns: A2($author$project$UaDropdownMultiSelect$clickDropdown, idx, s.ddSubColumns)
+									ddSubColumns: A2($author$project$Components$UaDropdownMultiSelect$clickDropdown, idx, s.ddSubColumns)
 								});
 						});
 				},
@@ -12458,16 +12507,16 @@ var $author$project$Internal$Toolbar$toolbarMenuSubColumns = F3(
 							return _Utils_update(
 								s,
 								{
-									ddColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddColumns),
-									ddPagination: A2($author$project$UaDropdownMultiSelect$toggleDropdown, false, s.ddPagination),
-									ddSubColumns: A2($author$project$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddSubColumns)
+									ddColumns: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, false, s.ddColumns),
+									ddPagination: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, false, s.ddPagination),
+									ddSubColumns: A2($author$project$Components$UaDropdownMultiSelect$toggleDropdown, btnState, s.ddSubColumns)
 								});
 						});
 				}
 			},
 			state.ddSubColumns);
 	});
-var $author$project$Internal$Toolbar$view = F4(
+var $author$project$Components$Internal$Toolbar$view = F4(
 	function (_v0, pipeExt, pipeInt, state) {
 		var cfg = _v0.a;
 		return _List_fromArray(
@@ -12476,25 +12525,25 @@ var $author$project$Internal$Toolbar$view = F4(
 				var _v1 = cfg.pagination;
 				if (_v1.$ === 'ByPage') {
 					var capabilities = _v1.a.capabilities;
-					return A4($author$project$Internal$Toolbar$toolbarMenuPagination, pipeExt, pipeInt, state, capabilities);
+					return A4($author$project$Components$Internal$Toolbar$toolbarMenuPagination, pipeExt, pipeInt, state, capabilities);
 				} else {
 					return $rtfeldman$elm_css$Html$Styled$text('');
 				}
 			}(),
-				A3($author$project$Internal$Toolbar$toolbarMenuColumns, cfg.table.columns, pipeInt, state),
+				A3($author$project$Components$Internal$Toolbar$toolbarMenuColumns, cfg.table.columns, pipeInt, state),
 				function () {
 				var _v2 = cfg.subtable;
 				if (_v2.$ === 'Just') {
 					var _v3 = _v2.a;
 					var conf = _v3.b;
-					return A3($author$project$Internal$Toolbar$toolbarMenuSubColumns, conf.columns, pipeInt, state);
+					return A3($author$project$Components$Internal$Toolbar$toolbarMenuSubColumns, conf.columns, pipeInt, state);
 				} else {
 					return $rtfeldman$elm_css$Html$Styled$text('');
 				}
 			}()
 			]);
 	});
-var $author$project$Internal$Table$tableHeader = F4(
+var $author$project$Components$Internal$Table$tableHeader = F4(
 	function (config, pipeExt, pipeInt, state) {
 		var cfg = config.a;
 		return A2(
@@ -12522,7 +12571,7 @@ var $author$project$Internal$Table$tableHeader = F4(
 							_List_fromArray(
 								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$relative, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$justify_between, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$grow]))
 						]),
-					A2($author$project$Internal$Table$headerSearch, pipeExt, pipeInt)),
+					A2($author$project$Components$Internal$Table$headerSearch, pipeExt, pipeInt)),
 					A2(
 					$rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
@@ -12540,7 +12589,7 @@ var $author$project$Internal$Table$tableHeader = F4(
 							_List_fromArray(
 								[$matheus23$elm_default_tailwind_modules$Tailwind$Utilities$flex, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$gap_2, $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$items_center]))
 						]),
-					A4($author$project$Internal$Toolbar$view, config, pipeExt, pipeInt, state))
+					A4($author$project$Components$Internal$Toolbar$view, config, pipeExt, pipeInt, state))
 				]));
 	});
 var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl = $rtfeldman$elm_css$Css$batch(
@@ -12549,11 +12598,11 @@ var $matheus23$elm_default_tailwind_modules$Tailwind$Utilities$text_2xl = $rtfel
 			A2($rtfeldman$elm_css$Css$property, 'font-size', '1.5rem'),
 			A2($rtfeldman$elm_css$Css$property, 'line-height', '2rem')
 		]));
-var $author$project$Internal$Table$view = F2(
+var $author$project$Components$Internal$Table$view = F2(
 	function (config, model) {
 		var m = model.a;
-		var pipeInt = A2($author$project$Internal$Config$pipeInternal, config, model);
-		var pipeExt = A2($author$project$Internal$Config$pipeExternal, config, model);
+		var pipeInt = A2($author$project$Components$Internal$Config$pipeInternal, config, model);
+		var pipeExt = A2($author$project$Components$Internal$Config$pipeExternal, config, model);
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
@@ -12567,7 +12616,7 @@ var $author$project$Internal$Table$view = F2(
 						var _v1 = _v0.a;
 						return _List_fromArray(
 							[
-								A4($author$project$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
+								A4($author$project$Components$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
 								A2(
 								$rtfeldman$elm_css$Html$Styled$div,
 								_List_fromArray(
@@ -12597,22 +12646,22 @@ var $author$project$Internal$Table$view = F2(
 						var rows = _v0.a.a.rows;
 						return _List_fromArray(
 							[
-								A4($author$project$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
-								A5($author$project$Internal$Table$tableContent, config, pipeExt, pipeInt, m.state, rows),
-								A5($author$project$Internal$Table$tableFooter, config, pipeExt, pipeInt, m.state, total)
+								A4($author$project$Components$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
+								A5($author$project$Components$Internal$Table$tableContent, config, pipeExt, pipeInt, m.state, rows),
+								A5($author$project$Components$Internal$Table$tableFooter, config, pipeExt, pipeInt, m.state, total)
 							]);
 					default:
 						var msg = _v0.a.a;
 						return _List_fromArray(
 							[
-								A4($author$project$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
-								$author$project$Internal$Config$errorView(msg)
+								A4($author$project$Components$Internal$Table$tableHeader, config, pipeExt, pipeInt, m.state),
+								$author$project$Components$Internal$Config$errorView(msg)
 							]);
 				}
 			}());
 	});
-var $author$project$Table$view = $author$project$Internal$Table$view;
-var $author$project$UaTable$view = function (model) {
+var $author$project$Components$Table$view = $author$project$Components$Internal$Table$view;
+var $author$project$Components$UaTable$view = function (model) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
@@ -12621,14 +12670,14 @@ var $author$project$UaTable$view = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A2($author$project$Table$view, $author$project$UaTable$config, model)
+				A2($author$project$Components$Table$view, $author$project$Components$UaTable$config, model)
 			]));
 };
 var $author$project$View$viewMain = function (model) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$map,
 		$author$project$View$TableMsg,
-		$author$project$UaTable$view(model.tableModel));
+		$author$project$Components$UaTable$view(model.tableModel));
 };
 var $author$project$View$Browser = function (a) {
 	return {$: 'Browser', a: a};

@@ -1,4 +1,4 @@
-module Internal.Util exposing (..)
+module Components.Internal.Util exposing (..)
 
 import Html.Styled exposing (Attribute, Html, b, text)
 import Html.Styled.Events exposing (keyCode, on)

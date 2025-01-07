@@ -1,19 +1,19 @@
-module Internal.Toolbar exposing (view)
+module Components.Internal.Toolbar exposing (view)
 
 import FontAwesome.Solid as Icon
 import FontAwesome.Svg as SvgIcon
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onCheck, onClick)
-import Internal.Column exposing (..)
-import Internal.Config exposing (..)
-import Internal.Data exposing (..)
-import Internal.State exposing (..)
-import Internal.Util exposing (..)
+import Components.Internal.Column exposing (..)
+import Components.Internal.Config exposing (..)
+import Components.Internal.Data exposing (..)
+import Components.Internal.State exposing (..)
+import Components.Internal.Util exposing (..)
 import Monocle.Lens exposing (Lens)
 import Svg.Styled
 import Svg.Styled.Attributes as SvgA
-import UaDropdownMultiSelect as Dropdown
+import Components.UaDropdownMultiSelect as UaDropdown
 
 
 view : Config a b msg -> Pipe msg -> Pipe msg -> State -> List (Html msg)
@@ -46,60 +46,60 @@ faTableColumnsIcon =
 
 toolbarMenuPagination : Pipe msg -> Pipe msg -> State -> List Int -> Html msg
 toolbarMenuPagination pipeExt pipeInt state capabilities =
-    Dropdown.view
+    UaDropdown.view
         --     "Pagination"
-        { onClick = \idx -> pipeInt <| \s -> { s | ddPagination = Dropdown.clickDropdown idx s.ddPagination }
+        { onClick = \idx -> pipeInt <| \s -> { s | ddPagination = UaDropdown.clickDropdown idx s.ddPagination }
         , onToggle =
             \btnState ->
                 pipeInt <|
                     \s ->
                         { s
-                            | ddPagination = Dropdown.toggleDropdown btnState s.ddPagination
-                            , ddColumns = Dropdown.toggleDropdown False s.ddColumns
-                            , ddSubColumns = Dropdown.toggleDropdown False s.ddSubColumns
+                            | ddPagination = UaDropdown.toggleDropdown btnState s.ddPagination
+                            , ddColumns = UaDropdown.toggleDropdown False s.ddColumns
+                            , ddSubColumns = UaDropdown.toggleDropdown False s.ddSubColumns
                         }
         , icon = faBarsIcon
-        , align = Dropdown.Right
+        , align = UaDropdown.Right
         }
         state.ddPagination
 
 
 toolbarMenuColumns : List (Column a msg) -> Pipe msg -> State -> Html msg
 toolbarMenuColumns columns pipeInt state =
-    Dropdown.view
+    UaDropdown.view
         --     "Columns"
-        { onClick = \idx -> pipeInt <| \s -> { s | ddColumns = Dropdown.clickDropdown idx s.ddColumns }
+        { onClick = \idx -> pipeInt <| \s -> { s | ddColumns = UaDropdown.clickDropdown idx s.ddColumns }
         , onToggle =
             \btnState ->
                 pipeInt <|
                     \s ->
                         { s
-                            | ddColumns = Dropdown.toggleDropdown btnState s.ddColumns
-                            , ddPagination = Dropdown.toggleDropdown False s.ddPagination
-                            , ddSubColumns = Dropdown.toggleDropdown False s.ddSubColumns
+                            | ddColumns = UaDropdown.toggleDropdown btnState s.ddColumns
+                            , ddPagination = UaDropdown.toggleDropdown False s.ddPagination
+                            , ddSubColumns = UaDropdown.toggleDropdown False s.ddSubColumns
                         }
         , icon = faTableColumnsIcon
-        , align = Dropdown.Right
+        , align = UaDropdown.Right
         }
         state.ddColumns
 
 
 toolbarMenuSubColumns : List (Column a msg) -> Pipe msg -> State -> Html msg
 toolbarMenuSubColumns columns pipeInt state =
-    Dropdown.view
+    UaDropdown.view
         -- "Columns of subtable"
-        { onClick = \idx -> pipeInt <| \s -> { s | ddSubColumns = Dropdown.clickDropdown idx s.ddSubColumns }
+        { onClick = \idx -> pipeInt <| \s -> { s | ddSubColumns = UaDropdown.clickDropdown idx s.ddSubColumns }
         , onToggle =
             \btnState ->
                 pipeInt <|
                     \s ->
                         { s
-                            | ddSubColumns = Dropdown.toggleDropdown btnState s.ddSubColumns
-                            , ddPagination = Dropdown.toggleDropdown False s.ddPagination
-                            , ddColumns = Dropdown.toggleDropdown False s.ddColumns
+                            | ddSubColumns = UaDropdown.toggleDropdown btnState s.ddSubColumns
+                            , ddPagination = UaDropdown.toggleDropdown False s.ddPagination
+                            , ddColumns = UaDropdown.toggleDropdown False s.ddColumns
                         }
         , icon = faTableColumnsIcon
-        , align = Dropdown.Right
+        , align = UaDropdown.Right
         }
         state.ddSubColumns
 

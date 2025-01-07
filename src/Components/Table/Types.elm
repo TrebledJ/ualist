@@ -1,4 +1,4 @@
-module Table.Types exposing (Selection(..), Type(..), Sort(..), Status(..))
+module Components.Table.Types exposing (Selection(..), Type(..), Sort(..), Status(..))
 
 {-| Common types.
 

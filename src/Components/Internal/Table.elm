@@ -1,4 +1,4 @@
-module Internal.Table exposing (..)
+module Components.Internal.Table exposing (..)
 
 -- import Html exposing (..)
 -- import Attributes exposing (..)
@@ -19,20 +19,20 @@ import FontAwesome.Svg as SvgIcon
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onInput)
-import Internal.Column exposing (..)
-import Internal.Config exposing (..)
-import Internal.Data exposing (..)
-import Internal.Pagination exposing (..)
-import Internal.Selection exposing (..)
-import Internal.State exposing (..)
-import Internal.Toolbar
-import Internal.Util exposing (..)
+import Components.Internal.Column exposing (..)
+import Components.Internal.Config exposing (..)
+import Components.Internal.Data exposing (..)
+import Components.Internal.Pagination exposing (..)
+import Components.Internal.Selection exposing (..)
+import Components.Internal.State exposing (..)
+import Components.Internal.Toolbar
+import Components.Internal.Util exposing (..)
 import Svg.Styled
 import Svg.Styled.Attributes as SvgA
-import Table.Types exposing (..)
+import Components.Table.Types exposing (..)
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
-import UaDropdownMultiSelect as Dropdown
+import Components.UaDropdownMultiSelect as UaDropdown
 
 
 
@@ -83,9 +83,9 @@ init (Config cfg) =
                     _ ->
                         0
             , search = ""
-            , ddPagination = Dropdown.init ddPaginationInitState
-            , ddColumns = Dropdown.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
-            , ddSubColumns = Dropdown.init visibleSubColumns -- TODO: same as column
+            , ddPagination = UaDropdown.init ddPaginationInitState
+            , ddColumns = UaDropdown.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
+            , ddSubColumns = UaDropdown.init visibleSubColumns -- TODO: same as column
             , table = StateTable {- visibleColumns -} [] [] []
             , subtable = StateTable {- visibleSubColumns -} [] [] []
             }
@@ -133,7 +133,7 @@ tableHeader ((Config cfg) as config) pipeExt pipeInt state =
     div [ css [ Tw.mb_4, Tw.p_4, Tw.bg_color Tw.gray_100, Tw.flex, Tw.gap_2, Tw.rounded ] ]
         [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
         , div [ css [ Tw.flex, Tw.items_center ] ] cfg.toolbar
-        , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Internal.Toolbar.view config pipeExt pipeInt state
+        , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Components.Internal.Toolbar.view config pipeExt pipeInt state
         ]
 
 
@@ -210,11 +210,11 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
         selectColumn =
             ifMaybe (cfg.selection /= Disable) (selectionParent pipeInt config rows)
 
-        _ = Debug.log "selected" <| Dropdown.getSelected state.ddColumns
+        _ = Debug.log "selected" <| UaDropdown.getSelected state.ddColumns
 
         visibleColumns =
             List.filter
-                (\(Column c) -> List.member c.name <| Dropdown.getSelected state.ddColumns)
+                (\(Column c) -> List.member c.name <| UaDropdown.getSelected state.ddColumns)
                 cfg.table.columns
 
         columns =
@@ -374,7 +374,7 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
 
         visibleColumns =
             List.filter
-                (\(Column c) -> List.member c.name <| Dropdown.getSelected state.ddSubColumns)
+                (\(Column c) -> List.member c.name <| UaDropdown.getSelected state.ddSubColumns)
                 subConfig.columns
 
         columns =

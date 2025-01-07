@@ -1,11 +1,11 @@
-module Internal.Config exposing (..)
+module Components.Internal.Config exposing (..)
 
 import Html.Styled exposing (Html, div, text)
 import Html.Styled.Attributes exposing (class)
-import Internal.Column exposing (..)
-import Internal.Data exposing (..)
-import Internal.State exposing (..)
-import Table.Types exposing (..)
+import Components.Internal.Column exposing (..)
+import Components.Internal.Data exposing (..)
+import Components.Internal.State exposing (..)
+import Components.Table.Types exposing (..)
 
 
 type Pagination

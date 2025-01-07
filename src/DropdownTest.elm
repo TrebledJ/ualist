@@ -7,7 +7,7 @@ import Html
 import Html.Styled exposing (toUnstyled)
 import Svg.Styled
 import Svg.Styled.Attributes as SvgA
-import UaDropdownMultiSelect exposing (..)
+import Components.UaDropdownMultiSelect exposing (..)
 
 
 faTableColumnsIcon =

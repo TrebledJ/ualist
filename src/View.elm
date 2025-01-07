@@ -15,7 +15,7 @@ import Tailwind.Breakpoints as Breakpoints
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
 import Task
-import UaTable
+import Components.UaTable as UaTable
 
 
 
@@ -113,14 +113,6 @@ view model =
             ]
 
 
-
--- div []
---     [ button [ onClick Decrement ] [ text "-" ]
---     , div [] [ text (String.fromInt model) ]
---     , button [ onClick Increment ] [ text "+" ]
---     ]
-
-
 viewSelectors : Model -> Html Msg
 viewSelectors model =
     div [ Attr.css [ Tw.grid, Tw.grid_cols_1, Breakpoints.md [ Tw.grid_cols_3 ], Tw.gap_4, Tw.mb_4 ] ]
@@ -128,22 +120,6 @@ viewSelectors model =
         , viewSelector "OS/Device" model.filterOsDevice (ChangeFilter << OSDevice)
         , viewSelector "Limit" (String.fromInt model.filterLimit) (ChangeFilter << Limit)
         ]
-
-
-
--- [ div []
---     [ div [] [ text "Browser" ]
---     , input [ placeholder "firefox", value model.filterBrowser, onInput <| ChangeFilter << Browser ] []
---     ]
--- , div []
---     [ div [] [ text "OS/Device" ]
---     , input [ placeholder "linux", value model.filterOsDevice, onInput <| ChangeFilter << OSDevice ] []
---     ]
--- , div []
---     [ div [] [ text "Limit" ]
---     , input [ placeholder "10", value (String.fromInt model.filterLimit), onInput <| ChangeFilter << Limit ] []
---     ]
--- ]
 
 
 viewSelector : String -> String -> (String -> Msg) -> Html Msg

@@ -33,7 +33,7 @@ Modifications:
  - Use Html.Styled instead of Html.
 -}
 
-module Dropdown exposing
+module Components.Dropdown exposing
     ( State, Config, ToggleEvent(..)
     , dropdown, toggle, drawer
     , root

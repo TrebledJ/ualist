@@ -1,15 +1,15 @@
-module Internal.Pagination exposing (..)
+module Components.Internal.Pagination exposing (..)
 
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick)
-import Internal.Column exposing (Pipe)
-import Internal.Config exposing (..)
-import Internal.Data exposing (..)
-import Internal.Selection exposing (..)
-import Internal.State exposing (..)
-import Internal.Util exposing (..)
-import Table.Types exposing (..)
+import Components.Internal.Column exposing (Pipe)
+import Components.Internal.Config exposing (..)
+import Components.Internal.Data exposing (..)
+import Components.Internal.Selection exposing (..)
+import Components.Internal.State exposing (..)
+import Components.Internal.Util exposing (..)
+import Components.Table.Types exposing (..)
 
 
 tableFooterContent : Type -> Pipe msg -> Pipe msg -> Int -> Int -> Int -> Html msg

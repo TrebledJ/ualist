@@ -1,12 +1,12 @@
-module Internal.Subscription exposing (..)
+module Components.Internal.Subscription exposing (..)
 
 import Browser.Events
-import Internal.Column exposing (Pipe)
-import Internal.Config exposing (..)
-import Internal.Data exposing (..)
-import Internal.State exposing (..)
+import Components.Internal.Column exposing (Pipe)
+import Components.Internal.Config exposing (..)
+import Components.Internal.Data exposing (..)
+import Components.Internal.State exposing (..)
 import Json.Decode as Decode
-import UaDropdownMultiSelect as Dropdown
+import Components.UaDropdownMultiSelect as UaDropdown
 
 
 subscriptions : Config a b msg -> Model a -> Sub msg

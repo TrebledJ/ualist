@@ -1,8 +1,8 @@
-module Internal.State exposing (..)
+module Components.Internal.State exposing (..)
 
 import Monocle.Lens exposing (Lens, compose)
-import Table.Types exposing (Sort(..))
-import UaDropdownMultiSelect as Dropdown exposing (State)
+import Components.Table.Types exposing (Sort(..))
+import Components.UaDropdownMultiSelect as UaDropdown exposing (State)
 
 
 type alias RowID =
@@ -28,9 +28,9 @@ type alias State =
     , page : Int
     , byPage : Int
     , search : String
-    , ddPagination : Dropdown.State
-    , ddColumns : Dropdown.State
-    , ddSubColumns : Dropdown.State
+    , ddPagination : UaDropdown.State
+    , ddColumns : UaDropdown.State
+    , ddSubColumns : UaDropdown.State
     , table : StateTable
     , subtable : StateTable
     }

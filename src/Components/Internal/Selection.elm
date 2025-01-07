@@ -1,15 +1,15 @@
-module Internal.Selection exposing (..)
+module Components.Internal.Selection exposing (..)
 
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onCheck)
-import Internal.Column exposing (..)
-import Internal.Config exposing (..)
-import Internal.Data exposing (..)
-import Internal.State exposing (..)
-import Internal.Util exposing (..)
+import Components.Internal.Column exposing (..)
+import Components.Internal.Config exposing (..)
+import Components.Internal.Data exposing (..)
+import Components.Internal.State exposing (..)
+import Components.Internal.Util exposing (..)
 import Monocle.Lens exposing (Lens, compose)
-import Table.Types exposing (..)
+import Components.Table.Types exposing (..)
 
 
 

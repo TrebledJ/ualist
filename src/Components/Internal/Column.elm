@@ -1,13 +1,13 @@
-module Internal.Column exposing (..)
+module Components.Internal.Column exposing (..)
 
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onClick)
-import Internal.Data exposing (..)
-import Internal.State exposing (..)
-import Internal.Util exposing (..)
+import Components.Internal.Data exposing (..)
+import Components.Internal.State exposing (..)
+import Components.Internal.Util exposing (..)
 import Monocle.Lens exposing (Lens)
-import Table.Types exposing (Sort(..))
+import Components.Table.Types exposing (Sort(..))
 
 
 type alias Pipe msg =

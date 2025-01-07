@@ -1,4 +1,4 @@
-port module UaTable exposing (..)
+port module Components.UaTable exposing (..)
 
 -- import Json.Decode as Decode exposing (Decoder)
 -- import Json.Decode.Pipeline exposing (required)
@@ -8,9 +8,9 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (class, src)
 import Http exposing (Error)
 import Json.Decode as Decode exposing (Decoder, Value)
-import Table
-import Table.Column as Column
-import Table.Config as Config
+import Components.Table
+import Components.Table.Column as Column
+import Components.Table.Config as Config
 import Task
 
 
@@ -20,12 +20,12 @@ import Task
 
 init : Model
 init =
-    Table.init config
+    Components.Table.init config
 
 
-config : Table.Config UserAgent () Msg
+config : Components.Table.Config UserAgent () Msg
 config =
-    Table.static
+    Components.Table.static
         OnTable
         .ua
         -- [Column.string (\x -> x) "Agent" ""]
@@ -57,7 +57,7 @@ port recvUserAgentBatch : (String -> msg) -> Sub msg
 
 
 type alias Model =
-    Table.Model UserAgent
+    Components.Table.Model UserAgent
 
 
 type alias UserAgent =
@@ -122,7 +122,7 @@ run m =
 
 view : Model -> Html Msg
 view model =
-    div [ class "example-dynamic" ] [ Table.view config model ]
+    div [ class "example-dynamic" ] [ Components.Table.view config model ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -176,7 +176,7 @@ appendRowsToModel : Result Decode.Error (List UserAgent) -> Model -> Model
 appendRowsToModel x model =
     case x of
         Ok res ->
-            model |> Table.loadedDynamic ((model |> Table.get) ++ res) (List.length res)
+            model |> Components.Table.loadedDynamic ((model |> Components.Table.get) ++ res) (List.length res)
 
         Err err ->
             let
@@ -189,7 +189,7 @@ appendRowsToModel x model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Table.subscriptions config model
+        [ Components.Table.subscriptions config model
         , recvUserAgent RecvUserAgent
         , recvUserAgentBatch RecvUserAgentBatch
         ]
