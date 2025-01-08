@@ -378,11 +378,13 @@ tableContentBodyRow :
     -> List (Html msg)
 tableContentBodyRow ((Config cfg) as config) pipeExt pipeInt columns state (Row r) =
     [ tr
-        (css
+        ([ css
             [ iff (cfg.onRowClick == Nothing) Tw.cursor_default Tw.cursor_pointer
             , Css.hover [ Tw.bg_color Tw.gray_100 ]
             ]
-            :: (case cfg.onRowClick of
+         , tabindex 0
+         ]
+            ++ (case cfg.onRowClick of
                     Nothing ->
                         []
 
