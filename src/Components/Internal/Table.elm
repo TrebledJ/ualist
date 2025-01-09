@@ -20,7 +20,7 @@ import Components.Internal.State exposing (..)
 import Components.Internal.Toolbar
 import Components.Internal.Util exposing (..)
 import Components.Table.Types exposing (..)
-import Components.UaDropdownMultiSelect as UaDropdown
+import Components.UaDropdownMultiSelect as UaDropdownMS
 import Css
 import FontAwesome as Icon
 import FontAwesome.Solid as Icon
@@ -85,9 +85,10 @@ init (Config cfg) =
                     _ ->
                         0
             , search = ""
-            , ddPagination = UaDropdown.init ddPaginationInitState
-            , ddColumns = UaDropdown.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
-            , ddSubColumns = UaDropdown.init visibleSubColumns -- TODO: same as column
+            , ddPagination = UaDropdownMS.init ddPaginationInitState
+            , ddColumns = UaDropdownMS.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
+            , ddSubColumns = UaDropdownMS.init visibleSubColumns -- TODO: same as column
+            , head = Nothing
             , table = StateTable {- visibleColumns -} [] [] []
             , subtable = StateTable {- visibleSubColumns -} [] [] []
             }
@@ -191,7 +192,7 @@ tableHeader ((Config cfg) as config) toolbarState pipeExt pipeInt state =
                    )
         ]
         [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
-        , div [ css [ Tw.flex, Tw.items_center ] ] <| List.map (\f -> f toolbarState) <| cfg.toolbar
+        , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| List.map (\f -> f toolbarState) <| cfg.toolbar
         , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Components.Internal.Toolbar.view config pipeExt pipeInt state
         ]
 
@@ -266,7 +267,7 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
 
         visibleColumns =
             List.filter
-                (\(Column c) -> List.member c.name <| UaDropdown.getSelected state.ddColumns)
+                (\(Column c) -> List.member c.name <| UaDropdownMS.getSelected state.ddColumns)
                 cfg.table.columns
 
         columns =
@@ -305,17 +306,22 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
 
         -- cut the results for the pagination
         cut =
-            \rs ->
+            \rs pg count ->
                 rs
                     |> Array.fromList
-                    |> Array.slice (state.page * state.byPage) ((state.page + 1) * state.byPage)
+                    |> Array.slice (pg * count) ((pg + 1) * count)
                     |> Array.toList
 
+        
+
         prows =
-            iff (cfg.type_ == Static && cfg.pagination /= None) (cut frows) frows
+            iff (cfg.type_ == Static && cfg.pagination /= None) (cut frows state.page state.byPage) <|
+                case state.head of
+                    Just head -> cut frows 0 head
+                    Nothing -> frows
     in
     div []
-        [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.shadow, Tw.rounded, Tw.border_collapse ] ]
+        [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.border_collapse ] ]
             [ tableContentHead cfg.stickyHeader (cfg.selection /= Disable) pipeExt pipeInt columns state
             , tableContentBody config pipeExt pipeInt columns state prows
             ]
@@ -467,7 +473,7 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
 
         visibleColumns =
             List.filter
-                (\(Column c) -> List.member c.name <| UaDropdown.getSelected state.ddSubColumns)
+                (\(Column c) -> List.member c.name <| UaDropdownMS.getSelected state.ddSubColumns)
                 subConfig.columns
 
         columns =

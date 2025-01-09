@@ -6,7 +6,6 @@ import Components.Internal.Config exposing (..)
 import Components.Internal.Data exposing (..)
 import Components.Internal.State exposing (..)
 import Json.Decode as Decode
-import Components.UaDropdownMultiSelect as UaDropdown
 
 
 subscriptions : Config a b tbstate msg -> Model a -> Sub msg

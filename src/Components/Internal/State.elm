@@ -2,7 +2,7 @@ module Components.Internal.State exposing (..)
 
 import Monocle.Lens exposing (Lens, compose)
 import Components.Table.Types exposing (Sort(..))
-import Components.UaDropdownMultiSelect as UaDropdown exposing (State)
+import Components.UaDropdownMultiSelect as UaDropdownMS exposing (State)
 
 
 type alias RowID =
@@ -28,9 +28,10 @@ type alias State =
     , page : Int
     , byPage : Int
     , search : String
-    , ddPagination : UaDropdown.State
-    , ddColumns : UaDropdown.State
-    , ddSubColumns : UaDropdown.State
+    , ddPagination : UaDropdownMS.State
+    , ddColumns : UaDropdownMS.State
+    , ddSubColumns : UaDropdownMS.State
+    , head : Maybe Int -- Alternative to pagination. - Cut off and only display the first N items.
     , table : StateTable
     , subtable : StateTable
     }

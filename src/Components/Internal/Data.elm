@@ -1,8 +1,8 @@
 module Components.Internal.Data exposing (..)
 
 import Components.Internal.State exposing (Pagination, RowID, State)
-import Monocle.Lens exposing (Lens)
 import Components.Table.Types exposing (..)
+import Monocle.Lens exposing (Lens)
 
 
 type alias Statable p =
@@ -37,6 +37,11 @@ get (Model model) =
 
         _ ->
             []
+
+
+withHead : Maybe Int -> Model a -> Model a
+withHead n (Model { state, rows }) =
+    Model { state = { state | head = n }, rows = rows }
 
 
 loaded : Model a -> List a -> Int -> Model a

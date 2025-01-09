@@ -4,6 +4,7 @@ import Components.Clipboard as Clipboard
 import Components.Table as Table
 import Components.Table.Column as Column
 import Components.Table.Config as Config
+import Components.UaDropdown as UaDropdown
 import Css
 import FontAwesome.Solid as Icon
 import Html.Styled exposing (..)
@@ -16,7 +17,6 @@ import Tailwind.Utilities as Tw
 import Task
 import TwUtil
 import Util exposing (..)
-import Components.Clipboard as Clipboard
 
 
 
@@ -28,12 +28,14 @@ init =
     { table = Table.init config
     , toolbarState =
         { copyAllState = Clipboard.Idle
+        , ddLimit = UaDropdown.init [ "10", "20", "50", "All" ] "All"
         }
     }
 
 
 type alias ToolbarState =
     { copyAllState : Clipboard.ViewState
+    , ddLimit : UaDropdown.State String
     }
 
 
@@ -52,7 +54,9 @@ config =
         |> Config.withRowClickHandler OnRowClick
         |> Config.withToolbar
             [ copyAllButton
+            , limitRowsDropdown
             ]
+
 
 
 -- PORTS
@@ -100,6 +104,7 @@ type Msg
     = OnTable TableModel
     | OnData (Result Error String)
     | OnRowClick UserAgent
+    | DdLimitMsg (UaDropdown.Msg String)
     | RecvUserAgentBatch String
     | ClipboardMsg (Clipboard.Msg TableModel)
     | ClipboardRowMsg (Clipboard.Msg UserAgent)
@@ -111,6 +116,7 @@ fetchData =
         { url = "data/data.txt"
         , expect = Http.expectString OnData
         }
+
 
 
 -- run : msg -> Cmd msg
@@ -149,10 +155,39 @@ update msg model =
 
         OnRowClick rec ->
             let
-                _ = Debug.log "onrowclick" rec.ua
-                (_, cmd) = Clipboard.update "recvCopyRowStatus" (Clipboard.CopyAction .ua) rec Clipboard.Idle
+                _ =
+                    Debug.log "onrowclick" rec.ua
+
+                ( _, cmd ) =
+                    Clipboard.update "recvCopyRowStatus" (Clipboard.CopyAction .ua) rec Clipboard.Idle
             in
             ( model, Cmd.map ClipboardRowMsg cmd )
+
+        DdLimitMsg (UaDropdown.MsgSelectItem x) ->
+            let
+                toolbarState =
+                    model.toolbarState
+
+                ddLimit =
+                    UaDropdown.select x toolbarState.ddLimit
+
+                model2 =
+                    model |> withToolbarState { toolbarState | ddLimit = ddLimit }
+
+                table2 =
+                    model2.table |> Table.withHead (String.toInt x)
+            in
+            ( { model2 | table = table2 }, Cmd.none )
+
+        DdLimitMsg (UaDropdown.MsgToggle on) ->
+            let
+                toolbarState =
+                    model.toolbarState
+
+                ddLimit =
+                    UaDropdown.toggle on toolbarState.ddLimit
+            in
+            ( model |> withToolbarState { toolbarState | ddLimit = ddLimit }, Cmd.none )
 
         RecvUserAgentBatch val ->
             let
@@ -163,21 +198,30 @@ update msg model =
 
         ClipboardMsg m ->
             let
-                _ = Debug.log "called" "ClipboardMsg"
+                _ =
+                    Debug.log "called" "ClipboardMsg"
+
                 ( state, cmd ) =
                     Clipboard.update "recvCopyAllStatus" m model.table model.toolbarState.copyAllState
 
                 toolbarState =
                     model.toolbarState
-
-                newToolbarState =
-                    { toolbarState | copyAllState = state }
             in
-            ( { model | toolbarState = newToolbarState }, Cmd.map ClipboardMsg cmd )
-    
+            ( model |> withToolbarState { toolbarState | copyAllState = state }
+            , Cmd.map ClipboardMsg cmd
+            )
+
         ClipboardRowMsg _ ->
-            let _ = Debug.log "called" "ClipboardRowMsg" in
+            let
+                _ =
+                    Debug.log "called" "ClipboardRowMsg"
+            in
             ( model, Cmd.none )
+
+
+withToolbarState : ToolbarState -> Model -> Model
+withToolbarState st m =
+    { m | toolbarState = st }
 
 
 appendRowsToModel : Result error (List UserAgent) -> Model -> Model
@@ -202,21 +246,39 @@ appendRowsToModel x model =
 
 
 port recvCopyAllStatus : (Bool -> msg) -> Sub msg
+
+
 port recvCopyRowStatus : (Bool -> msg) -> Sub msg
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Table.subscriptions config model.table
         , recvUserAgentBatch RecvUserAgentBatch
+
         -- , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
         , recvCopyAllStatus (ClipboardMsg << Clipboard.CopyStatus)
         , recvCopyRowStatus (ClipboardRowMsg << Clipboard.CopyStatus)
         ]
 
+
 view : Model -> Html Msg
 view model =
     Table.view config model.toolbarState model.table
+
+
+
+limitRowsDropdown : ToolbarState -> Html Msg
+limitRowsDropdown { ddLimit } =
+    UaDropdown.view
+        { render = \s -> text s
+        , onSelect = DdLimitMsg << UaDropdown.MsgSelectItem
+        , onToggle = DdLimitMsg << UaDropdown.MsgToggle
+        , icon = TwUtil.icon Icon.hashtag
+        , align = TwUtil.Right
+        }
+        ddLimit
 
 
 copyAllButton : ToolbarState -> Html Msg
