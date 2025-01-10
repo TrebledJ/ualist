@@ -29,7 +29,7 @@ uaDataFile =
 
 init : Model
 init =
-    { table = Table.init config
+    { table = Table.init config |> Table.withStatus "Load / Generate Data"
     , toolbarState =
         { copyAllState = Clipboard.Idle
         }

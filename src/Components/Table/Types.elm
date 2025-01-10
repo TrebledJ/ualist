@@ -69,6 +69,6 @@ type Sort
 {-| Data loading status.
 -}
 type Status a
-    = Loading
-    | Loaded a
+    = Loaded a
+    | Status String
     | Failed String

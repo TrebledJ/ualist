@@ -1,5 +1,5 @@
 module Components.Table exposing
-    ( Model, Row, Rows, RowID, get, getFiltered, init, loaded, loadedDynamic, loadedStatic, loading, failed
+    ( Model, Row, Rows, RowID, get, getFiltered, init, loaded, loadedDynamic, loadedStatic, withStatus, failed
     , Pipe, State, Pagination, pagination, selected, subSelected
     , Config, Column, static, dynamic
     , view, subscriptions
@@ -143,11 +143,11 @@ loadedStatic rows model =
     Components.Internal.Data.loaded model rows (List.length rows)
 
 
-{-| Data loading is in progress.
+{-| Display a status.
 -}
-loading : Model a -> Model a
-loading =
-    Components.Internal.Data.loading
+withStatus : String -> Model a -> Model a
+withStatus =
+    Components.Internal.Data.withStatus
 
 
 {-| Data loading has failed.

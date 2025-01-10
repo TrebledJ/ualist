@@ -44,9 +44,9 @@ loaded (Model model) rows n =
     Model { model | rows = Rows <| Loaded { total = n, rows = List.map Row rows } }
 
 
-loading : Model a -> Model a
-loading (Model model) =
-    Model { model | rows = Rows <| Loading }
+withStatus : String -> Model a -> Model a
+withStatus msg (Model model) =
+    Model { model | rows = Rows <| Status msg }
 
 
 failed : Model a -> String -> Model a

@@ -85,7 +85,7 @@ init (Config cfg) =
             , table = StateTable {- visibleColumns -} [] [] []
             , subtable = StateTable {- visibleSubColumns -} [] [] []
             }
-        , rows = Rows Loading
+        , rows = Rows (Status "")
         }
 
 
@@ -118,9 +118,9 @@ view config toolbarState ((Model m) as model) =
     in
     div [ css [] ] <|
         case m.rows of
-            Rows Loading ->
+            Rows (Status msg) ->
                 [ tableHeader config toolbarState pipeExt pipeInt m.state
-                , bigText "Loading..."
+                , bigText msg
                 ]
 
             Rows (Loaded { total, rows }) ->
