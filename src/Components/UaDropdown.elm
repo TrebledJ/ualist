@@ -1,4 +1,4 @@
-module Components.UaDropdown exposing (..)
+module Components.UaDropdown exposing (init, toggle, select, State, ViewOptions, view)
 
 import Components.Dropdown as Dropdown exposing (dropdown)
 import Css
@@ -24,29 +24,6 @@ type alias State a =
     , isOpen : Dropdown.State
     }
 
-
-
--- nth : Int -> List a -> Maybe a
--- nth n xs =
---     xs |> List.drop n |> List.head
--- zip : List a -> List b -> List ( a, b )
--- zip =
---     List.map2 Tuple.pair
-
-
-type Msg a
-    = MsgToggle Bool
-    | MsgSelectItem a
-
-
--- update : Msg a -> State a -> State a
--- update msg st =
---     case msg of
---         MsgToggle on ->
---             { st | isOpen = on }
-
---         MsgSelectItem x ->
---             { st | selected = x }
 
 toggle : Bool -> State a -> State a
 toggle on st = { st | isOpen = on }
@@ -114,7 +91,7 @@ type alias HtmlBuilder msg =
 
 
 dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> TwUtil.Align -> (a -> Html msg) -> (a -> msg) -> List a -> a -> Html msg
-dropdownMenu toDrawer align render fClick items selected =
+dropdownMenu toDrawer align render fSelect items selected =
     toDrawer div
         [ css <|
             [ Tw.absolute
@@ -128,18 +105,18 @@ dropdownMenu toDrawer align render fClick items selected =
                 ++ TwUtil.border
                 ++ TwUtil.fix_left_right align
         ]
-        (items |> List.map (dropdownItem render fClick selected))
+        (items |> List.map (dropdownItem render fSelect selected))
 
 
 dropdownItem : (a -> Html msg) -> (a -> msg) -> a -> a -> Html msg
-dropdownItem render clickMsg selected obj =
+dropdownItem render fSelect selected obj =
     div
         [ css
             [ Tw.relative
             , Tw.cursor_pointer
             , Css.hover [ Tw.bg_color Tw.gray_100 ]
             ]
-        , onClick (clickMsg obj)
+        , onClick (fSelect obj)
         ]
         [ div
             [ css

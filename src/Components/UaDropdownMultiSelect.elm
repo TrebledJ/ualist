@@ -1,4 +1,4 @@
-module Components.UaDropdownMultiSelect exposing (State, clickDropdown, getSelected, init, init2, toggleDropdown, view)
+module Components.UaDropdownMultiSelect exposing (State, select, getSelected, init, init2, toggle, view)
 
 import Components.Dropdown as Dropdown exposing (dropdown)
 import Css
@@ -53,13 +53,13 @@ getSelected st =
             )
 
 
-toggleDropdown : Bool -> State -> State
-toggleDropdown new st =
+toggle : Bool -> State -> State
+toggle new st =
     { st | isOpen = new }
 
 
-clickDropdown : Int -> State -> State
-clickDropdown idx st =
+select : Int -> State -> State
+select idx st =
     let
         isSelected =
             st.selecteds |> nth idx
@@ -78,20 +78,19 @@ clickDropdown idx st =
             { st | selecteds = front ++ not x :: back }
 
 
-
--- update : Msg -> State -> State
--- update msg model =
---     case msg of
---         ToggleDropdown newState ->
---             { model | myDropdownIsOpen = newState }
---         Clicked idx ->
-
+type alias ViewOptions msg =
+    { identifier : String -- An unique identifier to handle focusing mechanics.
+    , onSelect : Int -> msg -- What message to fire when an item is selected.
+    , onToggle : Bool -> msg -- What message to fire when an item is toggled.
+    , icon : Html msg -- An icon to display on the button.
+    , align : TwUtil.Align -- Whether the dropdown menu is aligned left or right.
+    }
 
 view :
-    { identifier : String, onClick : Int -> msg, onToggle : Bool -> msg, icon : Html msg, align : TwUtil.Align }
+    ViewOptions msg
     -> State
     -> Html msg
-view { identifier, onClick, onToggle, icon, align } { items, selecteds, isOpen } =
+view { identifier, onSelect, onToggle, icon, align } { items, selecteds, isOpen } =
     dropdown
         { identifier = identifier
         , toggleEvent = Dropdown.OnClick
@@ -102,7 +101,7 @@ view { identifier, onClick, onToggle, icon, align } { items, selecteds, isOpen }
                 toDropdown div
                     []
                     [ dropdownToggle toToggle icon
-                    , dropdownMenu toDrawer align onClick items selecteds
+                    , dropdownMenu toDrawer align onSelect items selecteds
                     ]
         , isToggled = isOpen
         }
@@ -136,7 +135,7 @@ type alias HtmlBuilder msg =
 
 
 dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> TwUtil.Align -> (Int -> msg) -> List String -> List Bool -> Html msg
-dropdownMenu toDrawer align onClick items selected =
+dropdownMenu toDrawer align fSelect items selected =
     toDrawer div
         [ css <|
             [ Tw.absolute
@@ -150,12 +149,12 @@ dropdownMenu toDrawer align onClick items selected =
                 ++ TwUtil.border
                 ++ TwUtil.fix_left_right align
         ]
-        (items |> zip selected |> List.indexedMap (dropdownItem onClick))
+        (items |> zip selected |> List.indexedMap (dropdownItem fSelect))
 
 
 dropdownItem : (Int -> msg) -> Int -> ( Bool, String ) -> Html msg
-dropdownItem clickMsg idx ( selected, str ) =
-    a
+dropdownItem fSelect idx ( selected, str ) =
+    div
         [ css
             [ Tw.inline_block
             , Tw.box_border
@@ -168,7 +167,7 @@ dropdownItem clickMsg idx ( selected, str ) =
             , Tw.cursor_pointer
             , Css.hover [ Tw.bg_color Tw.gray_100 ]
             ]
-        , onClick (clickMsg idx)
+        , onClick (fSelect idx)
         ]
         [ text str
         , input

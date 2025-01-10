@@ -25,10 +25,10 @@ update : Msg -> State -> State
 update msg st =
     case msg of
         ToggleDropdown new ->
-            toggleDropdown new st
+            toggle new st
 
         Clicked idx ->
-            clickDropdown idx st
+            select idx st
 
 
 main =

@@ -53,8 +53,8 @@ toolbarMenuColumns : List (Column a msg) -> Pipe msg -> State -> Html msg
 toolbarMenuColumns columns pipeInt state =
     UaDropdownMS.view
         { identifier = "dd-column"
-        , onClick = \idx -> pipeInt <| \s -> { s | ddColumns = UaDropdownMS.clickDropdown idx s.ddColumns }
-        , onToggle = \on -> pipeInt <| \s -> { s | ddColumns = UaDropdownMS.toggleDropdown on s.ddColumns }
+        , onSelect = \idx -> pipeInt <| \s -> { s | ddColumns = UaDropdownMS.select idx s.ddColumns }
+        , onToggle = \on -> pipeInt <| \s -> { s | ddColumns = UaDropdownMS.toggle on s.ddColumns }
         , icon = TwUtil.icon Icon.tableColumns
         , align = TwUtil.Right
         }
@@ -67,8 +67,8 @@ toolbarMenuSubColumns columns pipeInt state =
     UaDropdownMS.view
         -- "Columns of subtable"
         { identifier = "dd-subcolumn"
-        , onClick = \idx -> pipeInt <| \s -> { s | ddSubColumns = UaDropdownMS.clickDropdown idx s.ddSubColumns }
-        , onToggle = \on -> pipeInt <| \s -> { s | ddSubColumns = UaDropdownMS.toggleDropdown on s.ddSubColumns }
+        , onSelect = \idx -> pipeInt <| \s -> { s | ddSubColumns = UaDropdownMS.select idx s.ddSubColumns }
+        , onToggle = \on -> pipeInt <| \s -> { s | ddSubColumns = UaDropdownMS.toggle on s.ddSubColumns }
         , icon = TwUtil.icon Icon.tableColumns
         , align = TwUtil.Right
         }
