@@ -62,16 +62,16 @@ init (Config cfg) =
         ( colNames, colSelecteds ) =
             cfg.table.columns |> List.map fnNameSelected |> List.unzip
 
-        (ddPaginationOptions, ddPaginationInitial) =
+        ( ddPaginationOptions, ddPaginationInitial ) =
             case cfg.pagination of
                 ByPage { capabilities, initial } ->
-                    (capabilities |> List.map String.fromInt, String.fromInt initial)
+                    ( capabilities |> List.map String.fromInt, String.fromInt initial )
 
                 Limit { capabilities, initial } ->
-                    (capabilities, initial)
+                    ( capabilities, initial )
 
                 _ ->
-                    ([], "")
+                    ( [], "" )
     in
     Model
         { state =
@@ -79,7 +79,7 @@ init (Config cfg) =
             , order = Ascending
             , page = 0
             , search = ""
-            , ddPagination = UaDropdown.init ddPaginationOptions ddPaginationInitial 
+            , ddPagination = UaDropdown.init ddPaginationOptions ddPaginationInitial
             , ddColumns = UaDropdownMS.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
             , ddSubColumns = UaDropdownMS.init visibleSubColumns -- TODO: same as column
             , table = StateTable {- visibleColumns -} [] [] []
@@ -111,13 +111,16 @@ view config toolbarState ((Model m) as model) =
 
         pipeExt =
             pipeExternal config model
+
+        bigText str =
+            div [ css [ Tw.flex, Tw.justify_center, Tw.items_center, Tw.h_32 ] ]
+                [ span [ css [ Tw.text_2xl ] ] [ text str ] ]
     in
     div [ css [] ] <|
         case m.rows of
             Rows Loading ->
                 [ tableHeader config toolbarState pipeExt pipeInt m.state
-                , div [ css [ Tw.flex, Tw.justify_center, Tw.items_center, Tw.h_32 ] ]
-                    [ span [ css [ Tw.text_2xl ] ] [ text "Loading..." ] ]
+                , bigText "Loading..."
                 ]
 
             Rows (Loaded { total, rows }) ->
@@ -127,7 +130,9 @@ view config toolbarState ((Model m) as model) =
                 ]
 
             Rows (Failed msg) ->
-                [ tableHeader config toolbarState pipeExt pipeInt m.state, errorView msg ]
+                [ tableHeader config toolbarState pipeExt pipeInt m.state
+                , bigText msg
+                ]
 
 
 
@@ -212,7 +217,7 @@ headerSearch pipeExt pipeInt =
 
 filterRows : Config a b tbstate msg -> State -> List (Row a) -> List (Row a)
 filterRows ((Config cfg) as config) state rows =
-    let 
+    let
         -- sort by columns
         srows =
             iff (cfg.type_ == Static) (sort cfg.table.columns state rows) rows
@@ -248,12 +253,14 @@ filterRows ((Config cfg) as config) state rows =
                     |> Array.fromList
                     |> Array.slice (pg * count) ((pg + 1) * count)
                     |> Array.toList
-        
-        ipp = getItemsPerPage state
-            
+
+        ipp =
+            getItemsPerPage state
+
         prows =
             iff (cfg.type_ == Static && cfg.pagination /= None && ipp /= 0) (cut frows state.page ipp) frows
-        in prows
+    in
+    prows
 
 
 tableContent : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
@@ -284,7 +291,8 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
                 |> prependMaybe expandColumn
                 |> prependMaybe selectColumn
 
-        prows = filterRows config state rows
+        prows =
+            filterRows config state rows
     in
     div []
         [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.border_collapse ] ]
@@ -504,9 +512,14 @@ subtableContentBodyRow pipeExt cfg columns state (Row r) =
 tableFooter : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> Int -> Html msg
 tableFooter (Config cfg) pipeExt pipeInt state total =
     case cfg.pagination of
-        None -> text ""
-        Limit _ -> text ""
-        _ -> tableFooterContent cfg.type_ pipeInt pipeExt (getItemsPerPage state) state.page total
+        None ->
+            text ""
+
+        Limit _ ->
+            text ""
+
+        _ ->
+            tableFooterContent cfg.type_ pipeInt pipeExt (getItemsPerPage state) state.page total
 
 
 

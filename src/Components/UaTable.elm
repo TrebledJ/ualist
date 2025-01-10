@@ -22,6 +22,11 @@ import Util exposing (..)
 -- INIT
 
 
+uaDataFile : String
+uaDataFile =
+    "data/data.txt"
+
+
 init : Model
 init =
     { table = Table.init config
@@ -51,7 +56,8 @@ config =
         |> Config.withRowClickHandler OnRowClick
         |> Config.withRowLimits [ "10", "20", "50", "All" ] "All"
         |> Config.withToolbar
-            [ copyAllButton
+            [ fetchUaButton
+            , copyAllButton
             ]
 
 
@@ -59,13 +65,19 @@ config =
 -- PORTS
 
 
-port fetchUserAgent : String -> Cmd msg
+port jsAnalyse : String -> Cmd msg
 
 
-port fetchUserAgentBatch : List String -> Cmd msg
+port jsAnalyseUserAgentBatch : List String -> Cmd msg
 
 
 port recvUserAgentBatch : (String -> msg) -> Sub msg
+
+
+port recvCopyAllStatus : (Bool -> msg) -> Sub msg
+
+
+port recvCopyRowStatus : (Bool -> msg) -> Sub msg
 
 
 type alias TableModel =
@@ -99,19 +111,12 @@ uaDecoder =
 
 type Msg
     = OnTable TableModel
-    | OnData (Result Error String)
     | OnRowClick UserAgent
     | RecvUserAgentBatch String
+    | OnFetchUserAgentsClicked
+    | OnFetchUserAgentsCompleted (Result Error String)
     | ClipboardMsg (Clipboard.Msg TableModel)
     | ClipboardRowMsg (Clipboard.Msg UserAgent)
-
-
-fetchData : Cmd Msg
-fetchData =
-    Http.get
-        { url = "data/data.txt"
-        , expect = Http.expectString OnData
-        }
 
 
 
@@ -127,33 +132,8 @@ update msg model =
             -- Set model to whatever is passed in parameter.
             ( { model | table = m }, Cmd.none )
 
-        -- let
-        --     p =
-        --         Table.pagination m
-        -- in
-        -- ( m, get 1 )
-        -- OnTableInternal m ->
-        --     let _ = Debug.log "OnTableInternal" "" in
-        --     ( m, Cmd.none )
-        OnData (Ok res) ->
-            let
-                lines =
-                    String.split "\n" res
-            in
-            ( model, fetchUserAgentBatch lines )
-
-        OnData (Err e) ->
-            let
-                _ =
-                    Debug.log "fetch error" e
-            in
-            ( model, Cmd.none )
-
         OnRowClick rec ->
             let
-                _ =
-                    Debug.log "onrowclick" rec.ua
-
                 ( _, cmd ) =
                     Clipboard.update "recvCopyRowStatus" (Clipboard.CopyAction .ua) rec Clipboard.Idle
             in
@@ -164,7 +144,25 @@ update msg model =
                 decoded =
                     Decode.decodeString (Decode.list uaDecoder) val
             in
-            ( appendRowsToModel decoded model, Cmd.none )
+            ( setRowsToModel decoded model, Cmd.none )
+
+        OnFetchUserAgentsClicked ->
+            ( model
+            , Http.get
+                { url = uaDataFile
+                , expect = Http.expectString OnFetchUserAgentsCompleted
+                }
+            )
+
+        OnFetchUserAgentsCompleted (Ok res) ->
+            let
+                lines =
+                    String.split "\n" res
+            in
+            ( model, jsAnalyseUserAgentBatch lines )
+
+        OnFetchUserAgentsCompleted (Err e) ->
+            ( {model | table = Table.failed model.table <| errorToString e }, Cmd.none )
 
         ClipboardMsg m ->
             let
@@ -214,11 +212,18 @@ appendRowsToModel x model =
             in
             model
 
+setRowsToModel : Result error (List UserAgent) -> Model -> Model
+setRowsToModel x model =
+    case x of
+        Ok rows ->
+            { model | table = model.table |> Table.loadedStatic rows }
 
-port recvCopyAllStatus : (Bool -> msg) -> Sub msg
-
-
-port recvCopyRowStatus : (Bool -> msg) -> Sub msg
+        Err err ->
+            let
+                _ =
+                    Debug.log "failed to get rows" err
+            in
+            model
 
 
 subscriptions : Model -> Sub Msg
@@ -236,6 +241,28 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     Table.view config model.toolbarState model.table
+
+
+fetchUaButton : ToolbarState -> Html Msg
+fetchUaButton _ =
+    button
+        [ onClick <| OnFetchUserAgentsClicked
+        , css <|
+            [ Tw.flex
+            , Tw.justify_center
+            , Tw.items_center
+            , Tw.w_10
+            , Tw.h_10
+            , Tw.cursor_pointer
+            , Tw.bg_color Tw.white
+            , Css.hover
+                [ Tw.bg_color Tw.gray_100
+                ]
+            ]
+                ++ TwUtil.border
+        ]
+        [ TwUtil.icon <| Icon.cloudArrowDown
+        ]
 
 
 copyAllButton : ToolbarState -> Html Msg

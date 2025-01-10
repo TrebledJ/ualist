@@ -49,7 +49,7 @@ init _ =
       , filterLimit = 10
       , tableModel = UaTable.init
       }
-    , Cmd.batch [ UaTable.fetchData |> Cmd.map TableMsg ]
+    , Cmd.batch []
     )
 
 

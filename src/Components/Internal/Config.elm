@@ -32,7 +32,7 @@ type alias ConfigInternal a b tbstate msg =
     , table : ConfTable a msg
     , pagination : Pagination
     , subtable : Maybe (SubTable a b msg)
-    , errorView : String -> Html msg
+    -- , errorView : String -> Html msg
     , toolbar : List (tbstate -> Html msg)
     , stickyHeader : Bool
     }
@@ -56,7 +56,7 @@ config t s oe oi c =
         , table = c
         , pagination = None
         , subtable = Nothing
-        , errorView = errorView
+        -- , errorView = errorView
         , toolbar = []
         , stickyHeader = False
         }
@@ -73,7 +73,7 @@ static onChange getID columns =
         , table = ConfTable columns getID Nothing
         , pagination = None
         , subtable = Nothing
-        , errorView = errorView
+        -- , errorView = errorView
         , toolbar = []
         , stickyHeader = False
         }
@@ -90,7 +90,7 @@ dynamic onChangeExt onChangeInt getID columns =
         , table = ConfTable columns getID Nothing
         , pagination = None
         , subtable = Nothing
-        , errorView = errorView
+        -- , errorView = errorView
         , toolbar = []
         , stickyHeader = False
         }
@@ -154,9 +154,9 @@ withToolbar t (Config c) =
     Config { c | toolbar = t }
 
 
-withErrorView : (String -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
-withErrorView t (Config c) =
-    Config { c | errorView = t }
+-- withErrorView : (String -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
+-- withErrorView t (Config c) =
+--     Config { c | errorView = t }
 
 
 withSubtable :
@@ -176,7 +176,7 @@ withSubtable getValues getID columns expand (Config c) =
         , table = c.table
         , pagination = c.pagination
         , subtable = Just <| SubTable getValues { columns = columns, getID = getID, expand = expand }
-        , errorView = c.errorView
+        -- , errorView = c.errorView
         , toolbar = c.toolbar
         , stickyHeader = False
         }
@@ -187,9 +187,9 @@ withStickyHeader (Config c) = Config { c | stickyHeader = True }
 withRowClickHandler : (a -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withRowClickHandler h (Config c) = Config { c | onRowClick = Just h }
 
-errorView : String -> Html msg
-errorView msg =
-    div [ class "table-data-error" ] [ text msg ]
+-- errorView : String -> Html msg
+-- errorView msg =
+--     div [ class "table-data-error" ] [ text msg ]
 
 
 pipeInternal : Config a b tbstate msg -> Model a -> Pipe msg

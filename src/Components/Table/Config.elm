@@ -4,7 +4,7 @@ module Components.Table.Config exposing
     , withExpand, withSelection, withSelectionFree, withSelectionLinked
     , withSelectionLinkedStrict, withSelectionExclusive
     , withSelectionExclusiveStrict, withPagination, withRowLimits, withProgressiveLoading
-    , withToolbar, withErrorView, withSubtable
+    , withToolbar, {- withErrorView, -} withSubtable
     , withStickyHeader, withRowClickHandler
     )
 
@@ -133,11 +133,11 @@ withToolbar =
     Components.Internal.Config.withToolbar
 
 
-{-| Define a specific error message.
--}
-withErrorView : (String -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
-withErrorView =
-    Components.Internal.Config.withErrorView
+-- {-| Define a specific error message.
+-- -}
+-- withErrorView : (String -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
+-- withErrorView =
+--     Components.Internal.Config.withErrorView
 
 
 {-| Define a subtable.

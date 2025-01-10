@@ -6,6 +6,7 @@ Find and retrieve lists of user agents.
 
 - [feat] [func] randomise UAs
 - [feat] [func] Case insensitive search
+- [feat] [ui] tooltips for buttons and toolbars
 - [feat] [func] better search filters, and search by column
 - [feat] [ui] indicator for copied row (animate row? tooltip? (slow, with many OnMouseEnter events))
 - [code] unify button component + css

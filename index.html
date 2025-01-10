@@ -50,12 +50,12 @@
             return uas.map(processUserAgent);
         }
 
-        app.ports.fetchUserAgent && app.ports.fetchUserAgent.subscribe(function (ua) {
+        app.ports.jsAnalyseUserAgent && app.ports.jsAnalyseUserAgent.subscribe(function (ua) {
             const data = processUserAgent(ua);
             app.ports.recvUserAgentBatch.send(JSON.stringify([data]));
         });
 
-        app.ports.fetchUserAgentBatch && app.ports.fetchUserAgentBatch.subscribe(function (ua) {
+        app.ports.jsAnalyseUserAgentBatch && app.ports.jsAnalyseUserAgentBatch.subscribe(function (ua) {
             const data = processUserAgentBatch(ua);
             app.ports.recvUserAgentBatch.send(JSON.stringify(data));
         });
