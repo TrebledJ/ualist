@@ -20,6 +20,7 @@ import Components.Internal.State exposing (..)
 import Components.Internal.Toolbar
 import Components.Internal.Util exposing (..)
 import Components.Table.Types exposing (..)
+import Components.UaDropdown as UaDropdown
 import Components.UaDropdownMultiSelect as UaDropdownMS
 import Css
 import FontAwesome as Icon
@@ -61,34 +62,26 @@ init (Config cfg) =
         ( colNames, colSelecteds ) =
             cfg.table.columns |> List.map fnNameSelected |> List.unzip
 
-        ddPaginationInitState =
+        (ddPaginationOptions, ddPaginationInitial) =
             case cfg.pagination of
-                ByPage { capabilities } ->
-                    capabilities |> List.map String.fromInt
+                ByPage { capabilities, initial } ->
+                    (capabilities |> List.map String.fromInt, String.fromInt initial)
+
+                Limit { capabilities, initial } ->
+                    (capabilities, initial)
 
                 _ ->
-                    []
+                    ([], "")
     in
     Model
         { state =
             { orderBy = Nothing
             , order = Ascending
             , page = 0
-            , byPage =
-                case cfg.pagination of
-                    ByPage { initial } ->
-                        initial
-
-                    Progressive { initial } ->
-                        initial
-
-                    _ ->
-                        0
             , search = ""
-            , ddPagination = UaDropdownMS.init ddPaginationInitState
+            , ddPagination = UaDropdown.init ddPaginationOptions ddPaginationInitial 
             , ddColumns = UaDropdownMS.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
             , ddSubColumns = UaDropdownMS.init visibleSubColumns -- TODO: same as column
-            , head = Nothing
             , table = StateTable {- visibleColumns -} [] [] []
             , subtable = StateTable {- visibleSubColumns -} [] [] []
             }
@@ -97,41 +90,10 @@ init (Config cfg) =
 
 
 getFiltered : Config a b tbstate msg -> Model a -> List a
-getFiltered (Config cfg) (Model model) =
-    case model.rows of
-        Rows (Loaded { rows }) ->
-            let
-                state =
-                    model.state
-
-                -- sort by columns
-                srows =
-                    iff (cfg.type_ == Static) (sort cfg.table.columns state rows) rows
-
-                filter =
-                    \rs ->
-                        iff (String.isEmpty state.search)
-                            rs
-                            (List.filter
-                                (\(Row a) ->
-                                    List.any
-                                        (\(Column c) ->
-                                            case c.searchable of
-                                                Nothing ->
-                                                    False
-
-                                                Just fn ->
-                                                    String.contains state.search (fn a)
-                                        )
-                                        cfg.table.columns
-                                )
-                                rows
-                            )
-
-                frows =
-                    iff (cfg.type_ == Static) (filter srows) srows
-            in
-            frows |> List.map (\(Row x) -> x)
+getFiltered config (Model { state, rows }) =
+    case rows of
+        Rows (Loaded lrows) ->
+            filterRows config state lrows.rows |> List.map (\(Row x) -> x)
 
         _ ->
             []
@@ -248,34 +210,9 @@ headerSearch pipeExt pipeInt =
 -- Content
 
 
-tableContent : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
-tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
-    let
-        expandColumn =
-            ifMaybe (cfg.table.expand /= Nothing) (expand pipeInt lensTable cfg.table.getID)
-
-        subtableColumn =
-            case cfg.subtable of
-                Just (SubTable get _) ->
-                    Just <| subtable (get >> List.isEmpty) pipeInt lensTable cfg.table.getID
-
-                _ ->
-                    Nothing
-
-        selectColumn =
-            ifMaybe (cfg.selection /= Disable) (selectionParent pipeInt config rows)
-
-        visibleColumns =
-            List.filter
-                (\(Column c) -> List.member c.name <| UaDropdownMS.getSelected state.ddColumns)
-                cfg.table.columns
-
-        columns =
-            visibleColumns
-                |> prependMaybe subtableColumn
-                |> prependMaybe expandColumn
-                |> prependMaybe selectColumn
-
+filterRows : Config a b tbstate msg -> State -> List (Row a) -> List (Row a)
+filterRows ((Config cfg) as config) state rows =
+    let 
         -- sort by columns
         srows =
             iff (cfg.type_ == Static) (sort cfg.table.columns state rows) rows
@@ -311,14 +248,43 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
                     |> Array.fromList
                     |> Array.slice (pg * count) ((pg + 1) * count)
                     |> Array.toList
-
         
-
+        ipp = getItemsPerPage state
+            
         prows =
-            iff (cfg.type_ == Static && cfg.pagination /= None) (cut frows state.page state.byPage) <|
-                case state.head of
-                    Just head -> cut frows 0 head
-                    Nothing -> frows
+            iff (cfg.type_ == Static && cfg.pagination /= None && ipp /= 0) (cut frows state.page ipp) frows
+        in prows
+
+
+tableContent : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
+tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
+    let
+        expandColumn =
+            ifMaybe (cfg.table.expand /= Nothing) (expand pipeInt lensTable cfg.table.getID)
+
+        subtableColumn =
+            case cfg.subtable of
+                Just (SubTable get _) ->
+                    Just <| subtable (get >> List.isEmpty) pipeInt lensTable cfg.table.getID
+
+                _ ->
+                    Nothing
+
+        selectColumn =
+            ifMaybe (cfg.selection /= Disable) (selectionParent pipeInt config rows)
+
+        visibleColumns =
+            List.filter
+                (\(Column c) -> List.member c.name <| UaDropdownMS.getSelected state.ddColumns)
+                cfg.table.columns
+
+        columns =
+            visibleColumns
+                |> prependMaybe subtableColumn
+                |> prependMaybe expandColumn
+                |> prependMaybe selectColumn
+
+        prows = filterRows config state rows
     in
     div []
         [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.border_collapse ] ]
@@ -537,11 +503,10 @@ subtableContentBodyRow pipeExt cfg columns state (Row r) =
 
 tableFooter : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> Int -> Html msg
 tableFooter (Config cfg) pipeExt pipeInt state total =
-    if cfg.pagination == None then
-        text ""
-
-    else
-        tableFooterContent cfg.type_ pipeInt pipeExt state.byPage state.page total
+    case cfg.pagination of
+        None -> text ""
+        Limit _ -> text ""
+        _ -> tableFooterContent cfg.type_ pipeInt pipeExt (getItemsPerPage state) state.page total
 
 
 

@@ -2,6 +2,7 @@ module Components.Internal.State exposing (..)
 
 import Monocle.Lens exposing (Lens, compose)
 import Components.Table.Types exposing (Sort(..))
+import Components.UaDropdown as UaDropdown exposing (State)
 import Components.UaDropdownMultiSelect as UaDropdownMS exposing (State)
 
 
@@ -26,12 +27,10 @@ type alias State =
     { orderBy : Maybe String
     , order : Sort
     , page : Int
-    , byPage : Int
     , search : String
-    , ddPagination : UaDropdownMS.State
+    , ddPagination : UaDropdown.State String
     , ddColumns : UaDropdownMS.State
     , ddSubColumns : UaDropdownMS.State
-    , head : Maybe Int -- Alternative to pagination. - Cut off and only display the first N items.
     , table : StateTable
     , subtable : StateTable
     }
@@ -89,4 +88,7 @@ pagination state =
         (Maybe.withDefault "" state.orderBy)
         state.order
         state.page
-        state.byPage
+        (getItemsPerPage state)
+
+getItemsPerPage : State -> Int
+getItemsPerPage state = Maybe.withDefault 0 <| String.toInt state.ddPagination.selected

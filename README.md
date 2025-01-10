@@ -3,12 +3,13 @@ Find and retrieve lists of user agents.
 
 ## TODO
 
-- Case insensitive search
-- unify button component + css
-- indicator for copied row (animate row? tooltip? (slow, with many OnMouseEnter events))
-- Fancy (switchable?) theme
-- Limit number of UAs shown
-- Elm optimisations
-- Filter to generate
+- [code] unify button component + css
+- [feat] [ui] indicator for copied row (animate row? tooltip? (slow, with many OnMouseEnter events))
+- [feat] Case insensitive search
+- [feat] [func] randomise UAs
+- [feat] [func] better search filters, and search by column
+- [ui] Fancy (switchable?) theme
+- [code] [perf] Elm optimisations
+- Filters to generate UAs
 - Generator
-- efficient table rendering and scrolling for large datasets
+- [perf] efficient table rendering and scrolling for large datasets

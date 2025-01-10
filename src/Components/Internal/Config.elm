@@ -11,6 +11,7 @@ import Components.Table.Types exposing (..)
 type Pagination
     = ByPage { capabilities : List Int, initial : Int }
     | Progressive { initial : Int, step : Int } -- TODO: no implemented
+    | Limit { capabilities : List String, initial : String }
     | None
 
 
@@ -137,6 +138,10 @@ withSelectionExclusiveStrict (Config c) =
 withPagination : List Int -> Int -> Config a b tbstate msg -> Config a b tbstate msg
 withPagination capabilities initial (Config c) =
     Config { c | pagination = ByPage { capabilities = capabilities, initial = initial } }
+
+withRowLimits : List String -> String -> Config a b tbstate msg -> Config a b tbstate msg
+withRowLimits capabilities initial (Config c) =
+    Config { c | pagination = Limit { capabilities = capabilities, initial = initial } }
 
 
 withProgressiveLoading : Int -> Int -> Config a b tbstate msg -> Config a b tbstate msg

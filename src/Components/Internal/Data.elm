@@ -39,11 +39,6 @@ get (Model model) =
             []
 
 
-withHead : Maybe Int -> Model a -> Model a
-withHead n (Model { state, rows }) =
-    Model { state = { state | head = n }, rows = rows }
-
-
 loaded : Model a -> List a -> Int -> Model a
 loaded (Model model) rows n =
     Model { model | rows = Rows <| Loaded { total = n, rows = List.map Row rows } }

@@ -28,14 +28,14 @@ init =
     { table = Table.init config
     , toolbarState =
         { copyAllState = Clipboard.Idle
-        , ddLimit = UaDropdown.init [ "10", "20", "50", "All" ] "All"
+        -- , ddLimit = UaDropdown.init [ "10", "20", "50", "All" ] "All"
         }
     }
 
 
 type alias ToolbarState =
     { copyAllState : Clipboard.ViewState
-    , ddLimit : UaDropdown.State String
+    -- , ddLimit : UaDropdown.State String
     }
 
 
@@ -52,9 +52,10 @@ config =
         ]
         |> Config.withStickyHeader
         |> Config.withRowClickHandler OnRowClick
+        |> Config.withRowLimits [ "10", "20", "50", "All" ] "All"
         |> Config.withToolbar
             [ copyAllButton
-            , limitRowsDropdown
+            -- , limitRowsDropdown
             ]
 
 
@@ -104,7 +105,7 @@ type Msg
     = OnTable TableModel
     | OnData (Result Error String)
     | OnRowClick UserAgent
-    | DdLimitMsg (UaDropdown.Msg String)
+    -- | DdLimitMsg (UaDropdown.Msg String)
     | RecvUserAgentBatch String
     | ClipboardMsg (Clipboard.Msg TableModel)
     | ClipboardRowMsg (Clipboard.Msg UserAgent)
@@ -163,31 +164,31 @@ update msg model =
             in
             ( model, Cmd.map ClipboardRowMsg cmd )
 
-        DdLimitMsg (UaDropdown.MsgSelectItem x) ->
-            let
-                toolbarState =
-                    model.toolbarState
+        -- DdLimitMsg (UaDropdown.MsgSelectItem x) ->
+        --     let
+        --         toolbarState =
+        --             model.toolbarState
 
-                ddLimit =
-                    UaDropdown.select x toolbarState.ddLimit
+        --         -- ddLimit =
+        --         --     UaDropdown.select x toolbarState.ddLimit
 
-                model2 =
-                    model |> withToolbarState { toolbarState | ddLimit = ddLimit }
+        --         model2 =
+        --             model |> withToolbarState { toolbarState | ddLimit = ddLimit }
 
-                table2 =
-                    model2.table |> Table.withHead (String.toInt x)
-            in
-            ( { model2 | table = table2 }, Cmd.none )
+        --         -- table2 =
+        --         --     model2.table |> Table.withHead (String.toInt x)
+        --     in
+        --     ( model2, Cmd.none )
 
-        DdLimitMsg (UaDropdown.MsgToggle on) ->
-            let
-                toolbarState =
-                    model.toolbarState
+        -- DdLimitMsg (UaDropdown.MsgToggle on) ->
+        --     let
+        --         toolbarState =
+        --             model.toolbarState
 
-                ddLimit =
-                    UaDropdown.toggle on toolbarState.ddLimit
-            in
-            ( model |> withToolbarState { toolbarState | ddLimit = ddLimit }, Cmd.none )
+        --         ddLimit =
+        --             UaDropdown.toggle on toolbarState.ddLimit
+        --     in
+        --     ( model |> withToolbarState { toolbarState | ddLimit = ddLimit }, Cmd.none )
 
         RecvUserAgentBatch val ->
             let
@@ -269,17 +270,17 @@ view model =
 
 
 
-limitRowsDropdown : ToolbarState -> Html Msg
-limitRowsDropdown { ddLimit } =
-    UaDropdown.view
-        { identifier = "dd-limit-rows"
-        , render = text
-        , onSelect = DdLimitMsg << UaDropdown.MsgSelectItem
-        , onToggle = DdLimitMsg << UaDropdown.MsgToggle
-        , icon = TwUtil.icon Icon.hashtag
-        , align = TwUtil.Right
-        }
-        ddLimit
+-- limitRowsDropdown : ToolbarState -> Html Msg
+-- limitRowsDropdown { ddLimit } =
+--     UaDropdown.view
+--         { identifier = "dd-limit-rows"
+--         , render = text
+--         , onSelect = DdLimitMsg << UaDropdown.MsgSelectItem
+--         , onToggle = DdLimitMsg << UaDropdown.MsgToggle
+--         , icon = TwUtil.icon Icon.hashtag
+--         , align = TwUtil.Right
+--         }
+--         ddLimit
 
 
 copyAllButton : ToolbarState -> Html Msg

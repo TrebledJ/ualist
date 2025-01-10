@@ -3,7 +3,7 @@ module Components.Table.Config exposing
     , static, dynamic
     , withExpand, withSelection, withSelectionFree, withSelectionLinked
     , withSelectionLinkedStrict, withSelectionExclusive
-    , withSelectionExclusiveStrict, withPagination, withProgressiveLoading
+    , withSelectionExclusiveStrict, withPagination, withRowLimits, withProgressiveLoading
     , withToolbar, withErrorView, withSubtable
     , withStickyHeader, withRowClickHandler
     )
@@ -110,6 +110,13 @@ withSelectionExclusiveStrict =
 withPagination : List Int -> Int -> Config a b tbstate msg -> Config a b tbstate msg
 withPagination =
     Components.Internal.Config.withPagination
+
+
+{-| Enable the pagination and define the page sizes and the detault page size.
+-}
+withRowLimits : List String -> String -> Config a b tbstate msg -> Config a b tbstate msg
+withRowLimits =
+    Components.Internal.Config.withRowLimits
 
 
 {-| Enable the progressive loading pagination (not implemented).
