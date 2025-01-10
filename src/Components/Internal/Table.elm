@@ -218,10 +218,6 @@ headerSearch pipeExt pipeInt =
 filterRows : Config a b tbstate msg -> State -> List (Row a) -> List (Row a)
 filterRows ((Config cfg) as config) state rows =
     let
-        -- sort by columns
-        srows =
-            iff (cfg.type_ == Static) (sort cfg.table.columns state rows) rows
-
         -- filter by search
         filter =
             \rs ->
@@ -244,7 +240,11 @@ filterRows ((Config cfg) as config) state rows =
                     )
 
         frows =
-            iff (cfg.type_ == Static) (filter srows) srows
+            iff (cfg.type_ == Static) (filter rows) rows
+        
+        -- sort by columns
+        srows =
+            iff (cfg.type_ == Static) (sort cfg.table.columns state frows) frows
 
         -- cut the results for the pagination
         cut =
@@ -258,7 +258,7 @@ filterRows ((Config cfg) as config) state rows =
             getItemsPerPage state
 
         prows =
-            iff (cfg.type_ == Static && cfg.pagination /= None && ipp /= 0) (cut frows state.page ipp) frows
+            iff (cfg.type_ == Static && cfg.pagination /= None && ipp /= 0) (cut srows state.page ipp) srows
     in
     prows
 
