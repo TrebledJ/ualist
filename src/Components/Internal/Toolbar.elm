@@ -43,6 +43,7 @@ toolbarMenuPagination pipeExt pipeInt state =
         , render = text
         , onSelect = \item -> pipeInt <| \s -> { s | ddPagination = s.ddPagination |> UaDropdown.select item }
         , onToggle = \on -> pipeInt <| \s -> { s | ddPagination = s.ddPagination |> UaDropdown.toggle on }
+        , showSelectedInTopLevel = False
         , icon = TwUtil.icon Icon.hashtag
         , align = TwUtil.Right
         }

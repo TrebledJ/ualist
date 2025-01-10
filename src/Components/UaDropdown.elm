@@ -1,4 +1,4 @@
-module Components.UaDropdown exposing (init, toggle, select, State, ViewOptions, view)
+module Components.UaDropdown exposing (State, ViewOptions, init, select, toggle, view)
 
 import Components.Dropdown as Dropdown exposing (dropdown)
 import Css
@@ -26,17 +26,27 @@ type alias State a =
 
 
 toggle : Bool -> State a -> State a
-toggle on st = { st | isOpen = on }
+toggle on st =
+    { st | isOpen = on }
+
 
 select : a -> State a -> State a
-select x st = { st | selected = x }
+select x st =
+    { st | selected = x }
 
 
 type alias ViewOptions a msg =
     { identifier : String -- An unique identifier to handle focusing mechanics.
-    , render : a -> Html msg -- How each item should be rendered to Html.
-    , onSelect : a -> msg -- What message to fire when an item is selected.
-    , onToggle : Bool -> msg -- What message to fire when an item is toggled.
+    , render :
+        a
+        -> Html msg -- How each item should be rendered to Html.
+    , onSelect :
+        a
+        -> msg -- What message to fire when an item is selected.
+    , onToggle :
+        Bool
+        -> msg -- What message to fire when an item is toggled.
+    , showSelectedInTopLevel : Bool -- Display the currently selected item in toggle button.
     , icon : Html msg -- An icon to display on the button.
     , align : TwUtil.Align -- Whether the dropdown menu is aligned left or right.
     }
@@ -46,7 +56,7 @@ view :
     ViewOptions a msg
     -> State a
     -> Html msg
-view { identifier, render, onSelect, onToggle, icon, align } { items, selected, isOpen } =
+view { identifier, render, onSelect, onToggle, showSelectedInTopLevel, icon, align } { items, selected, isOpen } =
     dropdown
         { identifier = identifier
         , toggleEvent = Dropdown.OnClick
@@ -56,22 +66,38 @@ view { identifier, render, onSelect, onToggle, icon, align } { items, selected, 
             \{ toDropdown, toToggle, toDrawer } ->
                 toDropdown div
                     []
-                    [ dropdownToggle toToggle icon
+                    [ dropdownToggle toToggle <|
+                        ([ i
+                            [ css [ Tw.block, Tw.relative, Tw.m_auto ] ]
+                            [ icon ]
+                         ]
+                            ++ (if showSelectedInTopLevel then
+                                    [ span [ css [ Tw.ml_1, Tw.text_lg ] ]
+                                        [ render <| selected
+                                        ]
+                                    ]
+
+                                else
+                                    []
+                               )
+                        )
                     , dropdownMenu toDrawer align render onSelect items selected
                     ]
         , isToggled = isOpen
         }
 
 
-dropdownToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg -> Html msg
-dropdownToggle toToggle icon =
+dropdownToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> List (Html msg) -> Html msg
+dropdownToggle toToggle children =
     toToggle button
         [ css <|
             [ Tw.flex
             , Tw.justify_center
             , Tw.items_center
-            , Tw.w_10
+            , Css.property "width" "max-content"
+            , Css.property "min-width" "2.5rem"
             , Tw.h_10
+            , Tw.p_2
             , Tw.cursor_pointer
             , Tw.bg_color Tw.white
             , Css.hover
@@ -80,10 +106,7 @@ dropdownToggle toToggle icon =
             ]
                 ++ TwUtil.border
         ]
-        [ i
-            [ css [ Tw.block, Tw.relative, Tw.m_auto ] ]
-            [ icon ]
-        ]
+        children
 
 
 type alias HtmlBuilder msg =
@@ -99,6 +122,7 @@ dropdownMenu toDrawer align render fSelect items selected =
             , Tw.bg_color Tw.white
             , Tw.shadow_md
             , Tw.z_10
+
             -- , Tw.w_24
             , Tw.py_2
             ]
@@ -132,7 +156,6 @@ dropdownItem render fSelect selected obj =
                 , Tw.overflow_hidden
                 , Tw.text_ellipsis
                 ]
-            
             ]
             [ render obj
             ]
