@@ -240,7 +240,7 @@ filterRows ((Config cfg) as config) state rows =
                                 )
                                 cfg.table.columns
                         )
-                        rows
+                        rs
                     )
 
         frows =
