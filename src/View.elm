@@ -16,6 +16,8 @@ import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
 import Task
 import Components.UaTable as UaTable
+import Components.Internal.Data exposing (..)
+import Components.Internal.State exposing (..)
 
 
 
@@ -66,6 +68,8 @@ type Msg
     = ChangeFilter FilterType
     | TableMsg UaTable.Msg
 
+getState : Components.Internal.Data.Model a -> Components.Internal.State.State
+getState (Components.Internal.Data.Model mod) = mod.state
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -79,7 +83,10 @@ update msg model =
         TableMsg m ->
             let
                 _ =
-                    Debug.log "TableMsg called" ""
+                    Debug.log "called" "TableMsg"
+                
+                _ =
+                    Debug.log "data" <| getState model.tableModel.table
 
                 ( newTableModel, cmd ) =
                     UaTable.update m model.tableModel

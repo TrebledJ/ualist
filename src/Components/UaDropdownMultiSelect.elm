@@ -88,12 +88,12 @@ clickDropdown idx st =
 
 
 view :
-    { onClick : Int -> msg, onToggle : Bool -> msg, icon : Html msg, align : TwUtil.Align }
+    { identifier : String, onClick : Int -> msg, onToggle : Bool -> msg, icon : Html msg, align : TwUtil.Align }
     -> State
     -> Html msg
-view { onClick, onToggle, icon, align } { items, selecteds, isOpen } =
+view { identifier, onClick, onToggle, icon, align } { items, selecteds, isOpen } =
     dropdown
-        { identifier = ""
+        { identifier = identifier
         , toggleEvent = Dropdown.OnClick
         , drawerVisibleAttribute = class ""
         , onToggle = onToggle

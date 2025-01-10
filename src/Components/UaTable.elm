@@ -272,7 +272,8 @@ view model =
 limitRowsDropdown : ToolbarState -> Html Msg
 limitRowsDropdown { ddLimit } =
     UaDropdown.view
-        { render = \s -> text s
+        { identifier = "dd-limit-rows"
+        , render = text
         , onSelect = DdLimitMsg << UaDropdown.MsgSelectItem
         , onToggle = DdLimitMsg << UaDropdown.MsgToggle
         , icon = TwUtil.icon Icon.hashtag

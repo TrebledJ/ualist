@@ -56,11 +56,12 @@ select x st = { st | selected = x }
 
 
 type alias ViewOptions a msg =
-    { render : a -> Html msg
-    , onSelect : a -> msg
-    , onToggle : Bool -> msg
-    , icon : Html msg
-    , align : TwUtil.Align
+    { identifier : String -- An unique identifier to handle focusing mechanics.
+    , render : a -> Html msg -- How each item should be rendered to Html.
+    , onSelect : a -> msg -- What message to fire when an item is selected.
+    , onToggle : Bool -> msg -- What message to fire when an item is toggled.
+    , icon : Html msg -- An icon to display on the button.
+    , align : TwUtil.Align -- Whether the dropdown menu is aligned left or right.
     }
 
 
@@ -68,9 +69,9 @@ view :
     ViewOptions a msg
     -> State a
     -> Html msg
-view { render, onSelect, onToggle, icon, align } { items, selected, isOpen } =
+view { identifier, render, onSelect, onToggle, icon, align } { items, selected, isOpen } =
     dropdown
-        { identifier = ""
+        { identifier = identifier
         , toggleEvent = Dropdown.OnClick
         , drawerVisibleAttribute = class ""
         , onToggle = onToggle

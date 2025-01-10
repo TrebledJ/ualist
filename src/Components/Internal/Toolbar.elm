@@ -36,15 +36,16 @@ toolbarMenuPagination : Pipe msg -> Pipe msg -> State -> List Int -> Html msg
 toolbarMenuPagination pipeExt pipeInt state capabilities =
     UaDropdownMS.view
         --     "Pagination"
-        { onClick = \idx -> pipeInt <| \s -> { s | ddPagination = UaDropdownMS.clickDropdown idx s.ddPagination }
+        { identifier = "dd-pagination"
+        , onClick = \idx -> pipeInt <| \s -> { s | ddPagination = UaDropdownMS.clickDropdown idx s.ddPagination }
         , onToggle =
             \btnState ->
                 pipeInt <|
                     \s ->
                         { s
                             | ddPagination = UaDropdownMS.toggleDropdown btnState s.ddPagination
-                            , ddColumns = UaDropdownMS.toggleDropdown False s.ddColumns
-                            , ddSubColumns = UaDropdownMS.toggleDropdown False s.ddSubColumns
+                            -- , ddColumns = UaDropdownMS.toggleDropdown False s.ddColumns
+                            -- , ddSubColumns = UaDropdownMS.toggleDropdown False s.ddSubColumns
                         }
         , icon = TwUtil.icon Icon.bars
         , align = TwUtil.Right
@@ -56,15 +57,16 @@ toolbarMenuColumns : List (Column a msg) -> Pipe msg -> State -> Html msg
 toolbarMenuColumns columns pipeInt state =
     UaDropdownMS.view
         --     "Columns"
-        { onClick = \idx -> pipeInt <| \s -> { s | ddColumns = UaDropdownMS.clickDropdown idx s.ddColumns }
+        { identifier = "dd-column"
+        , onClick = \idx -> pipeInt <| \s -> { s | ddColumns = UaDropdownMS.clickDropdown idx s.ddColumns }
         , onToggle =
             \btnState ->
                 pipeInt <|
                     \s ->
                         { s
                             | ddColumns = UaDropdownMS.toggleDropdown btnState s.ddColumns
-                            , ddPagination = UaDropdownMS.toggleDropdown False s.ddPagination
-                            , ddSubColumns = UaDropdownMS.toggleDropdown False s.ddSubColumns
+                            -- , ddPagination = UaDropdownMS.toggleDropdown False s.ddPagination
+                            -- , ddSubColumns = UaDropdownMS.toggleDropdown False s.ddSubColumns
                         }
         , icon = TwUtil.icon Icon.tableColumns
         , align = TwUtil.Right
@@ -76,15 +78,16 @@ toolbarMenuSubColumns : List (Column a msg) -> Pipe msg -> State -> Html msg
 toolbarMenuSubColumns columns pipeInt state =
     UaDropdownMS.view
         -- "Columns of subtable"
-        { onClick = \idx -> pipeInt <| \s -> { s | ddSubColumns = UaDropdownMS.clickDropdown idx s.ddSubColumns }
+        { identifier = "dd-subcolumn"
+        , onClick = \idx -> pipeInt <| \s -> { s | ddSubColumns = UaDropdownMS.clickDropdown idx s.ddSubColumns }
         , onToggle =
             \btnState ->
                 pipeInt <|
                     \s ->
                         { s
                             | ddSubColumns = UaDropdownMS.toggleDropdown btnState s.ddSubColumns
-                            , ddPagination = UaDropdownMS.toggleDropdown False s.ddPagination
-                            , ddColumns = UaDropdownMS.toggleDropdown False s.ddColumns
+                            -- , ddPagination = UaDropdownMS.toggleDropdown False s.ddPagination
+                            -- , ddColumns = UaDropdownMS.toggleDropdown False s.ddColumns
                         }
         , icon = TwUtil.icon Icon.tableColumns
         , align = TwUtil.Right
