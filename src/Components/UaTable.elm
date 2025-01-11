@@ -46,6 +46,7 @@ init =
             { ddPreset = UaDropdown.init [ "Spray & Pray", "Browsers", "Mobile", "Devices", "Tools", "Payloads", "Uncommon", "Custom" ] "Spray & Pray"
             , ddBrowser = UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ] "Any"
             , ddOsDevice = UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ] "Any"
+            , generateLastAction = False
             }
         }
     }
@@ -55,6 +56,7 @@ type alias GeneratorTotalEclipseState =
     { ddPreset : UaDropdown.State String
     , ddBrowser : UaDropdown.State String
     , ddOsDevice : UaDropdown.State String
+    , generateLastAction : Bool -- Whether or not the previous action was a generate or modifying settings.
     }
 
 
@@ -157,7 +159,7 @@ type Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ toolbarState } as model) =
     case msg of
         OnTable m ->
             -- Set model to whatever is passed in parameter.
@@ -216,7 +218,11 @@ update msg model =
                     , count = count |> if0then (model.table |> Table.get |> List.length) |> if0then 10
                     }
             in
-            ( model, jsGenerateUserAgents payload )
+            ( model
+                |> withToolbarState
+                    { toolbarState | generateConfigState = { st | generateLastAction = True } }
+            , jsGenerateUserAgents payload
+            )
 
         ClipboardMsg m ->
             let
@@ -225,9 +231,6 @@ update msg model =
 
                 ( state, cmd ) =
                     Clipboard.update "recvCopyAllStatus" m model.table model.toolbarState.copyAllState
-
-                toolbarState =
-                    model.toolbarState
             in
             ( model |> withToolbarState { toolbarState | copyAllState = state }
             , Cmd.map ClipboardMsg cmd
@@ -352,6 +355,9 @@ generateUaContainer xs toolbarState =
     let
         pipe fUpdateState =
             mkPipe UpdateToolbarState toolbarState (\({ generateConfigState } as s) -> { s | generateConfigState = fUpdateState generateConfigState })
+
+        resetLastAction generateConfigState =
+            { generateConfigState | generateLastAction = False }
     in
     div
         [ css <|
@@ -378,10 +384,12 @@ generateUaContainer xs toolbarState =
                 , onSelect =
                     \item ->
                         pipe <|
-                            \({ ddPreset } as gstate) ->
-                                { gstate
-                                    | ddPreset = UaDropdown.select item ddPreset
-                                }
+                            resetLastAction
+                                << (\({ ddPreset } as gstate) ->
+                                        { gstate
+                                            | ddPreset = UaDropdown.select item ddPreset
+                                        }
+                                   )
                 , onToggle =
                     \on ->
                         pipe <|
@@ -402,10 +410,12 @@ generateUaContainer xs toolbarState =
                         , onSelect =
                             \item ->
                                 pipe <|
-                                    \({ ddBrowser } as gstate) ->
-                                        { gstate
-                                            | ddBrowser = UaDropdown.select item ddBrowser
-                                        }
+                                    resetLastAction
+                                        << (\({ ddBrowser } as gstate) ->
+                                                { gstate
+                                                    | ddBrowser = UaDropdown.select item ddBrowser
+                                                }
+                                           )
                         , onToggle =
                             \on ->
                                 pipe <|
@@ -424,10 +434,12 @@ generateUaContainer xs toolbarState =
                         , onSelect =
                             \item ->
                                 pipe <|
-                                    \({ ddOsDevice } as gstate) ->
-                                        { gstate
-                                            | ddOsDevice = UaDropdown.select item ddOsDevice
-                                        }
+                                    resetLastAction
+                                        << (\({ ddOsDevice } as gstate) ->
+                                                { gstate
+                                                    | ddOsDevice = UaDropdown.select item ddOsDevice
+                                                }
+                                           )
                         , onToggle =
                             \on ->
                                 pipe <|
@@ -461,7 +473,7 @@ generateUaContainer xs toolbarState =
                     ]
                         ++ TwUtil.border
                 ]
-                [ TwUtil.icon <| Icon.arrowsRotate -- TODO: set icon to "Go" or "Rotate" depending on whether UAs have been generated for the current config
+                [ TwUtil.icon <| iff toolbarState.generateConfigState.generateLastAction Icon.arrowsRotate Icon.arrowRight
                 ]
             , span [] [ text "Generate Agents" ]
             , TwUtil.icon Icon.hammer
