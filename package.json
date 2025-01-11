@@ -4,7 +4,7 @@
   "description": "Find and retrieve lists of user agents.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "elm make src/View.elm --output site/elm.js --optimize"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/TrebledJ/ualist#readme",
   "dependencies": {
+    "elm": "^0.19.1-6",
     "ua-parser-js": "^2.0.0"
   }
 }

@@ -238,9 +238,6 @@ update msg ({ toolbarState } as model) =
 
         ClipboardMsg m ->
             let
-                _ =
-                    Debug.log "called" "ClipboardMsg"
-
                 ( state, cmd ) =
                     Clipboard.update "recvCopyAllStatus" m model.table model.toolbarState.copyAllState
             in
@@ -249,10 +246,6 @@ update msg ({ toolbarState } as model) =
             )
 
         ClipboardRowMsg _ ->
-            let
-                _ =
-                    Debug.log "called" "ClipboardRowMsg"
-            in
             ( model, Cmd.none )
 
 
@@ -274,12 +267,8 @@ appendRowsToModel x model =
             in
             { model | table = table }
 
-        Err err ->
-            let
-                _ =
-                    Debug.log "failed to get rows" err
-            in
-            model
+        Err _ ->
+            { model | table = Table.failed model.table "Failed somehow. Good luck figuring out why." }
 
 
 setRowsToModel : Result error (List UserAgent) -> Model -> Model
@@ -288,12 +277,8 @@ setRowsToModel x model =
         Ok rows ->
             { model | table = model.table |> Table.loadedStatic rows }
 
-        Err err ->
-            let
-                _ =
-                    Debug.log "failed to get rows" err
-            in
-            model
+        Err _ ->
+            { model | table = Table.failed model.table "Failed somehow. Good luck figuring out why." }
 
 
 subscriptions : Model -> Sub Msg

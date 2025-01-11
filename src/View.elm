@@ -1,20 +1,11 @@
 module View exposing (main)
 
--- import Html.Attributes exposing (..)
--- import Html.Events exposing (..)
-
 import Browser
-import Css
-import Css.Global
 import Html
 import Html.Styled as HtmlS exposing (..)
 import Html.Styled.Attributes as Attr
-import Html.Styled.Events as Events
-import Http
-import Tailwind.Breakpoints as Breakpoints
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
-import Task
 import Components.UaTable as UaTable
 import Components.Internal.Data exposing (..)
 import Components.Internal.State exposing (..)
@@ -48,7 +39,7 @@ init flags =
         { width } =
                     case Decode.decodeString flagDecoder flags of
                         Ok res -> res
-                        Err e -> let _ = Debug.log "error (unable to decode flags)" e in { width = 1024 }
+                        Err e -> { width = 1024 }
     in    
     ( { filterBrowser = "firefox"
       , filterOsDevice = "linux"
@@ -73,16 +64,8 @@ flagDecoder = Decode.map Flags (Decode.field "width" Decode.int)
 -- UPDATE
 
 
-type FilterType
-    = Browser String
-    | OSDevice String
-    | Host String
-    | Limit String
-
-
 type Msg
-    = ChangeFilter FilterType
-    | TableMsg UaTable.Msg
+    = TableMsg UaTable.Msg
 
 getState : Components.Internal.Data.Model a -> Components.Internal.State.State
 getState (Components.Internal.Data.Model mod) = mod.state
@@ -90,20 +73,8 @@ getState (Components.Internal.Data.Model mod) = mod.state
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ChangeFilter (Browser s) ->
-            ( { model | filterBrowser = Debug.log "log: " s }, Cmd.none )
-
-        ChangeFilter _ ->
-            ( model, Cmd.none )
-
         TableMsg m ->
             let
-                -- _ =
-                --     Debug.log "called" "TableMsg"
-                
-                -- _ =
-                --     Debug.log "data" <| getState model.tableModel.table
-
                 ( newTableModel, cmd ) =
                     UaTable.update m model.tableModel
             in
