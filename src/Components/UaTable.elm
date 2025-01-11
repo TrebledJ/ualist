@@ -47,6 +47,7 @@ init =
             , ddBrowser = UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ] "Any"
             , ddOsDevice = UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ] "Any"
             , generateLastAction = False
+            , showGenerateContainer = False
             }
         }
     }
@@ -57,6 +58,7 @@ type alias GeneratorTotalEclipseState =
     , ddBrowser : UaDropdown.State String
     , ddOsDevice : UaDropdown.State String
     , generateLastAction : Bool -- Whether or not the previous action was a generate or modifying settings.
+    , showGenerateContainer : Bool
     }
 
 
@@ -82,6 +84,7 @@ config =
         |> Config.withRowLimits [ "10", "20", "50", "All" ] "All"
         |> Config.withToolbar
             [ fetchUaButton
+            , toggleGenerateContainerButton
             , copyAllButton
             ]
         |> Config.withToolbarContainer
@@ -205,9 +208,6 @@ update msg ({ toolbarState } as model) =
                 st =
                     model.toolbarState.generateConfigState
 
-                count =
-                    model.table |> Table.getItemsPerPage
-
                 payload =
                     { preset =
                         st.ddPreset.selected
@@ -215,7 +215,7 @@ update msg ({ toolbarState } as model) =
                         st.ddBrowser.selected
                     , osDevice =
                         st.ddOsDevice.selected
-                    , count = count |> if0then (model.table |> Table.get |> List.length) |> if0then 10
+                    , count = model.table |> Table.getItemsPerPage |> if0then 10
                     }
             in
             ( model
@@ -350,6 +350,32 @@ copyAllButton { copyAllState } =
         ]
 
 
+toggleGenerateContainerButton : ToolbarState -> Html Msg
+toggleGenerateContainerButton toolbarState =
+    let
+        pipe fUpdateState =
+            mkPipe UpdateToolbarState toolbarState (\({ generateConfigState } as s) -> { s | generateConfigState = fUpdateState generateConfigState })
+    in
+    button
+        [ onClick <| pipe <| \({ showGenerateContainer } as s) -> { s | showGenerateContainer = not showGenerateContainer }
+        , css <|
+            [ Tw.flex
+            , Tw.justify_center
+            , Tw.items_center
+            , Tw.w_10
+            , Tw.h_10
+            , Tw.cursor_pointer
+            , Tw.bg_color Tw.white
+            , Css.hover
+                [ Tw.bg_color Tw.gray_100
+                ]
+            ]
+                ++ TwUtil.border
+        ]
+        [ TwUtil.icon <| Icon.hammer
+        ]
+
+
 generateUaContainer : List Css.Style -> ToolbarState -> Html Msg
 generateUaContainer xs toolbarState =
     let
@@ -359,123 +385,128 @@ generateUaContainer xs toolbarState =
         resetLastAction generateConfigState =
             { generateConfigState | generateLastAction = False }
     in
-    div
-        [ css <|
-            [ Tw.flex
-            , Tw.justify_between
-            , Tw.items_center
-            , Tw.border_solid
-            , Tw.border_0
-            , Tw.border_t_2
-            , Tw.border_t_color Tw.gray_300
-            ]
-                ++ xs
-        ]
-        [ div
+    if not toolbarState.generateConfigState.showGenerateContainer then
+        div [] []
+
+    else
+        div
             [ css <|
                 [ Tw.flex
-                , Tw.justify_start
-                , Tw.gap_2
+                , Tw.justify_between
+                , Tw.items_center
+                , Tw.border_solid
+                , Tw.border_0
+                , Tw.border_t
+                , Tw.border_t_color Tw.gray_300
                 ]
+                    ++ xs
             ]
-            ([ UaDropdown.view
-                { identifier = "dd-preset"
-                , render = text
-                , onSelect =
-                    \item ->
-                        pipe <|
-                            resetLastAction
-                                << (\({ ddPreset } as gstate) ->
-                                        { gstate
-                                            | ddPreset = UaDropdown.select item ddPreset
-                                        }
-                                   )
-                , onToggle =
-                    \on ->
-                        pipe <|
-                            \({ ddPreset } as gstate) ->
-                                { gstate
-                                    | ddPreset = UaDropdown.toggle on ddPreset
-                                }
-                , showSelectedInTopLevel = True
-                , icon = TwUtil.icon Icon.rocket
-                , align = TwUtil.Left
-                }
-                toolbarState.generateConfigState.ddPreset
-             ]
-                |> appendIfT (toolbarState.generateConfigState.ddPreset.selected == "Custom")
-                    [ UaDropdown.view
-                        { identifier = "dd-browser"
-                        , render = text
-                        , onSelect =
-                            \item ->
-                                pipe <|
-                                    resetLastAction
-                                        << (\({ ddBrowser } as gstate) ->
-                                                { gstate
-                                                    | ddBrowser = UaDropdown.select item ddBrowser
-                                                }
-                                           )
-                        , onToggle =
-                            \on ->
-                                pipe <|
-                                    \({ ddBrowser } as gstate) ->
-                                        { gstate
-                                            | ddBrowser = UaDropdown.toggle on ddBrowser
-                                        }
-                        , showSelectedInTopLevel = True
-                        , icon = TwUtil.icon Icon.globe
-                        , align = TwUtil.Left
-                        }
-                        toolbarState.generateConfigState.ddBrowser
-                    , UaDropdown.view
-                        { identifier = "dd-osdevice"
-                        , render = text
-                        , onSelect =
-                            \item ->
-                                pipe <|
-                                    resetLastAction
-                                        << (\({ ddOsDevice } as gstate) ->
-                                                { gstate
-                                                    | ddOsDevice = UaDropdown.select item ddOsDevice
-                                                }
-                                           )
-                        , onToggle =
-                            \on ->
-                                pipe <|
-                                    \({ ddOsDevice } as gstate) ->
-                                        { gstate
-                                            | ddOsDevice = UaDropdown.toggle on ddOsDevice
-                                        }
-                        , showSelectedInTopLevel = True
-                        , icon = TwUtil.icon Icon.mobile
-                        , align = TwUtil.Left
-                        }
-                        toolbarState.generateConfigState.ddOsDevice
-                    ]
-            )
-        , div
-            [ css [ Tw.flex, Tw.gap_2, Tw.items_center ]
-            ]
-            [ button
-                [ onClick <| OnGenerateClicked
-                , css <|
+            [ div
+                [ css <|
                     [ Tw.flex
-                    , Tw.justify_center
-                    , Tw.items_center
-                    , Tw.w_10
-                    , Tw.h_10
-                    , Tw.cursor_pointer
-                    , Tw.bg_color Tw.white
-                    , Css.hover
-                        [ Tw.bg_color Tw.gray_100
-                        ]
+                    , Tw.justify_start
+                    , Tw.gap_2
                     ]
-                        ++ TwUtil.border
                 ]
-                [ TwUtil.icon <| iff toolbarState.generateConfigState.generateLastAction Icon.arrowsRotate Icon.arrowRight
+                ([ UaDropdown.view
+                    { identifier = "dd-preset"
+                    , render = text
+                    , onSelect =
+                        \item ->
+                            pipe <|
+                                resetLastAction
+                                    << (\({ ddPreset } as gstate) ->
+                                            { gstate
+                                                | ddPreset = UaDropdown.select item ddPreset
+                                            }
+                                       )
+                    , onToggle =
+                        \on ->
+                            pipe <|
+                                \({ ddPreset } as gstate) ->
+                                    { gstate
+                                        | ddPreset = UaDropdown.toggle on ddPreset
+                                    }
+                    , showSelectedInTopLevel = True
+                    , icon = TwUtil.icon Icon.rocket
+                    , align = TwUtil.Left
+                    }
+                    toolbarState.generateConfigState.ddPreset
+                 ]
+                    |> appendIfT (toolbarState.generateConfigState.ddPreset.selected == "Custom")
+                        [ UaDropdown.view
+                            { identifier = "dd-browser"
+                            , render = text
+                            , onSelect =
+                                \item ->
+                                    pipe <|
+                                        resetLastAction
+                                            << (\({ ddBrowser } as gstate) ->
+                                                    { gstate
+                                                        | ddBrowser = UaDropdown.select item ddBrowser
+                                                    }
+                                               )
+                            , onToggle =
+                                \on ->
+                                    pipe <|
+                                        \({ ddBrowser } as gstate) ->
+                                            { gstate
+                                                | ddBrowser = UaDropdown.toggle on ddBrowser
+                                            }
+                            , showSelectedInTopLevel = True
+                            , icon = TwUtil.icon Icon.globe
+                            , align = TwUtil.Left
+                            }
+                            toolbarState.generateConfigState.ddBrowser
+                        , UaDropdown.view
+                            { identifier = "dd-osdevice"
+                            , render = text
+                            , onSelect =
+                                \item ->
+                                    pipe <|
+                                        resetLastAction
+                                            << (\({ ddOsDevice } as gstate) ->
+                                                    { gstate
+                                                        | ddOsDevice = UaDropdown.select item ddOsDevice
+                                                    }
+                                               )
+                            , onToggle =
+                                \on ->
+                                    pipe <|
+                                        \({ ddOsDevice } as gstate) ->
+                                            { gstate
+                                                | ddOsDevice = UaDropdown.toggle on ddOsDevice
+                                            }
+                            , showSelectedInTopLevel = True
+                            , icon = TwUtil.icon Icon.mobile
+                            , align = TwUtil.Left
+                            }
+                            toolbarState.generateConfigState.ddOsDevice
+                        ]
+                )
+            , div
+                [--css [ Tw.flex, Tw.gap_2, Tw.items_center ]
                 ]
-            , span [] [ text "Generate Agents" ]
-            , TwUtil.icon Icon.hammer
+                [ button
+                    [ onClick <| OnGenerateClicked
+                    , css <|
+                        [ Tw.flex
+                        , Tw.justify_center
+                        , Tw.items_center
+                        , Css.property "width" "fit-content"
+                        , Tw.h_10
+                        , Tw.cursor_pointer
+                        , Tw.bg_color Tw.white
+                        , Css.hover
+                            [ Tw.bg_color Tw.gray_100
+                            ]
+                        ]
+                            ++ TwUtil.border
+                    ]
+                    [ TwUtil.icon <| iff toolbarState.generateConfigState.generateLastAction Icon.arrowsRotate Icon.arrowRight
+                    , span [ css [ Tw.ml_2, Tw.text_lg ] ] [ text "Generate Agents" ]
+                    ]
+
+                -- , TwUtil.icon Icon.hammer
+                ]
             ]
-        ]
