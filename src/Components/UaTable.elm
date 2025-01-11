@@ -37,15 +37,26 @@ mkPipe fmsg model transform =
     fmsg <| transform model
 
 
-init : Model
-init =
-    { table = Table.init config |> Table.withStatus "Load / Generate Data"
+init : Int -> Model
+init width =
+    let
+        smallScreen =
+            width < 640
+    in
+    { table = Table.init (config smallScreen) |> Table.withStatus "Load / Generate Data"
+    , smallScreen = smallScreen
     , toolbarState =
         { copyAllState = Clipboard.Idle
         , generateConfigState =
-            { ddPreset = UaDropdown.init [ "Spray & Pray", "Browsers", "Mobile", "Devices", "Tools", "Payloads", "Uncommon", "Custom" ] "Spray & Pray"
-            , ddBrowser = UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ] "Any"
-            , ddOsDevice = UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ] "Any"
+            { ddPreset =
+                UaDropdown.init [ "Spray & Pray", "Browsers", "Mobile", "Devices", "Tools", "Payloads", "Uncommon", "Custom" ]
+                    |> UaDropdown.withHint "Select Preset"
+            , ddBrowser =
+                UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ]
+                    |> UaDropdown.withDefault "Any"
+            , ddOsDevice =
+                UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ]
+                    |> UaDropdown.withDefault "Any"
             , generateLastAction = False
             , showGenerateContainer = False
             }
@@ -68,16 +79,16 @@ type alias ToolbarState =
     }
 
 
-config : Table.Config UserAgent () ToolbarState Msg
-config =
+config : Bool -> Table.Config UserAgent () ToolbarState Msg
+config smallScreen =
     Table.static
         OnTable
         .ua
         [ Column.string .ua "User Agent" "" |> Column.withCss [ Css.property "word-break" "break-word" ] |> Column.withLineClamp (Just 3)
-        , Column.string .browserName "Browser" ""
-        , Column.string .deviceModel "Model" ""
-        , Column.string .deviceVendor "Vendor" ""
-        , Column.string .osName "OS" ""
+        , Column.string .browserName "Browser" "" |> applyIfT smallScreen (Column.withDefault False)
+        , Column.string .deviceModel "Model" "" |> applyIfT smallScreen (Column.withDefault False)
+        , Column.string .deviceVendor "Vendor" "" |> applyIfT smallScreen (Column.withDefault False)
+        , Column.string .osName "OS" "" |> applyIfT smallScreen (Column.withDefault False)
         ]
         |> Config.withStickyHeader
         |> Config.withRowClickHandler OnRowClick
@@ -85,7 +96,7 @@ config =
         |> Config.withToolbar
             [ fetchUaButton
             , toggleGenerateContainerButton
-            , copyAllButton
+            , copyAllButton smallScreen
             ]
         |> Config.withToolbarContainer
             [ generateUaContainer
@@ -120,6 +131,7 @@ type alias TableModel =
 
 type alias Model =
     { table : TableModel
+    , smallScreen : Bool
     , toolbarState : ToolbarState
     }
 
@@ -210,11 +222,11 @@ update msg ({ toolbarState } as model) =
 
                 payload =
                     { preset =
-                        st.ddPreset.selected
+                        st.ddPreset.selected |> Maybe.withDefault ""
                     , browser =
-                        st.ddBrowser.selected
+                        st.ddBrowser.selected |> Maybe.withDefault ""
                     , osDevice =
-                        st.ddOsDevice.selected
+                        st.ddOsDevice.selected |> Maybe.withDefault ""
                     , count = model.table |> Table.getItemsPerPage |> if0then 10
                     }
             in
@@ -287,7 +299,7 @@ setRowsToModel x model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Table.subscriptions config model.table
+        [ Table.subscriptions (config model.smallScreen) model.table
         , recvUserAgentBatch RecvUserAgentBatch
 
         -- , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
@@ -298,7 +310,7 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    Table.view config model.toolbarState model.table
+    Table.view (config model.smallScreen) model.toolbarState model.table
 
 
 fetchUaButton : ToolbarState -> Html Msg
@@ -323,15 +335,15 @@ fetchUaButton _ =
         ]
 
 
-copyAllButton : ToolbarState -> Html Msg
-copyAllButton { copyAllState } =
+copyAllButton : Bool -> ToolbarState -> Html Msg
+copyAllButton smallScreen { copyAllState } =
     button
         [ onClick <|
             ClipboardMsg <|
                 Clipboard.CopyAction <|
                     String.join "\n"
                         << List.map .ua
-                        << Table.getFiltered config
+                        << Table.getFiltered (config smallScreen)
         , css <|
             [ Tw.flex
             , Tw.justify_center
@@ -372,7 +384,7 @@ toggleGenerateContainerButton toolbarState =
             ]
                 ++ TwUtil.border
         ]
-        [ TwUtil.icon <| Icon.hammer
+        [ TwUtil.icon <| Icon.diceThree
         ]
 
 
@@ -392,6 +404,8 @@ generateUaContainer xs toolbarState =
         div
             [ css <|
                 [ Tw.flex
+                , Tw.flex_wrap
+                , Tw.gap_2
                 , Tw.justify_between
                 , Tw.items_center
                 , Tw.border_solid
@@ -404,6 +418,7 @@ generateUaContainer xs toolbarState =
             [ div
                 [ css <|
                     [ Tw.flex
+                    , Tw.flex_wrap
                     , Tw.justify_start
                     , Tw.gap_2
                     ]
@@ -433,7 +448,7 @@ generateUaContainer xs toolbarState =
                     }
                     toolbarState.generateConfigState.ddPreset
                  ]
-                    |> appendIfT (toolbarState.generateConfigState.ddPreset.selected == "Custom")
+                    |> appendIfT (toolbarState.generateConfigState.ddPreset.selected == Just "Custom")
                         [ UaDropdown.view
                             { identifier = "dd-browser"
                             , render = text
@@ -490,23 +505,22 @@ generateUaContainer xs toolbarState =
                 [ button
                     [ onClick <| OnGenerateClicked
                     , css <|
-                        [ Tw.flex
-                        , Tw.justify_center
-                        , Tw.items_center
-                        , Css.property "width" "fit-content"
-                        , Tw.h_10
-                        , Tw.cursor_pointer
-                        , Tw.bg_color Tw.white
-                        , Css.hover
-                            [ Tw.bg_color Tw.gray_100
+                            [ Tw.flex
+                            , Tw.justify_center
+                            , Tw.items_center
+                            , Css.property "width" "fit-content"
+                            , Tw.h_10
+                            , Tw.cursor_pointer
+                            , Tw.bg_color Tw.white
+                            , Css.hover
+                                [ Tw.bg_color Tw.gray_100
+                                ]
                             ]
-                        ]
                             ++ TwUtil.border
+                    , disabled <| toolbarState.generateConfigState.ddPreset.selected == Nothing
                     ]
                     [ TwUtil.icon <| iff toolbarState.generateConfigState.generateLastAction Icon.arrowsRotate Icon.arrowRight
                     , span [ css [ Tw.ml_2, Tw.text_lg ] ] [ text "Generate Agents" ]
                     ]
-
-                -- , TwUtil.icon Icon.hammer
                 ]
             ]

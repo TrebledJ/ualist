@@ -79,9 +79,11 @@ init (Config cfg) =
             , order = Ascending
             , page = 0
             , search = ""
-            , ddPagination = UaDropdown.init ddPaginationOptions ddPaginationInitial
-            , ddColumns = UaDropdownMS.init2 colNames colSelecteds -- TODO: list all columns, and mark visible columns as selected
-            , ddSubColumns = UaDropdownMS.init visibleSubColumns -- TODO: same as column
+            , ddPagination =
+                UaDropdown.init ddPaginationOptions
+                    |> UaDropdown.withDefault ddPaginationInitial
+            , ddColumns = UaDropdownMS.init2 colNames colSelecteds
+            , ddSubColumns = UaDropdownMS.init visibleSubColumns -- TODO: list all columns, and mark visible columns as selected
             , table = StateTable {- visibleColumns -} [] [] []
             , subtable = StateTable {- visibleSubColumns -} [] [] []
             }
@@ -153,14 +155,16 @@ tableHeader ((Config cfg) as config) toolbarState pipeExt pipeInt state =
                 []
 
         toolbarContainerStyles =
-            [ Tw.h_16, Tw.px_4, Tw.bg_color Tw.gray_100 ]
+            [ {- Tw.h_16, -} Tw.p_4, Tw.bg_color Tw.gray_100 ]
     in
     div [ css <| [ Tw.flex, Tw.flex_col ] ++ stickyStyles ]
         ([ div
             [ css <|
                 [ Tw.flex
+                , Tw.flex_wrap
                 , Tw.gap_2
-                ] ++ toolbarContainerStyles
+                ]
+                    ++ toolbarContainerStyles
             ]
             [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
             , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| List.map (\f -> f toolbarState) <| cfg.toolbar
@@ -248,7 +252,7 @@ filterRows ((Config cfg) as config) state rows =
 
         frows =
             iff (cfg.type_ == Static) (filter rows) rows
-        
+
         -- sort by columns
         srows =
             iff (cfg.type_ == Static) (sort cfg.table.columns state frows) frows

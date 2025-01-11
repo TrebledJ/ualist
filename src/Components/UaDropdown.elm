@@ -1,4 +1,4 @@
-module Components.UaDropdown exposing (State, ViewOptions, init, select, toggle, view)
+module Components.UaDropdown exposing (State, ViewOptions, init, withDefault, withHint, toggle, select, view)
 
 import Components.Dropdown as Dropdown exposing (dropdown)
 import Css
@@ -8,19 +8,36 @@ import Html.Styled.Events exposing (..)
 import Tailwind.Theme as Tw
 import Tailwind.Utilities as Tw
 import TwUtil
+import Util exposing (..)
 
 
-init : List a -> a -> State a
-init items selected =
+init : List a -> State a
+init items =
     { items = items
-    , selected = selected
+    , selected = Nothing
+    , hint = ""
     , isOpen = False
     }
 
 
+withDefault : a -> State a -> State a
+withDefault item ({ items } as s) =
+    if List.member item items then
+        { s | selected = Just item }
+
+    else
+        s
+
+
+withHint : String -> State a -> State a
+withHint hint s =
+    { s | hint = hint }
+
+
 type alias State a =
     { items : List a
-    , selected : a
+    , selected : Maybe a
+    , hint : String
     , isOpen : Dropdown.State
     }
 
@@ -30,9 +47,9 @@ toggle on st =
     { st | isOpen = on }
 
 
+
 select : a -> State a -> State a
-select x st =
-    { st | selected = x }
+select = withDefault
 
 
 type alias ViewOptions a msg =
@@ -56,7 +73,7 @@ view :
     ViewOptions a msg
     -> State a
     -> Html msg
-view { identifier, render, onSelect, onToggle, showSelectedInTopLevel, icon, align } { items, selected, isOpen } =
+view { identifier, render, onSelect, onToggle, showSelectedInTopLevel, icon, align } { items, selected, hint, isOpen } =
     dropdown
         { identifier = identifier
         , toggleEvent = Dropdown.OnClick
@@ -71,15 +88,16 @@ view { identifier, render, onSelect, onToggle, showSelectedInTopLevel, icon, ali
                             [ css [ Tw.block, Tw.relative, Tw.m_auto ] ]
                             [ icon ]
                          ]
-                            ++ (if showSelectedInTopLevel then
-                                    [ span [ css [ Tw.ml_2, Tw.text_lg ] ]
-                                        [ render <| selected
-                                        ]
-                                    ]
+                            |> appendIfT showSelectedInTopLevel
+                                [ span [ css [ Tw.ml_2, Tw.text_lg ] ]
+                                    [ case selected of
+                                        Just item ->
+                                            render item
 
-                                else
-                                    []
-                               )
+                                        Nothing ->
+                                            text hint
+                                    ]
+                                ]
                         )
                     , dropdownMenu toDrawer align render onSelect items selected
                     ]
@@ -113,7 +131,7 @@ type alias HtmlBuilder msg =
     List (Attribute msg) -> List (Html msg) -> Html msg
 
 
-dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> TwUtil.Align -> (a -> Html msg) -> (a -> msg) -> List a -> a -> Html msg
+dropdownMenu : (HtmlBuilder msg -> HtmlBuilder msg) -> TwUtil.Align -> (a -> Html msg) -> (a -> msg) -> List a -> Maybe a -> Html msg
 dropdownMenu toDrawer align render fSelect items selected =
     toDrawer div
         [ css <|
@@ -132,7 +150,7 @@ dropdownMenu toDrawer align render fSelect items selected =
         (items |> List.map (dropdownItem render fSelect selected))
 
 
-dropdownItem : (a -> Html msg) -> (a -> msg) -> a -> a -> Html msg
+dropdownItem : (a -> Html msg) -> (a -> msg) -> Maybe a -> a -> Html msg
 dropdownItem render fSelect selected obj =
     div
         [ css
@@ -159,7 +177,7 @@ dropdownItem render fSelect selected obj =
             ]
             [ render obj
             ]
-        , if obj == selected then
+        , if Just obj == selected then
             span [ css [ Tw.absolute, Tw.top_1, Tw.right_2 ] ] [ text "✓" ]
 
           else

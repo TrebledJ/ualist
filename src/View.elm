@@ -18,6 +18,7 @@ import Task
 import Components.UaTable as UaTable
 import Components.Internal.Data exposing (..)
 import Components.Internal.State exposing (..)
+import Json.Decode as Decode exposing (Decoder)
 
 
 
@@ -41,16 +42,31 @@ type alias Model =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : String -> ( Model, Cmd Msg )
+init flags =
+    let
+        { width } =
+                    case Decode.decodeString flagDecoder flags of
+                        Ok res -> res
+                        Err e -> let _ = Debug.log "error (unable to decode flags)" e in { width = 1024 }
+    in    
     ( { filterBrowser = "firefox"
       , filterOsDevice = "linux"
       , filterHost = ""
       , filterLimit = 10
-      , tableModel = UaTable.init
+      , tableModel = UaTable.init width
       }
     , Cmd.batch []
     )
+
+
+type alias Flags = 
+    { width : Int
+    }
+
+
+flagDecoder : Decoder Flags
+flagDecoder = Decode.map Flags (Decode.field "width" Decode.int)
 
 
 

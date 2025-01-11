@@ -91,4 +91,4 @@ pagination state =
         (getItemsPerPage state)
 
 getItemsPerPage : State -> Int
-getItemsPerPage state = Maybe.withDefault 0 <| String.toInt state.ddPagination.selected
+getItemsPerPage state = Maybe.withDefault 0 <| String.toInt <| Maybe.withDefault "" <| state.ddPagination.selected

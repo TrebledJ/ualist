@@ -2,7 +2,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Main</title>
+    <title>User Agent Generator and Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link href="index.css" rel="stylesheet" />
     <script src="dist/elm.js"></script>
     <script src="ua-parser.min.js"></script>
@@ -12,7 +13,8 @@
     <div id="view-app"></div>
     <script>
         let app = Elm.View.init({
-            node: document.getElementById('view-app')
+            node: document.getElementById('view-app'),
+            flags: JSON.stringify({ width: window.innerWidth }),
         });
         // let app = Elm.ButtonTest.init({
         //     node: document.getElementById('view-app')
@@ -321,7 +323,7 @@
                             } else {
                                 failcount += 1;
                                 if (failcount >= maxfail) {
-                                    console.warning("failed too many times... ending with", results.length, "UAs out of", count);
+                                    console.warn("failed too many times... ending with", results.length, "UAs out of", count);
                                     return results;
                                 }
                             }
@@ -344,7 +346,7 @@
                         } else {
                             failcount += 1;
                             if (failcount >= maxfail) {
-                                console.warning("failed too many times... ending with", results.length, "UAs out of", count);
+                                console.warn("failed too many times... ending with", results.length, "UAs out of", count);
                                 return results;
                             }
                         }
@@ -398,6 +400,9 @@
                         osDevice = [osDevice.toLowerCase()];
                     }
                     break;
+                default:
+                    console.error("unknown preset:", preset);
+                    return [];
                 // { ddPreset = UaDropdown.init [ "Spray & Pray", "Common Browsers", "Common Mobile", "Common Devices", "Tools", "Payloads", "Uncommon", "Custom" ] "Spray & Pray"
                 // , ddBrowser = UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ] "Any"
                 // , ddOsDevice = UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ] "Any"
