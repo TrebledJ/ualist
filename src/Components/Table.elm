@@ -1,5 +1,5 @@
 module Components.Table exposing
-    ( Model, Row, Rows, RowID, get, getFiltered, init, loaded, loadedDynamic, loadedStatic, withStatus, failed
+    ( Model, Row, Rows, RowID, get, getFiltered, getItemsPerPage, init, loaded, loadedDynamic, loadedStatic, withStatus, failed
     , Pipe, State, Pagination, pagination, selected, subSelected
     , Config, Column, static, dynamic
     , view, subscriptions
@@ -119,6 +119,10 @@ getFiltered : Config a b tbstate msg -> Model a -> List a
 getFiltered =
     Components.Internal.Table.getFiltered
 
+{-| Get the allowed number of items per page. Returns 0 if pagination isn't used or no limit is specified.
+-}
+getItemsPerPage : Model a -> Int
+getItemsPerPage (Components.Internal.Data.Model { state }) = Components.Internal.State.getItemsPerPage state
 
 {-| Load the data in the model with the total number of rows if the data are
 incomplete.

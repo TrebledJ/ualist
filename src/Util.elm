@@ -27,3 +27,9 @@ errorToString error =
             "Unknown error: status code " ++ String.fromInt s
         BadBody errorMessage ->
             errorMessage
+
+appendIfT : Bool -> List a -> List a -> List a
+appendIfT cond ys xs = if cond then xs ++ ys else xs
+
+if0then : Int -> Int -> Int
+if0then default test = if test == 0 then default else test

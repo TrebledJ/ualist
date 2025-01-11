@@ -67,9 +67,48 @@ function loadText(filePath) {
 
 // Example usage
 const directoryPath = __dirname + "/../raw";
-const total = crawlDirectory(directoryPath);
+const total = crawlDirectory(directoryPath, 1);
 console.log(total.size, 'total entries');
 
-fs.writeFileSync(__dirname + '/processed3.txt', [...total].join('\n'));
+// fs.writeFileSync(__dirname + '/processed3.txt', [...total].join('\n'));
 // fs.writeFileSync(__dirname + '/processed2.txt', [...total].filter(e => !e.startsWith('Mozilla')).join('\n'));
+
+let models = [];
+const uap = require('ua-parser-js');
+for (const a of total) {
+    const ua = uap(a);
+    if (a.includes('Linux;') && a.includes('; Android')) {
+        let res = a.match(/(?<=Mozilla\/5.0 \()(.*?)(?=\))/gi);
+        // console.log(res);
+        if (!res) {
+            res = a.match(/(?<=\(Linux; )(.*?)(?=\))/gi);
+        }
+        if (!res)
+            continue;
+        const tokens = res[0].split(';');
+        const left = tokens.map(t => t.trim())
+            .filter(t => !t.startsWith('Linux'))
+            .filter(t => !t.startsWith('Android'))
+            .filter(t => !t.startsWith('arm'))
+            .filter(t => t !== 'U')
+            .filter(t => t !== 'wv')
+            .filter(t => t !== 'K')
+            .filter(t => !t.startsWith('zh-') && !t.startsWith('en-'));
+
+        if (ua.device.model === 'K')
+            continue;
+
+        if (ua.device.model)
+            models.push(ua.device.model);
+
+        // console.log(a);
+        // console.log(left, ' :: ', ua.os.name, ua.os.version, ' :: ', ua.device.model, ua.device.vendor);
+    }
+    // console.log(ua);
+}
+
+const uniq = [...new Set(models)];
+uniq.sort();
+console.log("'" + uniq.join("','") + "'");
+
 

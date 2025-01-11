@@ -1,7 +1,7 @@
 module Components.Internal.Config exposing (..)
 
-import Html.Styled exposing (Html, div, text)
-import Html.Styled.Attributes exposing (class)
+import Css
+import Html.Styled exposing (Html)
 import Components.Internal.Column exposing (..)
 import Components.Internal.Data exposing (..)
 import Components.Internal.State exposing (..)
@@ -34,6 +34,7 @@ type alias ConfigInternal a b tbstate msg =
     , subtable : Maybe (SubTable a b msg)
     -- , errorView : String -> Html msg
     , toolbar : List (tbstate -> Html msg)
+    , toolbarContainer : List (List Css.Style -> tbstate -> Html msg)
     , stickyHeader : Bool
     }
 
@@ -58,6 +59,7 @@ config t s oe oi c =
         , subtable = Nothing
         -- , errorView = errorView
         , toolbar = []
+        , toolbarContainer = []
         , stickyHeader = False
         }
 
@@ -75,6 +77,7 @@ static onChange getID columns =
         , subtable = Nothing
         -- , errorView = errorView
         , toolbar = []
+        , toolbarContainer = []
         , stickyHeader = False
         }
 
@@ -92,6 +95,7 @@ dynamic onChangeExt onChangeInt getID columns =
         , subtable = Nothing
         -- , errorView = errorView
         , toolbar = []
+        , toolbarContainer = []
         , stickyHeader = False
         }
 
@@ -153,6 +157,10 @@ withToolbar : List (tbstate -> Html msg) -> Config a b tbstate msg -> Config a b
 withToolbar t (Config c) =
     Config { c | toolbar = t }
 
+withToolbarContainer : List (List Css.Style -> tbstate -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
+withToolbarContainer t (Config c) =
+    Config { c | toolbarContainer = t }
+
 
 -- withErrorView : (String -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
 -- withErrorView t (Config c) =
@@ -178,6 +186,7 @@ withSubtable getValues getID columns expand (Config c) =
         , subtable = Just <| SubTable getValues { columns = columns, getID = getID, expand = expand }
         -- , errorView = c.errorView
         , toolbar = c.toolbar
+        , toolbarContainer = c.toolbarContainer
         , stickyHeader = False
         }
 

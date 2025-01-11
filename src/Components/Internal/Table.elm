@@ -141,27 +141,34 @@ view config toolbarState ((Model m) as model) =
 
 tableHeader : Config a b tbstate msg -> tbstate -> Pipe msg -> Pipe msg -> State -> Html msg
 tableHeader ((Config cfg) as config) toolbarState pipeExt pipeInt state =
-    div
-        [ css <|
-            [ Tw.h_16
-            , Tw.px_4
-            , Tw.bg_color Tw.gray_100
-            , Tw.flex
-            , Tw.gap_2
-            , Tw.rounded
-            , Tw.z_10 -- In case thead is sticky, we want the extra header to be on top.
-            ]
-                ++ (if cfg.stickyHeader then
-                        [ Tw.sticky, Tw.top_0 ]
+    let
+        stickyStyles =
+            if cfg.stickyHeader then
+                [ Tw.sticky
+                , Tw.top_0
+                , Tw.z_10 -- In case thead is sticky, we want the extra header to be on top.
+                ]
 
-                    else
-                        []
-                   )
-        ]
-        [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
-        , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| List.map (\f -> f toolbarState) <| cfg.toolbar
-        , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Components.Internal.Toolbar.view config pipeExt pipeInt state
-        ]
+            else
+                []
+
+        toolbarContainerStyles =
+            [ Tw.h_16, Tw.px_4, Tw.bg_color Tw.gray_100 ]
+    in
+    div [ css <| [ Tw.flex, Tw.flex_col ] ++ stickyStyles ]
+        ([ div
+            [ css <|
+                [ Tw.flex
+                , Tw.gap_2
+                ] ++ toolbarContainerStyles
+            ]
+            [ div [ css [ Tw.relative, Tw.flex, Tw.items_center, Tw.justify_between, Tw.grow ] ] <| headerSearch pipeExt pipeInt
+            , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| List.map (\f -> f toolbarState) <| cfg.toolbar
+            , div [ css [ Tw.flex, Tw.gap_2, Tw.items_center ] ] <| Components.Internal.Toolbar.view config pipeExt pipeInt state
+            ]
+         ]
+            ++ (List.map (\f -> f toolbarContainerStyles toolbarState) <| cfg.toolbarContainer)
+        )
 
 
 headerSearch : Pipe msg -> Pipe msg -> List (Html msg)

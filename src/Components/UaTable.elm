@@ -4,6 +4,7 @@ import Components.Clipboard as Clipboard
 import Components.Table as Table
 import Components.Table.Column as Column
 import Components.Table.Config as Config
+import Components.UaDropdown as UaDropdown
 import Css
 import FontAwesome.Solid as Icon
 import Html.Styled exposing (..)
@@ -24,7 +25,16 @@ import Util exposing (..)
 
 uaDataFile : String
 uaDataFile =
-    "data/data.txt"
+    "data/data-big.txt"
+
+
+type alias UaPipe model msg =
+    (model -> model) -> msg
+
+
+mkPipe : (model -> msg) -> model -> UaPipe model msg
+mkPipe fmsg model transform =
+    fmsg <| transform model
 
 
 init : Model
@@ -32,12 +42,25 @@ init =
     { table = Table.init config |> Table.withStatus "Load / Generate Data"
     , toolbarState =
         { copyAllState = Clipboard.Idle
+        , generateConfigState =
+            { ddPreset = UaDropdown.init [ "Spray & Pray", "Browsers", "Mobile", "Devices", "Tools", "Payloads", "Uncommon", "Custom" ] "Spray & Pray"
+            , ddBrowser = UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ] "Any"
+            , ddOsDevice = UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ] "Any"
+            }
         }
+    }
+
+
+type alias GeneratorTotalEclipseState =
+    { ddPreset : UaDropdown.State String
+    , ddBrowser : UaDropdown.State String
+    , ddOsDevice : UaDropdown.State String
     }
 
 
 type alias ToolbarState =
     { copyAllState : Clipboard.ViewState
+    , generateConfigState : GeneratorTotalEclipseState
     }
 
 
@@ -59,6 +82,9 @@ config =
             [ fetchUaButton
             , copyAllButton
             ]
+        |> Config.withToolbarContainer
+            [ generateUaContainer
+            ]
 
 
 
@@ -69,6 +95,9 @@ port jsAnalyse : String -> Cmd msg
 
 
 port jsAnalyseUserAgentBatch : List String -> Cmd msg
+
+
+port jsGenerateUserAgents : { preset : String, browser : String, osDevice : String, count : Int } -> Cmd msg
 
 
 port recvUserAgentBatch : (String -> msg) -> Sub msg
@@ -115,6 +144,8 @@ type Msg
     | RecvUserAgentBatch String
     | OnFetchUserAgentsClicked
     | OnFetchUserAgentsCompleted (Result Error String)
+    | UpdateToolbarState ToolbarState
+    | OnGenerateClicked
     | ClipboardMsg (Clipboard.Msg TableModel)
     | ClipboardRowMsg (Clipboard.Msg UserAgent)
 
@@ -162,7 +193,30 @@ update msg model =
             ( model, jsAnalyseUserAgentBatch lines )
 
         OnFetchUserAgentsCompleted (Err e) ->
-            ( {model | table = Table.failed model.table <| errorToString e }, Cmd.none )
+            ( { model | table = Table.failed model.table <| errorToString e }, Cmd.none )
+
+        UpdateToolbarState tbs ->
+            ( { model | toolbarState = tbs }, Cmd.none )
+
+        OnGenerateClicked ->
+            let
+                st =
+                    model.toolbarState.generateConfigState
+
+                count =
+                    model.table |> Table.getItemsPerPage
+
+                payload =
+                    { preset =
+                        st.ddPreset.selected
+                    , browser =
+                        st.ddBrowser.selected
+                    , osDevice =
+                        st.ddOsDevice.selected
+                    , count = count |> if0then (model.table |> Table.get |> List.length) |> if0then 10
+                    }
+            in
+            ( model, jsGenerateUserAgents payload )
 
         ClipboardMsg m ->
             let
@@ -211,6 +265,7 @@ appendRowsToModel x model =
                     Debug.log "failed to get rows" err
             in
             model
+
 
 setRowsToModel : Result error (List UserAgent) -> Model -> Model
 setRowsToModel x model =
@@ -289,4 +344,126 @@ copyAllButton { copyAllState } =
                 ++ TwUtil.border
         ]
         [ TwUtil.icon <| iff (copyAllState == Clipboard.Idle) Icon.clipboardList Icon.clipboardCheck
+        ]
+
+
+generateUaContainer : List Css.Style -> ToolbarState -> Html Msg
+generateUaContainer xs toolbarState =
+    let
+        pipe fUpdateState =
+            mkPipe UpdateToolbarState toolbarState (\({ generateConfigState } as s) -> { s | generateConfigState = fUpdateState generateConfigState })
+    in
+    div
+        [ css <|
+            [ Tw.flex
+            , Tw.justify_between
+            , Tw.items_center
+            , Tw.border_solid
+            , Tw.border_0
+            , Tw.border_t_2
+            , Tw.border_t_color Tw.gray_300
+            ]
+                ++ xs
+        ]
+        [ div
+            [ css <|
+                [ Tw.flex
+                , Tw.justify_start
+                , Tw.gap_2
+                ]
+            ]
+            ([ UaDropdown.view
+                { identifier = "dd-preset"
+                , render = text
+                , onSelect =
+                    \item ->
+                        pipe <|
+                            \({ ddPreset } as gstate) ->
+                                { gstate
+                                    | ddPreset = UaDropdown.select item ddPreset
+                                }
+                , onToggle =
+                    \on ->
+                        pipe <|
+                            \({ ddPreset } as gstate) ->
+                                { gstate
+                                    | ddPreset = UaDropdown.toggle on ddPreset
+                                }
+                , showSelectedInTopLevel = True
+                , icon = TwUtil.icon Icon.rocket
+                , align = TwUtil.Left
+                }
+                toolbarState.generateConfigState.ddPreset
+             ]
+                |> appendIfT (toolbarState.generateConfigState.ddPreset.selected == "Custom")
+                    [ UaDropdown.view
+                        { identifier = "dd-browser"
+                        , render = text
+                        , onSelect =
+                            \item ->
+                                pipe <|
+                                    \({ ddBrowser } as gstate) ->
+                                        { gstate
+                                            | ddBrowser = UaDropdown.select item ddBrowser
+                                        }
+                        , onToggle =
+                            \on ->
+                                pipe <|
+                                    \({ ddBrowser } as gstate) ->
+                                        { gstate
+                                            | ddBrowser = UaDropdown.toggle on ddBrowser
+                                        }
+                        , showSelectedInTopLevel = True
+                        , icon = TwUtil.icon Icon.globe
+                        , align = TwUtil.Left
+                        }
+                        toolbarState.generateConfigState.ddBrowser
+                    , UaDropdown.view
+                        { identifier = "dd-osdevice"
+                        , render = text
+                        , onSelect =
+                            \item ->
+                                pipe <|
+                                    \({ ddOsDevice } as gstate) ->
+                                        { gstate
+                                            | ddOsDevice = UaDropdown.select item ddOsDevice
+                                        }
+                        , onToggle =
+                            \on ->
+                                pipe <|
+                                    \({ ddOsDevice } as gstate) ->
+                                        { gstate
+                                            | ddOsDevice = UaDropdown.toggle on ddOsDevice
+                                        }
+                        , showSelectedInTopLevel = True
+                        , icon = TwUtil.icon Icon.mobile
+                        , align = TwUtil.Left
+                        }
+                        toolbarState.generateConfigState.ddOsDevice
+                    ]
+            )
+        , div
+            [ css [ Tw.flex, Tw.gap_2, Tw.items_center ]
+            ]
+            [ button
+                [ onClick <| OnGenerateClicked
+                , css <|
+                    [ Tw.flex
+                    , Tw.justify_center
+                    , Tw.items_center
+                    , Tw.w_10
+                    , Tw.h_10
+                    , Tw.cursor_pointer
+                    , Tw.bg_color Tw.white
+                    , Css.hover
+                        [ Tw.bg_color Tw.gray_100
+                        ]
+                    ]
+                        ++ TwUtil.border
+                ]
+                [ TwUtil.icon <| Icon.arrowsRotate -- TODO: set icon to "Go" or "Rotate" depending on whether UAs have been generated for the current config
+                ]
+            , span [] [ text "Generate Agents" ]
+            , TwUtil.icon Icon.hammer
+            ]
         ]

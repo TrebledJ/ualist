@@ -82,11 +82,11 @@ update msg model =
 
         TableMsg m ->
             let
-                _ =
-                    Debug.log "called" "TableMsg"
+                -- _ =
+                --     Debug.log "called" "TableMsg"
                 
-                _ =
-                    Debug.log "data" <| getState model.tableModel.table
+                -- _ =
+                --     Debug.log "data" <| getState model.tableModel.table
 
                 ( newTableModel, cmd ) =
                     UaTable.update m model.tableModel

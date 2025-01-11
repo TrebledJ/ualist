@@ -4,7 +4,7 @@ module Components.Table.Config exposing
     , withExpand, withSelection, withSelectionFree, withSelectionLinked
     , withSelectionLinkedStrict, withSelectionExclusive
     , withSelectionExclusiveStrict, withPagination, withRowLimits, withProgressiveLoading
-    , withToolbar, {- withErrorView, -} withSubtable
+    , withToolbar, withToolbarContainer, {- withErrorView, -} withSubtable
     , withStickyHeader, withRowClickHandler
     )
 
@@ -31,6 +31,7 @@ import Components.Internal.Config
 import Components.Internal.Data exposing (Model, Row)
 import Components.Table.Column exposing (..)
 import Components.Table.Types exposing (..)
+import Css
 import Html.Styled exposing (Html)
 
 
@@ -131,6 +132,13 @@ withProgressiveLoading =
 withToolbar : List (tbstate -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withToolbar =
     Components.Internal.Config.withToolbar
+
+
+{-| Add a custom toolbar.
+-}
+withToolbarContainer : List (List Css.Style -> tbstate -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
+withToolbarContainer =
+    Components.Internal.Config.withToolbarContainer
 
 
 -- {-| Define a specific error message.

@@ -72,7 +72,7 @@ view { identifier, render, onSelect, onToggle, showSelectedInTopLevel, icon, ali
                             [ icon ]
                          ]
                             ++ (if showSelectedInTopLevel then
-                                    [ span [ css [ Tw.ml_1, Tw.text_lg ] ]
+                                    [ span [ css [ Tw.ml_2, Tw.text_lg ] ]
                                         [ render <| selected
                                         ]
                                     ]
