@@ -1,4 +1,4 @@
-module Components.Table exposing
+module Components.Table.Table exposing
     ( Model, Row, Rows, RowID, get, getFiltered, getItemsPerPage, init, loaded, loadedDynamic, loadedStatic, withStatus, failed
     , Pipe, State, Pagination, pagination, selected, subSelected
     , Config, Column, static, dynamic

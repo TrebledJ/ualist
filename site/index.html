@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <title>User Agent Generator and Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="index.css" rel="stylesheet" />
-    <script src="dist/elm.js"></script>
+    <!-- <link href="index.css" rel="stylesheet" /> -->
+    <script src="elm.js"></script>
     <script src="ua-parser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Open Sans", sans-serif;
+        }
+    </style>
 </head>
 
 <body>
@@ -65,16 +71,16 @@
         const generate_tools = function (count) {
             const generators = [
                 _ => 'curl/' + v(n(1, 8), n(0, 4)),
-                    _ => 'wget/' + v(n(1, 2), n(0, 1)),
-                    _ => 'PostmanRuntime/' + v(n(1, 16), n(0, 2)),
-                    _ => 'okhttp/' + v(n(1, 5), n(0, 4), n(0, 5)),
-                    _ => 'node-fetch/' + v(1, n(0, 15)),
-                    _ => 'python-requests/' + v(n(1, 2), n(1, 40)),
-                    _ => 'Java/' + v(1, n(6, 18), n(0, 4)) + '_' + n(0, 20),
-                    _ => 'Java-http-client/' + v(n(6, 18), n(0, 9), n(0, 9)),
-                    _ => 'go-http-client/1.1' + v(1, n(0, 24)),
-                    _ => 'axios/' + v(1, n(0, 12), n(0, 9)),
-                    _ => 'PHP-SOAP/' + v(n(5, 8), n(0, 4), n(0, 35)),
+                _ => 'wget/' + v(n(1, 2), n(0, 1)),
+                _ => 'PostmanRuntime/' + v(n(1, 16), n(0, 2)),
+                _ => 'okhttp/' + v(n(1, 5), n(0, 4), n(0, 5)),
+                _ => 'node-fetch/' + v(1, n(0, 15)),
+                _ => 'python-requests/' + v(n(1, 2), n(1, 40)),
+                _ => 'Java/' + v(1, n(6, 18), n(0, 4)) + '_' + n(0, 20),
+                _ => 'Java-http-client/' + v(n(6, 18), n(0, 9), n(0, 9)),
+                _ => 'go-http-client/1.1' + v(1, n(0, 24)),
+                _ => 'axios/' + v(1, n(0, 12), n(0, 9)),
+                _ => 'PHP-SOAP/' + v(n(5, 8), n(0, 4), n(0, 35)),
             ];
             const results = [];
             for (const gen of generators) {

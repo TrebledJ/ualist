@@ -1,7 +1,7 @@
 port module Components.UaTable exposing (..)
 
 import Components.Clipboard as Clipboard
-import Components.Table as Table
+import Components.Table.Table as Table
 import Components.Table.Column as Column
 import Components.Table.Config as Config
 import Components.UaDropdown as UaDropdown
@@ -25,7 +25,7 @@ import Util exposing (..)
 
 uaDataFile : String
 uaDataFile =
-    "data/data-big.txt"
+    "data.txt"
 
 
 type alias UaPipe model msg =
