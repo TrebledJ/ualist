@@ -49,13 +49,13 @@ init width =
         { copyAllState = Clipboard.Idle
         , generateConfigState =
             { ddPreset =
-                UaDropdown.init [ "Spray & Pray", "Browsers", "Mobile", "Devices", "Tools", "Payloads", "Uncommon", "Custom" ]
+                UaDropdown.init [ "Spray & Pray", "Browsers", "Mobile", "Devices", "Tools", "Uncommon", "Custom" ]
                     |> UaDropdown.withHint "Select Preset"
             , ddBrowser =
-                UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ]
+                UaDropdown.init [ "Any", "Chrome", "Firefox" ] -- TODO: add "Other" option.
                     |> UaDropdown.withDefault "Any"
             , ddOsDevice =
-                UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ]
+                UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android" ]
                     |> UaDropdown.withDefault "Any"
             , generateLastAction = False
             , showGenerateContainer = False

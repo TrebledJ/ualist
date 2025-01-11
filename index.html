@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>User Agent Generator and Viewer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="index.css" rel="stylesheet" />
     <script src="dist/elm.js"></script>
     <script src="ua-parser.min.js"></script>
@@ -63,18 +63,40 @@
         });
 
         const generate_tools = function (count) {
-            return [
-                'curl/' + generate_generic_version(8, 4),
-                'wget/' + generate_generic_version(2, 1),
-                'Postman/' + generate_generic_version(16, 2),
+            const generators = [
+                _ => 'curl/' + v(n(1, 8), n(0, 4)),
+                    _ => 'wget/' + v(n(1, 2), n(0, 1)),
+                    _ => 'PostmanRuntime/' + v(n(1, 16), n(0, 2)),
+                    _ => 'okhttp/' + v(n(1, 5), n(0, 4), n(0, 5)),
+                    _ => 'node-fetch/' + v(1, n(0, 15)),
+                    _ => 'python-requests/' + v(n(1, 2), n(1, 40)),
+                    _ => 'Java/' + v(1, n(6, 18), n(0, 4)) + '_' + n(0, 20),
+                    _ => 'Java-http-client/' + v(n(6, 18), n(0, 9), n(0, 9)),
+                    _ => 'go-http-client/1.1' + v(1, n(0, 24)),
+                    _ => 'axios/' + v(1, n(0, 12), n(0, 9)),
+                    _ => 'PHP-SOAP/' + v(n(5, 8), n(0, 4), n(0, 35)),
             ];
+            const results = [];
+            for (const gen of generators) {
+                results.push(gen());
+            }
+            return results;
+            // function gen() {
+            //     return c(
+            //     )();
+            // }
+            // const results = [];
+            // for (let i = 0; i < count; i++) {
+            //     results.push(gen());
+            // }
+            // return results;
         }
 
         const generate_payloads = function (count) {
             return [
-                "'",
-                "';-- ",
-                "'/*!80100*/||45*45=2025/**/||'",
+                // "'",
+                // "';-- ",
+                // "'/*!80100*/||45*45=2025/**/||'",
             ];
         }
 
@@ -389,15 +411,17 @@
                     }
                     return results;
                 case 'Custom':
-                    if (browser.toLowerCase() === 'any') {
+                    browser = browser.toLowerCase();
+                    if (browser === 'any') {
                         browser = def_browsers;
                     } else {
-                        browser = [browser.toLowerCase()]; // TODO: enable multi-select for custom generators?
+                        browser = [browser]; // TODO: enable multi-select for custom generators?
                     }
-                    if (osDevice.toLowerCase() === 'any') {
+                    osDevice = osDevice.toLowerCase();
+                    if (osDevice === 'any') {
                         osDevice = def_devices;
                     } else {
-                        osDevice = [osDevice.toLowerCase()];
+                        osDevice = [osDevice];
                     }
                     break;
                 default:
