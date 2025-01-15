@@ -373,7 +373,6 @@ layout: default
     }
 
     const generate = function ({ preset, browser, osDevice, count }) {
-        console.log("js:", count);
         const isAnd = (preset === 'Custom');
         // TODO: ipads, tablets
         const def_browsers = ['firefox', 'chrome', 'ie', 'safari', 'edge'];
@@ -437,9 +436,10 @@ layout: default
         app.ports.recvUserAgentBatch.send(JSON.stringify(processed));
     });
 
-    // app.ports.jsonConsole.subscribe(function(json) {
-    //     console.log(json)
-    // });
+    // init: generate some random agents...
+    const results = generate({ preset: 'Spray & Pray', count: 10 });
+    const processed = processUserAgentBatch(results);
+    app.ports.recvUserAgentBatch.send(JSON.stringify(processed));
 </script>
 <script>
     function fallbackCopyTextToClipboard(copyInfo) {
@@ -490,7 +490,6 @@ layout: default
     }
 
     app.ports.copyToClipboard.subscribe(function ([port, text]) {
-        console.log("[js] copying text:", text, "from port", port)
         copyTextToClipboard({
             text,
             success() {
