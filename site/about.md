@@ -15,6 +15,7 @@ Due to the nature of the generation algorithm, synthesised agents may not necess
 .drawer-content svg {
     max-height: 18px;
     display: inline-block;
+    position: relative;
     vertical-align: text-bottom;
 }
 {% endcss %}
