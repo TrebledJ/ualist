@@ -11,10 +11,12 @@ Due to the nature of the generation algorithm, synthesised agents may not necess
 
 ### Usage
 
+To copy a user agent, simply click on the row.
+
 {% css %}
 .drawer-content svg {
     max-height: 18px;
-    display: inline-block;
+    display: inline;
     position: relative;
     vertical-align: text-bottom;
 }
@@ -51,7 +53,7 @@ Due to the nature of the generation algorithm, synthesised agents may not necess
 
 ### Why?
 
-I built this to learn and noodle around with technologies such as [Elm](https://elm-lang.org/https://elm-lang.org/) and [TailwindCSS](https://tailwindcss.com/). Plus, I wanted to scratch my early 2025 programming itch.
+I built this to learn and noodle around with technologies such as [Elm](https://elm-lang.org/) and [TailwindCSS](https://tailwindcss.com/). Plus, I wanted to scratch my early 2025 programming itch.
 
 ### Credits
 
