@@ -156,9 +156,9 @@ dropdownItem : (Int -> msg) -> Int -> ( Bool, String ) -> Html msg
 dropdownItem fSelect idx ( selected, str ) =
     div
         [ css
-            [ Tw.inline_block
-            , Tw.box_border
-            , Tw.w_full
+            [ Tw.flex
+            , Tw.justify_between
+            , Tw.items_center
             , Tw.px_3
             , Tw.py_1
             , Tw.whitespace_nowrap

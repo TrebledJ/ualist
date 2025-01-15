@@ -1,6 +1,7 @@
 module View exposing (main)
 
 import Browser
+import Css
 import Html
 import Html.Styled as HtmlS exposing (..)
 import Html.Styled.Attributes as Attr
@@ -100,7 +101,10 @@ view : Model -> Html.Html Msg
 view model =
     HtmlS.toUnstyled <|
         div
-            [ Attr.css [ Tw.w_screen, Tw.mx_auto ]
+            [ Attr.css [ Tw.w_screen, Tw.h_screen, Tw.mx_auto
+                --, Css.property "font-family" "Monaco, \"Bitstream Vera Sans Mono\", \"Lucida Console\", Terminal, monospace"
+                --, Css.property "font-size" "14px"
+            ]
             ]
             [ viewMain model
             ]

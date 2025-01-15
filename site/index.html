@@ -1,371 +1,337 @@
-<html>
+---
+permalink: /uagen/
+layout: default
+---
 
-<head>
-    <meta charset="UTF-8">
-    <title>User Agent Generator and Viewer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- <link href="index.css" rel="stylesheet" /> -->
-    <script src="elm.js"></script>
-    <script src="ua-parser.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: "Open Sans", sans-serif;
-        }
-    </style>
-</head>
+<script src="/assets/elm.js"></script>
+<script src="/assets/ua-parser.min.js"></script>
+<div id="view-app"></div>
+<script>
+    let app = Elm.View.init({
+        node: document.getElementById('view-app'),
+        flags: JSON.stringify({ width: window.innerWidth }),
+    });
+    // let app = Elm.ButtonTest.init({
+    //     node: document.getElementById('view-app')
+    // });
 
-<body>
-    <div id="view-app"></div>
-    <script>
-        let app = Elm.View.init({
-            node: document.getElementById('view-app'),
-            flags: JSON.stringify({ width: window.innerWidth }),
-        });
-        // let app = Elm.ButtonTest.init({
-        //     node: document.getElementById('view-app')
-        // });
+    const uap = new UAParser();
 
-        const uap = new UAParser();
-
-        function processUserAgent(ua) {
-            uap.setUA(ua);
-            const res = uap.getResult();
-            const data = {
-                ua: ua,
-                browser: res.browser.name || (ua.includes('/') ? ua.split('/', 1)[0] : '-'),
-                model: res.device.model || '-',
-                vendor: res.device.vendor || '-',
-                os: res.os.name || '-',
-            };
-            if (data.model !== '-' && data.model.startsWith("KF") && data.vendor === 'Amazon') {
-                data.model += ' (Kindle)'
-            } else if (res.device.type) {
-                let titlecase = res.device.type.charAt(0).toUpperCase() + res.device.type.substring(1).toLowerCase();
-                titlecase = titlecase.replace('tv', 'TV')
-                data.model += ' (' + titlecase + ')';
-            }
-            if (data.os === 'Windows') {
-                data.os += ' ' + res.os.version;
-                data.vendor = 'Microsoft';
-            } else if (ua.includes('Linux') && data.os !== 'Linux') {
-                data.os += ' (Linux)'
-            }
-            return data;
-        }
-
-        function processUserAgentBatch(uas) {
-            return uas.map(processUserAgent);
-        }
-
-        app.ports.jsAnalyseUserAgent && app.ports.jsAnalyseUserAgent.subscribe(function (ua) {
-            const data = processUserAgent(ua);
-            app.ports.recvUserAgentBatch.send(JSON.stringify([data]));
-        });
-
-        app.ports.jsAnalyseUserAgentBatch && app.ports.jsAnalyseUserAgentBatch.subscribe(function (ua) {
-            const data = processUserAgentBatch(ua);
-            app.ports.recvUserAgentBatch.send(JSON.stringify(data));
-        });
-
-        const generate_tools = function (count) {
-            const generators = [
-                _ => 'curl/' + v(n(1, 8), n(0, 4)),
-                _ => 'wget/' + v(n(1, 2), n(0, 1)),
-                _ => 'PostmanRuntime/' + v(n(1, 16), n(0, 2)),
-                _ => 'okhttp/' + v(n(1, 5), n(0, 4), n(0, 5)),
-                _ => 'node-fetch/' + v(1, n(0, 15)),
-                _ => 'python-requests/' + v(n(1, 2), n(1, 40)),
-                _ => 'Java/' + v(1, n(6, 18), n(0, 4)) + '_' + n(0, 20),
-                _ => 'Java-http-client/' + v(n(6, 18), n(0, 9), n(0, 9)),
-                _ => 'go-http-client/1.1' + v(1, n(0, 24)),
-                _ => 'axios/' + v(1, n(0, 12), n(0, 9)),
-                _ => 'PHP-SOAP/' + v(n(5, 8), n(0, 4), n(0, 35)),
-            ];
-            const results = [];
-            for (const gen of generators) {
-                results.push(gen());
-            }
-            return results;
-            // function gen() {
-            //     return c(
-            //     )();
-            // }
-            // const results = [];
-            // for (let i = 0; i < count; i++) {
-            //     results.push(gen());
-            // }
-            // return results;
-        }
-
-        const generate_payloads = function (count) {
-            return [
-                // "'",
-                // "';-- ",
-                // "'/*!80100*/||45*45=2025/**/||'",
-            ];
-        }
-
-        const n = function (min, max) {
-            // Generate number within inclusive range.
-            return Math.floor(min + Math.random() * (max - min + 1));
-        }
-
-        const v = function () {
-            return [...arguments].join('.');
-        }
-
-        const u = function () {
-            return [...arguments].join('_');
-        }
-
-        const major = function (ver) {
-            const ch = ver.includes('.') ? '.' : '_';
-            return ver.split(ch)[0];
-        }
-
-        const minor = function (ver) {
-            const ch = ver.includes('.') ? '.' : '_';
-            return ver.split(ch)[1];
-        }
-
-        const j = function () {
-            return [...arguments].join('');
-        }
-
-        const c = function () {
-            // Random choice.
-            const a = [...arguments];
-            return a[n(0, a.length - 1)];
-        }
-
-        const l = s => s[n(0, s.length - 1)];
-
-        const wc = function () {
-            // Weighted choice. e.g. wc(['A', 0.4], ['B', 0.1], ['C', 0.5])
-            const arr = [...arguments];
-            const cdf = arr.map((sum => value => sum += value[1])(0));
-            const rand = Math.random();
-            return arr[cdf.findIndex(el => rand <= el)][0];
-        }
-
-        const m = function (x, p) {
-            return Math.random() < (p ?? 0.5) ? x : '';
-        }
-
-        const lang = function () {
-            return wc(
-                [c('en-GB', 'en-us', 'en-US'), 0.7],
-                [c('zh-cn', 'ar', 'fr', 'id', 'ja', 'ko', 'es', 'pt-br'), 0.3]
-            );
-        }
-
-        const x6432 = _ => wc(['i686', 0.25], ['x86_64', 0.75]);
-        const webkit = _ => c(v(537, 36), v(n(600, 610), n(0, 5), n(0, 10)));
-        const firefox = _ => n(60, 140);
-        const macos = _ => wc([c('10_15_6', '10_15_7'), 0.4], [c(v(n(10, 11), n(10, 16)), u(10, n(10, 16), n(0, 7))), 0.6]);
-        const windows = _ => wc(['5.1', 0.1], ['5.2', 0.1], ['6.1', 0.15], ['6.2', 0.15], ['6.3', 0.15], ['10.0', 0.35]);
-        const ios = _ => c(u(n(10, 18), n(0, 4)), u(n(10, 18), n(0, 4), n(0, 3)));
-        const ios_info = _ => j(wc([n(8, 10), 0.2], [n(11, 16), 0.8]), String.fromCharCode(n(65, 70)), n(10, 200));
-        const android_model = _ => c(j('M', n(2000, 2199), l('ABLWFPJKLD'), l('ABLWFPJKLD')),
-            j('LYA-', l('LTA'), n(0, 9), n(0, 9)),
-            j('MI ', c(n(2, 9), 'NOTE', 'PAD', 'MAX'), m('Pro')),
-            j('Nexus ', n(2, 9)),
-            j('Pixel ', wc(['Tablet', 0.2], [l('ABC'), 0.4], [j(n(2, 9), m('a'), m(' XL')), 0.4])),
-            j('Redmi ', c(j('Note ', n(3, 9)), j(l('KXBMA'), n(1, 9), 0), j(n(1, 9), l('ABCD'))), m(' Pro')),
-            j('SM-', l('ACFGRPNTL'), n(300, 999), m(l('VINAFBCKIU'))),
-            j('SHT-', l('AWLV'), 0, n(1, 9), m(l('FG'))),
-            j(l('TBAKL'), n(300, 899), l('HWBKALVMNDOSY')),
-            c(
-                j('Power Armor ', n(10, 20), 'T'),
-                j('TB-', c(j(l('JQX'), n(300, 899)), j(3000, 8999)), l('FXLZNUIA')),
-                j('U', n(8000, 9999)),
-                j('V', n(1800, 2100), m(l('AT'))),
-                j('Z0', n(10, 100), l('KDELS')),
-            ),
-            c(j('YAL-L', n(2, 8), 1),
-                j('YALE-L', n(2, 8), 1, l('AD')),
-            ),
-            j('moto e(', n(4, 20), ')', c(' play', '', 's', ' supra')),
-        );
-        const android_build = _ => m(j(' Build/', l('MNBPXDALT'), n(100, 999), l('VMPQLDXABCEF')), 0.3);
-        const android_v = _ => c(v(n(7, 15)), v(n(7, 15), n(0, 4)), v(n(7, 15), n(0, 4), n(0, 4)));
-        const chrome_v = _ => wc([v(n(10, 150), 0, 0, 0), 0.5], [v(n(10, 150), n(0, 10), n(500, 6000), n(10, 1000)), 0.5]);
-
-        // TODO: generate more realistic android phones.
-
-        const lookup = {
-            firefox: {
-                windows: [
-                    _ => (rv => `Mozilla/5.0 (Windows NT ${windows()};${m(' Win64; x64;')} rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
-                ],
-                linux: [
-                    _ => (rv => `Mozilla/5.0 (X11; Linux ${x6432()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
-                    _ => (rv => `Mozilla/5.0 (X11; U; Linux ${x6432()}; ${lang()}; rv:${rv}.0) Gecko/20100101 Fedora/${n(12, 18)} Firefox/${rv}.0`)(firefox()),
-                    _ => (rv => `Mozilla/5.0 (X11; Ubuntu; Linux ${x6432()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
-                    _ => (rv => `Mozilla/5.0 (X11; Linux ${x6432()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0 (Debian)`)(firefox()),
-                ],
-                macos: [
-                    _ => (rv => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
-                ],
-                ios: [
-                    _ => (wk => `Mozilla/5.0 (${c('iPhone', 'iPad')}; CPU iPhone OS ${ios()} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) FxiOS/${v(n(1, 10), n(0, 3))} Mobile/${j(n(8, 15), String.fromCharCode(n(65, 70)), n(40, 200))} Safari/${wk}`)(webkit()),
-                ],
-                android: [
-                    _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) FxiOS/${v(n(4, 9), n(0, 9))}b${n(1000, 5000)} Mobile/${ios_info()} Safari/${wk}`)(webkit()),
-                    _ => (rv => `Mozilla/5.0 (Android ${android_v()}; Mobile; ${android_model()}${android_build()}; rv:${rv}.0) Gecko/${rv}.0 Firefox/${rv}.0`)(firefox()),
-                    _ => (rv => `Mozilla/5.0 (Android ${android_v()}; Mobile; rv:${rv}.0) Gecko/${rv}.0 Firefox/${rv}.0`)(firefox()),
-                ],
-            },
-            chrome: {
-                windows: [
-                    _ => (wk => `Mozilla/5.0 (Windows NT ${windows()};${c('', ' WOW64', ' Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
-                ],
-                linux: [
-                    _ => (wk => `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/${wk} (KHTML, like Gecko)${m(` ${c('Ubuntu', 'Debian', 'Fedora')}/${v(n(4, 20), n(4, 20))}`)} ${wc([`Chrome/${chrome_v()}`, 0.9], [`Chromium/${chrome_v()}`, 0.1])} Safari/${wk}`)(webkit()),
-                ],
-                macos: [_ => (wk => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit())],
-                ios: [_ => (wk => `Mozilla/5.0 (iPhone; CPU iPhone OS ${ios()} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) CriOS/${chrome_v()} Mobile/${ios_info()} Safari/${wk}`)(webkit())],
-                android: [
-                    _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Mobile Safari/${wk}`)(webkit()),
-                ],
-            },
-            ie: {
-                windows: [
-                    _ => `Mozilla/5.0 (IE 11.0; Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}; Trident/7.0; rv:${n(6, 14)}.0) like Gecko`,
-                    _ => `Mozilla/5.0 (${m('compatible; ')}MSIE ${n(8, 10)}.0; Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}; Trident/6.0)`,
-                    _ => `Mozilla/5.0 (Windows; U; MSIE ${n(4, 7)}.0; Windows NT ${windows()})`,
-                ],
-            },
-            edge: {
-                windows: [
-                    _ => (wk => `Mozilla/5.0 (Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk} Edge/${v(n(10, 100), n(0, 2))}`)(webkit()),
-                    _ => ((wk, chr) => `Mozilla/5.0 (Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Safari/${wk} Edg/${chr}`)(webkit(), chrome_v()),
-                ],
-                macos: [_ => ((wk, chr) => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Safari/${wk} Edg/${chr}`)(webkit(), chrome_v())],
-                ios: [_ => ((wk, ios_) => `Mozilla/5.0 (iPhone; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) Version/${major(ios_)} EdgiOS/${chrome_v()} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios())],
-                android: [_ => ((wk, chr) => `Mozilla/5.0 (Linux; Android 11; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Mobile Safari/${wk} EdgA/${chr}`)(webkit(), chrome_v())],
-            },
-            safari: {
-                macos: [_ => (wk => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}) AppleWebKit/${wk} (KHTML, like Gecko) Version/${v(n(10, 15), n(0, 8))},${n(0, 2)} Safari/${wk}`)(webkit())],
-                ios: [
-                    _ => ((wk, ios_) => `Mozilla/5.0 (${c('iPhone', 'iPad', 'iPod touch')}; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko)${m(` Version/${major(ios_)}.${minor(ios_)}}`)} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios()),
-                ],
-            },
+    function processUserAgent(ua) {
+        uap.setUA(ua);
+        const res = uap.getResult();
+        const data = {
+            ua: ua,
+            browser: res.browser.name || (ua.includes('/') ? ua.split('/', 1)[0] : '-'),
+            model: res.device.model || '-',
+            vendor: res.device.vendor || '-',
+            os: res.os.name || '-',
         };
+        if (data.model !== '-' && data.model.startsWith("KF") && data.vendor === 'Amazon') {
+            data.model += ' (Kindle)'
+        } else if (res.device.type) {
+            let titlecase = res.device.type.charAt(0).toUpperCase() + res.device.type.substring(1).toLowerCase();
+            titlecase = titlecase.replace('tv', 'TV')
+            data.model += ' (' + titlecase + ')';
+        }
+        if (data.os === 'Windows') {
+            data.os += ' ' + res.os.version;
+            data.vendor = 'Microsoft';
+        } else if (ua.includes('Linux') && data.os !== 'Linux') {
+            data.os += ' (Linux)'
+        }
+        return data;
+    }
 
-        const generators = {};
-        Object.entries(lookup).map(([browser, obj]) => {
-            Object.entries(obj).map(([device, gens]) => {
-                if (generators[browser] === undefined)
-                    generators[browser] = [];
-                generators[browser].push(...gens);
-                if (generators[device] === undefined)
-                    generators[device] = [];
-                generators[device].push(...gens);
-            });
+    function processUserAgentBatch(uas) {
+        return uas.map(processUserAgent);
+    }
+
+    app.ports.jsAnalyseUserAgent && app.ports.jsAnalyseUserAgent.subscribe(function (ua) {
+        const data = processUserAgent(ua);
+        app.ports.recvUserAgentBatch.send(JSON.stringify([data]));
+    });
+
+    app.ports.jsAnalyseUserAgentBatch && app.ports.jsAnalyseUserAgentBatch.subscribe(function (ua) {
+        const data = processUserAgentBatch(ua);
+        app.ports.recvUserAgentBatch.send(JSON.stringify(data));
+    });
+
+    const generate_tools = function (count) {
+        const generators = [
+            _ => 'curl/' + v(n(1, 8), n(0, 4)),
+            _ => 'wget/' + v(n(1, 2), n(0, 1)),
+            _ => 'PostmanRuntime/' + v(n(1, 16), n(0, 2)),
+            _ => 'okhttp/' + v(n(1, 5), n(0, 4), n(0, 5)),
+            _ => 'node-fetch/' + v(1, n(0, 15)),
+            _ => 'python-requests/' + v(n(1, 2), n(1, 40)),
+            _ => 'Java/' + v(1, n(6, 18), n(0, 4)) + '_' + n(0, 20),
+            _ => 'Java-http-client/' + v(n(6, 18), n(0, 9), n(0, 9)),
+            _ => 'go-http-client/1.1' + v(1, n(0, 24)),
+            _ => 'axios/' + v(1, n(0, 12), n(0, 9)),
+            _ => 'PHP-SOAP/' + v(n(5, 8), n(0, 4), n(0, 35)),
+        ];
+        const results = [];
+        for (const gen of generators) {
+            results.push(gen());
+        }
+        return results;
+        // function gen() {
+        //     return c(
+        //     )();
+        // }
+        // const results = [];
+        // for (let i = 0; i < count; i++) {
+        //     results.push(gen());
+        // }
+        // return results;
+    }
+
+    const generate_payloads = function (count) {
+        return [
+            // "'",
+            // "';-- ",
+            // "'/*!80100*/||45*45=2025/**/||'",
+        ];
+    }
+
+    const n = function (min, max) {
+        // Generate number within inclusive range.
+        return Math.floor(min + Math.random() * (max - min + 1));
+    }
+
+    const v = function () {
+        return [...arguments].join('.');
+    }
+
+    const u = function () {
+        return [...arguments].join('_');
+    }
+
+    const major = function (ver) {
+        const ch = ver.includes('.') ? '.' : '_';
+        return ver.split(ch)[0];
+    }
+
+    const minor = function (ver) {
+        const ch = ver.includes('.') ? '.' : '_';
+        return ver.split(ch)[1];
+    }
+
+    const j = function () {
+        return [...arguments].join('');
+    }
+
+    const c = function () {
+        // Random choice.
+        const a = [...arguments];
+        return a[n(0, a.length - 1)];
+    }
+
+    const l = s => s[n(0, s.length - 1)];
+
+    const wc = function () {
+        // Weighted choice. e.g. wc(['A', 0.4], ['B', 0.1], ['C', 0.5])
+        const arr = [...arguments];
+        const cdf = arr.map((sum => value => sum += value[1])(0));
+        const rand = Math.random();
+        return arr[cdf.findIndex(el => rand <= el)][0];
+    }
+
+    const m = function (x, p) {
+        return Math.random() < (p ?? 0.5) ? x : '';
+    }
+
+    const lang = function () {
+        return wc(
+            [c('en-GB', 'en-us', 'en-US'), 0.7],
+            [c('zh-cn', 'ar', 'fr', 'id', 'ja', 'ko', 'es', 'pt-br'), 0.3]
+        );
+    }
+
+    const x6432 = _ => wc(['i686', 0.25], ['x86_64', 0.75]);
+    const webkit = _ => c(v(537, 36), v(n(600, 610), n(0, 5), n(0, 10)));
+    const firefox = _ => n(60, 140);
+    const macos = _ => wc([c('10_15_6', '10_15_7'), 0.4], [c(v(n(10, 11), n(10, 16)), u(10, n(10, 16), n(0, 7))), 0.6]);
+    const windows = _ => wc(['5.1', 0.1], ['5.2', 0.1], ['6.1', 0.15], ['6.2', 0.15], ['6.3', 0.15], ['10.0', 0.35]);
+    const ios = _ => c(u(n(10, 18), n(0, 4)), u(n(10, 18), n(0, 4), n(0, 3)));
+    const ios_info = _ => j(wc([n(8, 10), 0.2], [n(11, 16), 0.8]), String.fromCharCode(n(65, 70)), n(10, 200));
+    const android_model = _ => c(j('M', n(2000, 2199), l('ABLWFPJKLD'), l('ABLWFPJKLD')),
+        j('LYA-', l('LTA'), n(0, 9), n(0, 9)),
+        j('MI ', c(n(2, 9), 'NOTE', 'PAD', 'MAX'), m('Pro')),
+        j('Nexus ', n(2, 9)),
+        j('Pixel ', wc(['Tablet', 0.2], [l('ABC'), 0.4], [j(n(2, 9), m('a'), m(' XL')), 0.4])),
+        j('Redmi ', c(j('Note ', n(3, 9)), j(l('KXBMA'), n(1, 9), 0), j(n(1, 9), l('ABCD'))), m(' Pro')),
+        j('SM-', l('ACFGRPNTL'), n(300, 999), m(l('VINAFBCKIU'))),
+        j('SHT-', l('AWLV'), 0, n(1, 9), m(l('FG'))),
+        j(l('TBAKL'), n(300, 899), l('HWBKALVMNDOSY')),
+        c(
+            j('Power Armor ', n(10, 20), 'T'),
+            j('TB-', c(j(l('JQX'), n(300, 899)), j(3000, 8999)), l('FXLZNUIA')),
+            j('U', n(8000, 9999)),
+            j('V', n(1800, 2100), m(l('AT'))),
+            j('Z0', n(10, 100), l('KDELS')),
+        ),
+        c(j('YAL-L', n(2, 8), 1),
+            j('YALE-L', n(2, 8), 1, l('AD')),
+        ),
+        j('moto e(', n(4, 20), ')', c(' play', '', 's', ' supra')),
+    );
+    const android_build = _ => m(j(' Build/', l('MNBPXDALT'), n(100, 999), l('VMPQLDXABCEF')), 0.3);
+    const android_v = _ => c(v(n(7, 15)), v(n(7, 15), n(0, 4)), v(n(7, 15), n(0, 4), n(0, 4)));
+    const chrome_v = _ => wc([v(n(10, 150), 0, 0, 0), 0.5], [v(n(10, 150), n(0, 10), n(500, 6000), n(10, 1000)), 0.5]);
+
+    // TODO: generate more realistic android phones.
+
+    const lookup = {
+        firefox: {
+            windows: [
+                _ => (rv => `Mozilla/5.0 (Windows NT ${windows()};${m(' Win64; x64;')} rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
+            ],
+            linux: [
+                _ => (rv => `Mozilla/5.0 (X11; Linux ${x6432()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
+                _ => (rv => `Mozilla/5.0 (X11; U; Linux ${x6432()}; ${lang()}; rv:${rv}.0) Gecko/20100101 Fedora/${n(12, 18)} Firefox/${rv}.0`)(firefox()),
+                _ => (rv => `Mozilla/5.0 (X11; Ubuntu; Linux ${x6432()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
+                _ => (rv => `Mozilla/5.0 (X11; Linux ${x6432()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0 (Debian)`)(firefox()),
+            ],
+            macos: [
+                _ => (rv => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
+            ],
+            ios: [
+                _ => (wk => `Mozilla/5.0 (${c('iPhone', 'iPad')}; CPU iPhone OS ${ios()} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) FxiOS/${v(n(1, 10), n(0, 3))} Mobile/${j(n(8, 15), String.fromCharCode(n(65, 70)), n(40, 200))} Safari/${wk}`)(webkit()),
+            ],
+            android: [
+                _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) FxiOS/${v(n(4, 9), n(0, 9))}b${n(1000, 5000)} Mobile/${ios_info()} Safari/${wk}`)(webkit()),
+                _ => (rv => `Mozilla/5.0 (Android ${android_v()}; Mobile; ${android_model()}${android_build()}; rv:${rv}.0) Gecko/${rv}.0 Firefox/${rv}.0`)(firefox()),
+                _ => (rv => `Mozilla/5.0 (Android ${android_v()}; Mobile; rv:${rv}.0) Gecko/${rv}.0 Firefox/${rv}.0`)(firefox()),
+            ],
+        },
+        chrome: {
+            windows: [
+                _ => (wk => `Mozilla/5.0 (Windows NT ${windows()};${c('', ' WOW64', ' Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
+            ],
+            linux: [
+                _ => (wk => `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/${wk} (KHTML, like Gecko)${m(` ${c('Ubuntu', 'Debian', 'Fedora')}/${v(n(4, 20), n(4, 20))}`)} ${wc([`Chrome/${chrome_v()}`, 0.9], [`Chromium/${chrome_v()}`, 0.1])} Safari/${wk}`)(webkit()),
+            ],
+            macos: [_ => (wk => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit())],
+            ios: [_ => (wk => `Mozilla/5.0 (iPhone; CPU iPhone OS ${ios()} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) CriOS/${chrome_v()} Mobile/${ios_info()} Safari/${wk}`)(webkit())],
+            android: [
+                _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Mobile Safari/${wk}`)(webkit()),
+            ],
+        },
+        ie: {
+            windows: [
+                _ => `Mozilla/5.0 (IE 11.0; Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}; Trident/7.0; rv:${n(6, 14)}.0) like Gecko`,
+                _ => `Mozilla/5.0 (${m('compatible; ')}MSIE ${n(8, 10)}.0; Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}; Trident/6.0)`,
+                _ => `Mozilla/5.0 (Windows; U; MSIE ${n(4, 7)}.0; Windows NT ${windows()})`,
+            ],
+        },
+        edge: {
+            windows: [
+                _ => (wk => `Mozilla/5.0 (Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk} Edge/${v(n(10, 100), n(0, 2))}`)(webkit()),
+                _ => ((wk, chr) => `Mozilla/5.0 (Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Safari/${wk} Edg/${chr}`)(webkit(), chrome_v()),
+            ],
+            macos: [_ => ((wk, chr) => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Safari/${wk} Edg/${chr}`)(webkit(), chrome_v())],
+            ios: [_ => ((wk, ios_) => `Mozilla/5.0 (iPhone; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) Version/${major(ios_)} EdgiOS/${chrome_v()} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios())],
+            android: [_ => ((wk, chr) => `Mozilla/5.0 (Linux; Android 11; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Mobile Safari/${wk} EdgA/${chr}`)(webkit(), chrome_v())],
+        },
+        safari: {
+            macos: [_ => (wk => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}) AppleWebKit/${wk} (KHTML, like Gecko) Version/${v(n(10, 15), n(0, 8))},${n(0, 2)} Safari/${wk}`)(webkit())],
+            ios: [
+                _ => ((wk, ios_) => `Mozilla/5.0 (${c('iPhone', 'iPad', 'iPod touch')}; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko)${m(` Version/${major(ios_)}.${minor(ios_)}}`)} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios()),
+            ],
+        },
+    };
+
+    const generators = {};
+    Object.entries(lookup).map(([browser, obj]) => {
+        Object.entries(obj).map(([device, gens]) => {
+            if (generators[browser] === undefined)
+                generators[browser] = [];
+            generators[browser].push(...gens);
+            if (generators[device] === undefined)
+                generators[device] = [];
+            generators[device].push(...gens);
         });
+    });
 
-        const extra = {
-            wechat: [
-                _ => (wk => `mozilla/5.0 (windows nt ${windows()}${m('; wow64')}) applewebkit/${wk} (khtml, like gecko) chrome/${chrome_v()} safari/${wk} qbcore/${chrome_v()} qqbrowser/${chrome_v()}`)(webkit()),
-                _ => (wk => `mozilla/5.0 (windows nt ${windows()}${m('; wow64')}) applewebkit/${wk} (khtml, like gecko) chrome/${chrome_v()} safari/${wk} nettype/wifi micromessenger/${chrome_v()}(0x${n(500, 2000).toString(16)}${n(0, 9)}${n(0, 255).toString(16)}${n(0, 255).toString(16)}) windowswechat`)(webkit()),
-            ],
-            baidu: [
-                _ => (wk => `Mozilla/5.0 (Windows NT ${windows()}${m('; WOW64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} BIDUBrowser/${v(n(5, 10), n(0, 9))} Safari/${wk}`)(webkit()),
-            ],
-            opera: [
-                _ => (wk => `Mozilla/5.0 (Linux; U; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko)${m(` Version/${n(2, 8)}.0`)} Chrome/${chrome_v()} Mobile Safari/${wk} OPR/${chrome_v()}`)(webkit()),
-            ],
-            nokia: [
-                _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; Nokia ${j(l('TNCXM'), n(2, 30))}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
-                _ => (wk => `Mozilla/5.0 (Symbian/${n(2, 4)}; Series${n(4, 8)}0/${v(n(4, 8), n(0, 5))} Nokia${j(l('ABCD'), n(0, 8))}-${j(n(0, 9), n(0, 9))}/0${n(10, 49)}.00${n(1, 9)}${m(`; Profile/MIDP-${n(0, 4)}.${n(0, 2)} Configuration/CLDC-${n(0, 2)}.${n(0, 9)} `)}) AppleWebKit/${wk} (KHTML, like Gecko) NokiaBrowser/${v(n(2, 9), n(0, 9), n(0, 12), n(0, 50))} Mobile Safari/${wk} 3gpp-gba`)(webkit()),
-            ],
-            huawei: [
-                _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; LYA-AL00 ) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()}${m(` HuaweiBrowser/${v(n(4, 20), n(0, 9), n(0, 9), n(0, 100))}`)} Mobile Safari/${wk}`)(webkit()),
-                _ => ((wk, bigv, patchv) => `Mozilla/5.0 (Linux; Android ${android_v()}; ${j(l('AGSWTMLY'), l('AGSWTMLY'), l('AGSWTMLYDXFEBC'), n(0, 9), '-', l('WPNQUVQDF'), n(0, 9), n(0, 9))}${m(` Build/HUAWEI${j(l('ALNB'), l('DKAG'), l('MBPQZ'))}${n(1, 5)})-${j(l('WRTMYZAB'), n(0, 9), n(0, 9))}`)}${m('; wv')}) AppleWebKit/${wk} (KHTML, like Gecko) Version/${n(2, 4)}.0 Chrome/${chrome_v()} Safari/${wk} Flipboard/${bigv}/${patchv},${bigv}.${patchv}`)(webkit(), v(n(2, 9), n(0, 8), n(0, 40)), n(1000, 9999)),
-                _ => ((wk, chr) => `Mozilla/5.0 (Linux; Android ${android_v()}; ${j(l('AGSWTMLY'), l('AGSWTMLY'), l('AGSWTMLYDXFEBC'), '-', l('ABCWPNUVQDF'), l('ABCWPNUVQDF'), n(0, 9), n(0, 9))}${m(` Build/HUAWEI${j(l('ALNB'), l('DKAG'), l('MBPQZ'))}${n(1, 5)})-${j(l('ABCWPNUVQDF'), l('ABCWPNUVQDF'), n(0, 9), n(0, 9))}`)}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Mobile Safari/${wk} EdgA/${chr}`)(webkit(), chrome_v()),
+    const extra = {
+        wechat: [
+            _ => (wk => `mozilla/5.0 (windows nt ${windows()}${m('; wow64')}) applewebkit/${wk} (khtml, like gecko) chrome/${chrome_v()} safari/${wk} qbcore/${chrome_v()} qqbrowser/${chrome_v()}`)(webkit()),
+            _ => (wk => `mozilla/5.0 (windows nt ${windows()}${m('; wow64')}) applewebkit/${wk} (khtml, like gecko) chrome/${chrome_v()} safari/${wk} nettype/wifi micromessenger/${chrome_v()}(0x${n(500, 2000).toString(16)}${n(0, 9)}${n(0, 255).toString(16)}${n(0, 255).toString(16)}) windowswechat`)(webkit()),
+        ],
+        baidu: [
+            _ => (wk => `Mozilla/5.0 (Windows NT ${windows()}${m('; WOW64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} BIDUBrowser/${v(n(5, 10), n(0, 9))} Safari/${wk}`)(webkit()),
+        ],
+        opera: [
+            _ => (wk => `Mozilla/5.0 (Linux; U; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko)${m(` Version/${n(2, 8)}.0`)} Chrome/${chrome_v()} Mobile Safari/${wk} OPR/${chrome_v()}`)(webkit()),
+        ],
+        nokia: [
+            _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; Nokia ${j(l('TNCXM'), n(2, 30))}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
+            _ => (wk => `Mozilla/5.0 (Symbian/${n(2, 4)}; Series${n(4, 8)}0/${v(n(4, 8), n(0, 5))} Nokia${j(l('ABCD'), n(0, 8))}-${j(n(0, 9), n(0, 9))}/0${n(10, 49)}.00${n(1, 9)}${m(`; Profile/MIDP-${n(0, 4)}.${n(0, 2)} Configuration/CLDC-${n(0, 2)}.${n(0, 9)} `)}) AppleWebKit/${wk} (KHTML, like Gecko) NokiaBrowser/${v(n(2, 9), n(0, 9), n(0, 12), n(0, 50))} Mobile Safari/${wk} 3gpp-gba`)(webkit()),
+        ],
+        huawei: [
+            _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; LYA-AL00 ) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()}${m(` HuaweiBrowser/${v(n(4, 20), n(0, 9), n(0, 9), n(0, 100))}`)} Mobile Safari/${wk}`)(webkit()),
+            _ => ((wk, bigv, patchv) => `Mozilla/5.0 (Linux; Android ${android_v()}; ${j(l('AGSWTMLY'), l('AGSWTMLY'), l('AGSWTMLYDXFEBC'), n(0, 9), '-', l('WPNQUVQDF'), n(0, 9), n(0, 9))}${m(` Build/HUAWEI${j(l('ALNB'), l('DKAG'), l('MBPQZ'))}${n(1, 5)})-${j(l('WRTMYZAB'), n(0, 9), n(0, 9))}`)}${m('; wv')}) AppleWebKit/${wk} (KHTML, like Gecko) Version/${n(2, 4)}.0 Chrome/${chrome_v()} Safari/${wk} Flipboard/${bigv}/${patchv},${bigv}.${patchv}`)(webkit(), v(n(2, 9), n(0, 8), n(0, 40)), n(1000, 9999)),
+            _ => ((wk, chr) => `Mozilla/5.0 (Linux; Android ${android_v()}; ${j(l('AGSWTMLY'), l('AGSWTMLY'), l('AGSWTMLYDXFEBC'), '-', l('ABCWPNUVQDF'), l('ABCWPNUVQDF'), n(0, 9), n(0, 9))}${m(` Build/HUAWEI${j(l('ALNB'), l('DKAG'), l('MBPQZ'))}${n(1, 5)})-${j(l('ABCWPNUVQDF'), l('ABCWPNUVQDF'), n(0, 9), n(0, 9))}`)}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chr} Mobile Safari/${wk} EdgA/${chr}`)(webkit(), chrome_v()),
 
-            ],
-            others: [
-                _ => (ver => `Mozilla/5.0 (compatible; Konqueror/${v(n(1, 3), n(1, 8))}; Linux ${v(n(1, 2), n(0, 8), n(0, 40), n(0, 8))}; X11) KHTML/${ver} (like Gecko) (Debian package 4:${ver})`)(`${n(2, 3)}.${n(2, 6)}.${n(1, 9)}`),
-                _ => (wk => `Mozilla/5.0 (Linux; U; Android ${android_v()}; ${lang()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Version/${n(2, 4)}.0 Chrome/${chrome_v()} MQQBrowser/${v(n(1, 9), n(1, 9))} Mobile Safari/${wk}`)(webkit()),
-            ],
-            samsung: [
-                _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) SamsungBrowser/${v(n(10, 30), n(0, 2))} Chrome/${chrome_v()} Mobile Safari/${wk}`)(webkit()),
-                _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; SAMSUNG SM-${l('NATMPJRUQ')}${n(100, 999)}${l('ABCDEF')}) AppleWebKit/${wk} (KHTML, like Gecko) SamsungBrowser/${n(2, 4)}.0 Chrome/${chrome_v()} Mobile Safari/${wk}`)(webkit()),
-            ],
-            yandex: [
-                _ => ((wk, ver) => `Mozilla/5.0 (Linux; arm_64; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} YaApp_Android/${ver}/apad YaSearchBrowser/${ver}/apad BroPP/${n(1, 2)}.0 SA/${n(2, 3)} Mobile Safari/${wk}`)(webkit(), v(n(14, 28), n(40, 120))),
-                _ => (wk => `Mozilla/5.0 (Linux${m('; arm_64')}; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} YaBrowser/${v(n(10, 30), n(0, 12), n(0, 9), n(100, 400), c('00', '01'))} Safari/${wk}`)(webkit()),
-                _ => ((wk, ios_) => `Mozilla/5.0 (iPhone; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) Version/${major(ios_)}.${minor(ios_)} YaBrowser/${v(n(10, 30), n(0, 12), n(0, 9), n(100, 400), c('00', '01'))} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios()),
-            ],
-            kindle: [
-                _ => (wk => `Mozilla/5.0 (Linux; U; Android ${v(n(4, 7), n(0, 1), n(0, 3))}; en-us; ${c('KFTT', 'KFSAWI', 'KFAUWI', 'KFMAWI')}${m(` Build/K${l('TUMAW')}${n(0, 2)}${n(0, 9)}`)}) AppleWebKit/${wk} (KHTML, like Gecko) Silk/${v(n(1, 3), n(20, 66))} like Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
-            ]
-            // TODO: tvs, chromecast
+        ],
+        others: [
+            _ => (ver => `Mozilla/5.0 (compatible; Konqueror/${v(n(1, 3), n(1, 8))}; Linux ${v(n(1, 2), n(0, 8), n(0, 40), n(0, 8))}; X11) KHTML/${ver} (like Gecko) (Debian package 4:${ver})`)(`${n(2, 3)}.${n(2, 6)}.${n(1, 9)}`),
+            _ => (wk => `Mozilla/5.0 (Linux; U; Android ${android_v()}; ${lang()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Version/${n(2, 4)}.0 Chrome/${chrome_v()} MQQBrowser/${v(n(1, 9), n(1, 9))} Mobile Safari/${wk}`)(webkit()),
+        ],
+        samsung: [
+            _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) SamsungBrowser/${v(n(10, 30), n(0, 2))} Chrome/${chrome_v()} Mobile Safari/${wk}`)(webkit()),
+            _ => (wk => `Mozilla/5.0 (Linux; Android ${android_v()}; SAMSUNG SM-${l('NATMPJRUQ')}${n(100, 999)}${l('ABCDEF')}) AppleWebKit/${wk} (KHTML, like Gecko) SamsungBrowser/${n(2, 4)}.0 Chrome/${chrome_v()} Mobile Safari/${wk}`)(webkit()),
+        ],
+        yandex: [
+            _ => ((wk, ver) => `Mozilla/5.0 (Linux; arm_64; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} YaApp_Android/${ver}/apad YaSearchBrowser/${ver}/apad BroPP/${n(1, 2)}.0 SA/${n(2, 3)} Mobile Safari/${wk}`)(webkit(), v(n(14, 28), n(40, 120))),
+            _ => (wk => `Mozilla/5.0 (Linux${m('; arm_64')}; Android ${android_v()}; ${android_model()}${android_build()}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} YaBrowser/${v(n(10, 30), n(0, 12), n(0, 9), n(100, 400), c('00', '01'))} Safari/${wk}`)(webkit()),
+            _ => ((wk, ios_) => `Mozilla/5.0 (iPhone; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko) Version/${major(ios_)}.${minor(ios_)} YaBrowser/${v(n(10, 30), n(0, 12), n(0, 9), n(100, 400), c('00', '01'))} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios()),
+        ],
+        kindle: [
+            _ => (wk => `Mozilla/5.0 (Linux; U; Android ${v(n(4, 7), n(0, 1), n(0, 3))}; en-us; ${c('KFTT', 'KFSAWI', 'KFAUWI', 'KFMAWI')}${m(` Build/K${l('TUMAW')}${n(0, 2)}${n(0, 9)}`)}) AppleWebKit/${wk} (KHTML, like Gecko) Silk/${v(n(1, 3), n(20, 66))} like Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
+        ]
+        // TODO: tvs, chromecast
+    }
+
+    const generate_one_tag = function (tag) {
+        const gens = generators[tag];
+        if (!gens) {
+            console.error("unable to find generators for tag:", tag);
+            return undefined;
         }
+        return c(...gens)();
+    }
 
-        const generate_one_tag = function (tag) {
-            const gens = generators[tag];
-            if (!gens) {
-                console.error("unable to find generators for tag:", tag);
-                return undefined;
-            }
-            return c(...gens)();
-        }
+    const generate_browser_and_device = function (browser, device) {
+        const lookupDevice = lookup[browser];
+        if (!lookupDevice)
+            return undefined;
+        const gens = lookupDevice[device];
+        if (!gens)
+            return undefined;
+        return c(...gens)();
+    }
 
-        const generate_browser_and_device = function (browser, device) {
-            const lookupDevice = lookup[browser];
-            if (!lookupDevice)
-                return undefined;
-            const gens = lookupDevice[device];
-            if (!gens)
-                return undefined;
-            return c(...gens)();
-        }
+    const generate_one_uncommon = function () {
+        const k = c(...Object.keys(extra));
+        const gens = extra[k];
+        return c(...gens)();
+    }
 
-        const generate_one_uncommon = function () {
-            const k = c(...Object.keys(extra));
-            const gens = extra[k];
-            return c(...gens)();
-        }
-
-        const generate_regular = function (browsers, devices, count, isAnd) {
-            let currcount = 0;
-            let results = [];
-            let failcount = 0;
-            const maxfail = 100;
-            if (isAnd === true) {
-                // cartesian product
-                while (currcount < count) {
-                    for (const b of browsers) {
-                        for (const d of devices) {
-                            const res = generate_browser_and_device(b, d);
-                            if (res !== undefined) {
-                                results.push(res);
-                                currcount += 1;
-                                if (currcount == count) {
-                                    return results;
-                                }
-                            } else {
-                                failcount += 1;
-                                if (failcount >= maxfail) {
-                                    console.warn("failed too many times... ending with", results.length, "UAs out of", count);
-                                    return results;
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                // generate at least one of each
-                const tags = [...browsers, ...devices];
-                while (currcount < count) {
-                    for (const tag of tags) {
-                        const res = generate_one_tag(tag);
+    const generate_regular = function (browsers, devices, count, isAnd) {
+        let currcount = 0;
+        let results = [];
+        let failcount = 0;
+        const maxfail = 100;
+        if (isAnd === true) {
+            // cartesian product
+            while (currcount < count) {
+                for (const b of browsers) {
+                    for (const d of devices) {
+                        const res = generate_browser_and_device(b, d);
                         if (res !== undefined) {
-                            // TODO: smart removal - if undefined, remove the tag from list of tags to generate?
                             results.push(res);
                             currcount += 1;
                             if (currcount == count) {
@@ -381,139 +347,159 @@
                     }
                 }
             }
-        }
-
-        const generate = function ({ preset, browser, osDevice, count }) {
-            console.log("js:", count);
-            const isAnd = (preset === 'Custom');
-            // TODO: ipads, tablets
-            const def_browsers = ['firefox', 'chrome', 'ie', 'safari', 'edge'];
-            const def_devices = ['windows', 'linux', 'macos', 'ios', 'android'];
-            switch (preset) {
-                case 'Spray & Pray':
-                    browser = def_browsers;
-                    osDevice = def_devices;
-                    break;
-                case 'Browsers':
-                    browser = def_browsers;
-                    osDevice = [];
-                    break;
-                case 'Mobile':
-                    browser = [];
-                    osDevice = ['ios', 'android'];
-                    break;
-                case 'Devices':
-                    browser = [];
-                    osDevice = def_devices;
-                    break;
-                case 'Tools':
-                    return generate_tools(count);
-                case 'Payloads':
-                    return generate_payloads(count);
-                case 'Uncommon':
-                    const results = [];
-                    for (let i = 0; i < count; i++) {
-                        results.push(generate_one_uncommon());
-                    }
-                    return results;
-                case 'Custom':
-                    browser = browser.toLowerCase();
-                    if (browser === 'any') {
-                        browser = def_browsers;
+        } else {
+            // generate at least one of each
+            const tags = [...browsers, ...devices];
+            while (currcount < count) {
+                for (const tag of tags) {
+                    const res = generate_one_tag(tag);
+                    if (res !== undefined) {
+                        // TODO: smart removal - if undefined, remove the tag from list of tags to generate?
+                        results.push(res);
+                        currcount += 1;
+                        if (currcount == count) {
+                            return results;
+                        }
                     } else {
-                        browser = [browser]; // TODO: enable multi-select for custom generators?
+                        failcount += 1;
+                        if (failcount >= maxfail) {
+                            console.warn("failed too many times... ending with", results.length, "UAs out of", count);
+                            return results;
+                        }
                     }
-                    osDevice = osDevice.toLowerCase();
-                    if (osDevice === 'any') {
-                        osDevice = def_devices;
-                    } else {
-                        osDevice = [osDevice];
-                    }
-                    break;
-                default:
-                    console.error("unknown preset:", preset);
-                    return [];
-                // { ddPreset = UaDropdown.init [ "Spray & Pray", "Common Browsers", "Common Mobile", "Common Devices", "Tools", "Payloads", "Uncommon", "Custom" ] "Spray & Pray"
-                // , ddBrowser = UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ] "Any"
-                // , ddOsDevice = UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ] "Any"
-            }
-
-            return generate_regular(browser, osDevice, count, isAnd);
-            // TODO: shuffle returned results
-        };
-
-        app.ports.jsGenerateUserAgents && app.ports.jsGenerateUserAgents.subscribe(function (data) {
-            const results = generate(data);
-            const processed = processUserAgentBatch(results);
-            app.ports.recvUserAgentBatch.send(JSON.stringify(processed));
-        });
-
-        // app.ports.jsonConsole.subscribe(function(json) {
-        //     console.log(json)
-        // });
-    </script>
-    <script>
-        function fallbackCopyTextToClipboard(copyInfo) {
-            const text = copyInfo.getText();
-            if (!text) {
-                copyInfo.error();
-                return;
-            }
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-
-            // Avoid scrolling to bottom
-            textArea.style.top = '0';
-            textArea.style.left = '0';
-            textArea.style.position = 'fixed';
-
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-
-            try {
-                const successful = document.execCommand('copy');
-                setTimeout(function () {
-                    if (successful) {
-                        copyInfo.success();
-                    } else {
-                        copyInfo.error();
-                    }
-                }, 1);
-            } catch (err) {
-                setTimeout(function () {
-                    copyInfo.error(err);
-                }, 1);
-            }
-
-            document.body.removeChild(textArea);
-        }
-
-        function copyTextToClipboard(copyInfo) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(copyInfo.text).then(copyInfo.success, function () {
-                    // try the fallback in case `writeText` didn't work
-                    fallbackCopyTextToClipboard(copyInfo);
-                });
-            } else {
-                fallbackCopyTextToClipboard(copyInfo);
-            }
-        }
-
-        app.ports.copyToClipboard.subscribe(function ([port, text]) {
-            console.log("[js] copying text:", text, "from port", port)
-            copyTextToClipboard({
-                text,
-                success() {
-                    // TODO: could this potentially cause security issues?
-                    const x = app.ports[port]; x && x.send(true);
-                },
-                error() {
-                    const x = app.ports[port]; x && x.send(false);
                 }
-            });
-        });
-    </script>
-</body>
+            }
+        }
+    }
 
-</html>
+    const generate = function ({ preset, browser, osDevice, count }) {
+        console.log("js:", count);
+        const isAnd = (preset === 'Custom');
+        // TODO: ipads, tablets
+        const def_browsers = ['firefox', 'chrome', 'ie', 'safari', 'edge'];
+        const def_devices = ['windows', 'linux', 'macos', 'ios', 'android'];
+        switch (preset) {
+            case 'Spray & Pray':
+                browser = def_browsers;
+                osDevice = def_devices;
+                break;
+            case 'Browsers':
+                browser = def_browsers;
+                osDevice = [];
+                break;
+            case 'Mobile':
+                browser = [];
+                osDevice = ['ios', 'android'];
+                break;
+            case 'Devices':
+                browser = [];
+                osDevice = def_devices;
+                break;
+            case 'Tools':
+                return generate_tools(count);
+            case 'Payloads':
+                return generate_payloads(count);
+            case 'Uncommon':
+                const results = [];
+                for (let i = 0; i < count; i++) {
+                    results.push(generate_one_uncommon());
+                }
+                return results;
+            case 'Custom':
+                browser = browser.toLowerCase();
+                if (browser === 'any') {
+                    browser = def_browsers;
+                } else {
+                    browser = [browser]; // TODO: enable multi-select for custom generators?
+                }
+                osDevice = osDevice.toLowerCase();
+                if (osDevice === 'any') {
+                    osDevice = def_devices;
+                } else {
+                    osDevice = [osDevice];
+                }
+                break;
+            default:
+                console.error("unknown preset:", preset);
+                return [];
+            // { ddPreset = UaDropdown.init [ "Spray & Pray", "Common Browsers", "Common Mobile", "Common Devices", "Tools", "Payloads", "Uncommon", "Custom" ] "Spray & Pray"
+            // , ddBrowser = UaDropdown.init [ "Any", "Chrome", "Firefox", "Other" ] "Any"
+            // , ddOsDevice = UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android", "Other" ] "Any"
+        }
+
+        return generate_regular(browser, osDevice, count, isAnd);
+        // TODO: shuffle returned results
+    };
+
+    app.ports.jsGenerateUserAgents && app.ports.jsGenerateUserAgents.subscribe(function (data) {
+        const results = generate(data);
+        const processed = processUserAgentBatch(results);
+        app.ports.recvUserAgentBatch.send(JSON.stringify(processed));
+    });
+
+    // app.ports.jsonConsole.subscribe(function(json) {
+    //     console.log(json)
+    // });
+</script>
+<script>
+    function fallbackCopyTextToClipboard(copyInfo) {
+        const text = copyInfo.getText();
+        if (!text) {
+            copyInfo.error();
+            return;
+        }
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+
+        // Avoid scrolling to bottom
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.position = 'fixed';
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            setTimeout(function () {
+                if (successful) {
+                    copyInfo.success();
+                } else {
+                    copyInfo.error();
+                }
+            }, 1);
+        } catch (err) {
+            setTimeout(function () {
+                copyInfo.error(err);
+            }, 1);
+        }
+
+        document.body.removeChild(textArea);
+    }
+
+    function copyTextToClipboard(copyInfo) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(copyInfo.text).then(copyInfo.success, function () {
+                // try the fallback in case `writeText` didn't work
+                fallbackCopyTextToClipboard(copyInfo);
+            });
+        } else {
+            fallbackCopyTextToClipboard(copyInfo);
+        }
+    }
+
+    app.ports.copyToClipboard.subscribe(function ([port, text]) {
+        console.log("[js] copying text:", text, "from port", port)
+        copyTextToClipboard({
+            text,
+            success() {
+                // TODO: could this potentially cause security issues?
+                const x = app.ports[port]; x && x.send(true);
+            },
+            error() {
+                const x = app.ports[port]; x && x.send(false);
+            }
+        });
+    });
+</script>

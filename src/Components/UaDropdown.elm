@@ -162,10 +162,8 @@ dropdownItem render fSelect selected obj =
         ]
         [ div
             [ css
-                [ Tw.inline_block
-                , Tw.box_border
-
-                -- , Tw.w_full
+                [ Tw.flex
+                , Tw.items_center
                 , Css.property "width" "max-content"
                 , Tw.pl_3
                 , Tw.pr_7

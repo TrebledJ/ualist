@@ -1,10 +1,10 @@
 {
   "name": "ualist",
   "version": "1.0.0",
-  "description": "Find and retrieve lists of user agents.",
+  "description": "Generate lists of user agents.",
   "main": "index.js",
   "scripts": {
-    "build": "elm make src/View.elm --output site/elm.js --optimize"
+    "build": "elm make src/View.elm --output site/assets/elm.js --optimize"
   },
   "repository": {
     "type": "git",

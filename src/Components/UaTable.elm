@@ -25,7 +25,7 @@ import Util exposing (..)
 
 uaDataFile : String
 uaDataFile =
-    "data.txt"
+    "/assets/data.txt"
 
 
 type alias UaPipe model msg =
@@ -92,7 +92,7 @@ config smallScreen =
         ]
         |> Config.withStickyHeader
         |> Config.withRowClickHandler OnRowClick
-        |> Config.withRowLimits [ "10", "20", "50", "All" ] "All"
+        |> Config.withRowLimits [ "10", "20", "50", "100", "All" ] "All"
         |> Config.withToolbar
             [ fetchUaButton
             , toggleGenerateContainerButton
@@ -494,6 +494,7 @@ generateUaContainer xs toolbarState =
                             , Tw.justify_center
                             , Tw.items_center
                             , Css.property "width" "fit-content"
+                            , Tw.p_2
                             , Tw.h_10
                             , Tw.cursor_pointer
                             , Tw.bg_color Tw.white
