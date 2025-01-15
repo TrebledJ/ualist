@@ -4,6 +4,7 @@
   "description": "Generate lists of user agents.",
   "main": "index.js",
   "scripts": {
+    "dev": "elm-live src/View.elm -- --output site/assets/elm.js",
     "build": "elm make src/View.elm --output site/assets/elm.js --optimize"
   },
   "repository": {
@@ -24,5 +25,8 @@
   "dependencies": {
     "elm": "^0.19.1-6",
     "ua-parser-js": "^2.0.0"
+  },
+  "devDependencies": {
+    "elm-live": "^4.0.2"
   }
 }
