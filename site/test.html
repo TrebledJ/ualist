@@ -198,7 +198,7 @@
         const lookup = {
             firefox: {
                 windows: [
-                    _ => (rv => `Mozilla/5.0 (Windows NT ${windows()};${m(' Win64; x64;')} rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
+                    _ => (rv => `Mozilla/5.0 (Windows NT ${windows()}${m('; Win64; x64')}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
                 ],
                 linux: [
                     _ => (rv => `Mozilla/5.0 (X11; Linux ${x6432()}; rv:${rv}.0) Gecko/20100101 Firefox/${rv}.0`)(firefox()),
@@ -220,7 +220,7 @@
             },
             chrome: {
                 windows: [
-                    _ => (wk => `Mozilla/5.0 (Windows NT ${windows()};${c('', ' WOW64', ' Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
+                    _ => (wk => `Mozilla/5.0 (Windows NT ${windows()}${c('', '; WOW64', '; Win64; x64')}) AppleWebKit/${wk} (KHTML, like Gecko) Chrome/${chrome_v()} Safari/${wk}`)(webkit()),
                 ],
                 linux: [
                     _ => (wk => `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/${wk} (KHTML, like Gecko)${m(` ${c('Ubuntu', 'Debian', 'Fedora')}/${v(n(4, 20), n(4, 20))}`)} ${wc([`Chrome/${chrome_v()}`, 0.9], [`Chromium/${chrome_v()}`, 0.1])} Safari/${wk}`)(webkit()),
