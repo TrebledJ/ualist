@@ -4,7 +4,7 @@
   "description": "Generate lists of user agents.",
   "main": "index.js",
   "scripts": {
-    "dev": "elm-live src/View.elm -- --output site/assets/uagen.elm.js",
+    "dev": "elm-live src/View.elm -d ./site -- --output site/assets/uagen.elm.js",
     "build": "elm make src/View.elm --output site/assets/uagen.elm.js --optimize"
   },
   "repository": {

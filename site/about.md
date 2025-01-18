@@ -45,17 +45,19 @@ To copy a user agent, simply click on the row.
 
 * **Fetch Data** {{ iconData | safe }}: Summons a pre-defined collection of diverse user agents for browsing.
 * **Generate** {{ iconGenerate | safe }}: Open the Generator toolbar to begin generating user agents. From here, you can choose from various presets {{ iconRocket | safe }}, or choose to generate specific browsers and devices with the `Custom` preset.
-* **Copy** {{ iconClipboard | safe }}: Copy all the user agents currently shown on the table. You can filter, sort, and generate agents to your liking prior to copying.
+* **Copy** {{ iconClipboard | safe }}: Copy all the user agents currently shown on the table.
 * **Limit** {{ iconHashtag | safe }}: View a fixed number of icons (e.g. 10, 20, or 50). When generating, this will also limit the number of generated agents to the selected number.
-* **Select Columns** {{ iconColumns | safe }}: You can use this dropdown to hide/unhide columns. On larger screens, more information about user agents will be displayed. Use this to your advantage when selecting user agents!
+* **Select Columns** {{ iconColumns | safe }}: You can use this dropdown to hide/unhide columns. Use this to your advantage when selecting user agents!
 
 </div>
 
 ### Why?
 
-Quite simply, I wanted a down-to-earth, feature-first, no-ads tool for generating and browsing user agents. During my pentesting engagements, I've encountered websites which offer no response to a regular HTTP request, but return a full web page when provided a user agent. Most other online solutions didn't work for me, were too simplistic, or full of ads. I also wanted a randomisation factor for better opsec, to avoid limiting myself to 3 hard-coded user agents which could be easily blocked (assuming IP rotation is used). Hence, I decided to build this.
+Quite simply, I wanted a down-to-earth, feature-first, no-ads tool for generating and browsing user agents. During my pentesting engagements, I've encountered websites which offer no response to a minimal HTTP request, but return a full web page when provided a user agent. Sometimes any agent is fine, but sometimes a specific one is needed (e.g. Safari on iOS). This explains the need for enumerating sites with different agents.
 
-But truthfully, I also wanted to scratch my early 2025 programming itch by picking up technologies such as the [Elm Programming Language](https://elm-lang.org/) and [TailwindCSS](https://tailwindcss.com/).
+Most other online solutions didn't work for me, were too simplistic, or full of ads. I also wanted a randomisation factor for better opsec, to avoid limiting myself to a few hard-coded user agents which could be easily blocked (assuming IP rotation is used). Hence, I decided to build this.
+
+But truthfully, I also wanted to scratch my early 2025 programming itch by picking up technologies such as the [Elm Programming Language](https://elm-lang.org/) and [TailwindCSS](https://tailwindcss.com/). And this project was simple enough to give it a go.
 
 ### Credits
 
