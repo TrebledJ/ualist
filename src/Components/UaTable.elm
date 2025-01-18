@@ -25,7 +25,7 @@ import Util exposing (..)
 
 uaDataFile : String
 uaDataFile =
-    "/assets/data.txt"
+    "/assets/uagen-data.txt"
 
 
 type alias UaPipe model msg =
