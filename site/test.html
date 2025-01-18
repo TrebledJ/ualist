@@ -250,7 +250,7 @@
             safari: {
                 macos: [_ => (wk => `Mozilla/5.0 (Macintosh; Intel Mac OS X ${macos()}) AppleWebKit/${wk} (KHTML, like Gecko) Version/${v(n(10, 15), n(0, 8))},${n(0, 2)} Safari/${wk}`)(webkit())],
                 ios: [
-                    _ => ((wk, ios_) => `Mozilla/5.0 (${c('iPhone', 'iPad', 'iPod touch')}; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko)${m(` Version/${major(ios_)}.${minor(ios_)}}`)} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios()),
+                    _ => ((wk, ios_) => `Mozilla/5.0 (${c('iPhone', 'iPad', 'iPod touch')}; CPU iPhone OS ${ios_} like Mac OS X) AppleWebKit/${wk} (KHTML, like Gecko)${m(` Version/${major(ios_)}.${minor(ios_)}`)} Mobile/${ios_info()} Safari/${wk}`)(webkit(), ios()),
                 ],
             },
         };
