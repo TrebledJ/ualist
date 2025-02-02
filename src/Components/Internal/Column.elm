@@ -1,14 +1,18 @@
 module Components.Internal.Column exposing (..)
 
-import Css
-import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events exposing (onClick)
 import Components.Internal.Data exposing (..)
 import Components.Internal.State exposing (..)
 import Components.Internal.Util exposing (..)
-import Monocle.Lens exposing (Lens)
 import Components.Table.Types exposing (Sort(..))
+import Css
+import FontAwesome.Solid as Icon
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onClick)
+import Monocle.Lens exposing (Lens)
+import Tailwind.Theme as Tw
+import Tailwind.Utilities as Tw
+import TwUtil
 
 
 type alias Pipe msg =
@@ -90,13 +94,16 @@ withClass : String -> Column a msg -> Column a msg
 withClass name (Column col) =
     Column { col | class = name }
 
+
 withCss : List Css.Style -> Column a msg -> Column a msg
 withCss css (Column col) =
     Column { col | css = css }
 
+
 withLineClamp : Maybe Int -> Column a msg -> Column a msg
 withLineClamp clamp (Column col) =
     Column { col | lineClamp = clamp }
+
 
 default : String -> String -> ViewCell a msg -> Column a msg
 default name abbrev view =
@@ -304,35 +311,45 @@ viewSubtable isDisable lens getID v ( state, pipe ) =
 
 viewHeader : Column a msg -> ( State, Pipe msg ) -> List (Html msg)
 viewHeader (Column col) ( state, pipe ) =
-    [ iff (String.isEmpty col.abbrev)
-        (span [] [ text col.name ])
-        (abbr [ title col.name ] [ text col.abbrev ])
-    , iff (col.sortable /= Nothing)
-        (iff (state.orderBy == Just col.name)
-            (a
-                [ class "sort"
-                , onClick <| pipe <| \s -> { s | order = next s.order }
-                ]
-                [ text <|
-                    case state.order of
-                        Ascending ->
-                            "↿"
+    [ div
+        [ css
+            [ Tw.flex
+            , Tw.justify_center
+            , Tw.items_center
+            , Tw.text_sm
+            , Tw.uppercase
+            ]
+        ]
+        [ iff (String.isEmpty col.abbrev)
+            (span [] [ text col.name ])
+            (abbr [ title col.name ] [ text col.abbrev ])
+        , iff (col.sortable /= Nothing)
+            (iff (state.orderBy == Just col.name)
+                (a
+                    [ class "sort"
+                    , onClick <| pipe <| \s -> { s | order = next s.order }
+                    ]
+                    [ TwUtil.icon <|
+                        case state.order of
+                            Ascending ->
+                                Icon.sortUp
 
-                        Descending ->
-                            "⇂"
+                            Descending ->
+                                Icon.sortDown
 
-                        StandBy ->
-                            "⇅"
-                ]
+                            StandBy ->
+                                Icon.sort
+                    ]
+                )
+                (a
+                    [ class "sort"
+                    , onClick <| pipe <| \s -> { s | order = Ascending, orderBy = Just col.name }
+                    ]
+                    [ TwUtil.icon Icon.sort ]
+                )
             )
-            (a
-                [ class "sort"
-                , onClick <| pipe <| \s -> { s | order = Ascending, orderBy = Just col.name }
-                ]
-                [ text "⇅" ]
-            )
-        )
-        (text "")
+            (text "")
+        ]
     ]
 
 
