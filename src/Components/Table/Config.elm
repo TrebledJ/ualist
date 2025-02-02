@@ -5,7 +5,7 @@ module Components.Table.Config exposing
     , withSelectionLinkedStrict, withSelectionExclusive
     , withSelectionExclusiveStrict, withPagination, withRowLimits, withProgressiveLoading
     , withToolbar, withToolbarContainer, {- withErrorView, -} withSubtable
-    , withStickyHeader, withRowClickHandler
+    , withStickyHeader, withRowClickHandler, withRowHoverHandler
     )
 
 {-| Configuration of the table.
@@ -166,3 +166,9 @@ withStickyHeader =
 withRowClickHandler : (a -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withRowClickHandler =
     Components.Internal.Config.withRowClickHandler
+
+{-| Handle hover events on individual rows.
+-}
+withRowHoverHandler : (a -> { x: Int, y: Int } -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
+withRowHoverHandler =
+    Components.Internal.Config.withRowHoverHandler

@@ -5,6 +5,8 @@ layout: app
 
 <script src="/assets/uagen.elm.js"></script>
 <script src="/assets/ua-parser.min.js"></script>
+{#
+<script src="/assets/uagen-generate.min.js"></script> #}
 <div id="view-app"></div>
 <script>
     let app = Elm.View.init({
@@ -56,7 +58,107 @@ layout: app
         const data = processUserAgentBatch(ua);
         app.ports.recvUserAgentBatch.send(JSON.stringify(data));
     });
+</script>
 
+
+<style>
+    *[role="tooltip"] {
+        background: #333;
+        color: white;
+        font-weight: bold;
+        padding: 4px 8px;
+        font-size: 13px;
+        border-radius: 4px;
+        max-width: 256px;
+        text-align: center;
+    }
+
+    *[data-popper-arrow],
+    *[data-popper-arrow]::before {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: inherit;
+    }
+
+    *[data-popper-arrow] {
+        visibility: hidden;
+    }
+
+    *[data-popper-arrow]::before {
+        visibility: visible;
+        content: '';
+        transform: rotate(45deg);
+    }
+
+    *[data-popper-placement^='top']>*[data-popper-arrow] {
+        bottom: -4px;
+    }
+
+    *[data-popper-placement^='bottom']>*[data-popper-arrow] {
+        top: -4px;
+    }
+
+    *[data-popper-placement^='left']>*[data-popper-arrow] {
+        right: -4px;
+    }
+
+    *[data-popper-placement^='right']>*[data-popper-arrow] {
+        left: -4px;
+    }
+</style>
+<div id="tooltip" role="tooltip">
+    <span id="tooltip-text"></span>
+    <div data-popper-arrow></div>
+</div>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script>
+    function generateGetBoundingClientRect(x = 0, y = 0) {
+        return () => ({
+            width: 0,
+            height: 0,
+            top: y,
+            right: x,
+            bottom: y,
+            left: x,
+        });
+    }
+
+    const tooltip = document.querySelector('#tooltip');
+    const tooltipText = document.querySelector('#tooltip-text');
+
+    const virtualElement = {
+        getBoundingClientRect: generateGetBoundingClientRect(),
+    };
+
+    const { createPopper } = Popper;
+    const instance = createPopper(virtualElement, tooltip, {
+        modifiers: [
+            {
+                name: 'offset',
+                options: {
+                    offset: [0, 12],
+                },
+            },
+        ],
+    });
+
+
+    function getTooltipText(text) {
+        return tooltipText.innerText;
+    }
+    function setTooltipText(text) {
+        tooltipText.innerText = text;
+        instance.update();
+    }
+
+    app.ports.jsTooltipHover && app.ports.jsTooltipHover.subscribe(function ({ ua, x, y }) {
+        setTooltipText(ua);
+        virtualElement.getBoundingClientRect = generateGetBoundingClientRect(x, y);
+    });
+</script>
+
+<script>
     const generate_tools = function (count) {
         const generators = [
             _ => 'curl/' + v(n(1, 8), n(0, 4)),
@@ -500,5 +602,11 @@ layout: app
                 const x = app.ports[port]; x && x.send(false);
             }
         });
+
+        const ttText = getTooltipText();
+        setTooltipText("Copied!");
+        setTimeout(() => {
+            setTooltipText(ttText);
+        }, 5000);
     });
 </script>

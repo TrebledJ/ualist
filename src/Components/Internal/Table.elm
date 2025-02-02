@@ -27,7 +27,8 @@ import FontAwesome as Icon
 import FontAwesome.Solid as Icon
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled.Events exposing (on, onClick, onInput)
+import Json.Decode as Decode exposing (Decoder)
 import Svg.Attributes as SvgA
 import Svg.Styled
 import Tailwind.Theme as Tw
@@ -359,6 +360,18 @@ tableContentBody config pipeExt pipeInt columns state rows =
     tbody [] <| List.concat (List.map (tableContentBodyRow config pipeExt pipeInt columns state) rows)
 
 
+mouseOverXYDecoder : ({ x : Int, y : Int } -> msg) -> Decoder msg
+mouseOverXYDecoder f =
+    Decode.map2 (\a b -> f { x = a, y = b })
+        (Decode.field "clientX" Decode.int)
+        (Decode.field "clientY" Decode.int)
+
+
+onMouseOverXY : ({ x : Int, y : Int } -> msg) -> Attribute msg
+onMouseOverXY m =
+    on "mouseover" (mouseOverXYDecoder m)
+
+
 tableContentBodyRow :
     Config a b tbstate msg
     -> Pipe msg
@@ -381,6 +394,13 @@ tableContentBodyRow ((Config cfg) as config) pipeExt pipeInt columns state (Row 
 
                     Just func ->
                         [ onClick <| func r ]
+               )
+            ++ (case cfg.onRowHover of
+                    Nothing ->
+                        []
+
+                    Just func ->
+                        [ onMouseOverXY <| func r ]
                )
         )
       <|

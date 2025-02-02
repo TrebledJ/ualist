@@ -92,6 +92,7 @@ config smallScreen =
         ]
         |> Config.withStickyHeader
         |> Config.withRowClickHandler OnRowClick
+        |> Config.withRowHoverHandler OnRowHover
         |> Config.withRowLimits [ "10", "20", "50", "100", "All" ] "All"
         |> Config.withToolbar
             [ fetchUaButton
@@ -114,6 +115,9 @@ port jsAnalyseUserAgentBatch : List String -> Cmd msg
 
 
 port jsGenerateUserAgents : { preset : String, browser : String, osDevice : String, count : Int } -> Cmd msg
+
+
+port jsTooltipHover : { ua: String, x: Int, y: Int } -> Cmd msg
 
 
 port recvUserAgentBatch : (String -> msg) -> Sub msg
@@ -158,6 +162,7 @@ uaDecoder =
 type Msg
     = OnTable TableModel
     | OnRowClick UserAgent
+    | OnRowHover UserAgent { x: Int, y: Int }
     | RecvUserAgentBatch String
     | OnFetchUserAgentsClicked
     | OnFetchUserAgentsCompleted (Result Error String)
@@ -172,7 +177,6 @@ type Msg
 -- run m =
 --     Task.perform (always m) (Task.succeed ())
 
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ toolbarState } as model) =
     case msg of
@@ -186,6 +190,9 @@ update msg ({ toolbarState } as model) =
                     Clipboard.update "recvCopyRowStatus" (Clipboard.CopyAction .ua) rec Clipboard.Idle
             in
             ( model, Cmd.map ClipboardRowMsg cmd )
+
+        OnRowHover rec { x, y } ->
+            ( model, jsTooltipHover { ua=rec.ua, x=x, y=y } )
 
         RecvUserAgentBatch val ->
             let

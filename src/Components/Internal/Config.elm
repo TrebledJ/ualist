@@ -29,6 +29,7 @@ type alias ConfigInternal a b tbstate msg =
     , onChangeExt : Model a -> msg
     , onChangeInt : Model a -> msg
     , onRowClick : Maybe (a -> msg)
+    , onRowHover : Maybe (a -> { x: Int, y: Int } -> msg)
     , table : ConfTable a msg
     , pagination : Pagination
     , subtable : Maybe (SubTable a b msg)
@@ -54,6 +55,7 @@ config t s oe oi c =
         , onChangeExt = oe
         , onChangeInt = oi
         , onRowClick = Nothing
+        , onRowHover = Nothing
         , table = c
         , pagination = None
         , subtable = Nothing
@@ -72,6 +74,7 @@ static onChange getID columns =
         , onChangeExt = onChange
         , onChangeInt = onChange
         , onRowClick = Nothing
+        , onRowHover = Nothing
         , table = ConfTable columns getID Nothing
         , pagination = None
         , subtable = Nothing
@@ -90,6 +93,7 @@ dynamic onChangeExt onChangeInt getID columns =
         , onChangeExt = onChangeExt
         , onChangeInt = onChangeInt
         , onRowClick = Nothing
+        , onRowHover = Nothing
         , table = ConfTable columns getID Nothing
         , pagination = None
         , subtable = Nothing
@@ -181,6 +185,7 @@ withSubtable getValues getID columns expand (Config c) =
         , onChangeExt = c.onChangeExt
         , onChangeInt = c.onChangeInt
         , onRowClick = Nothing
+        , onRowHover = Nothing
         , table = c.table
         , pagination = c.pagination
         , subtable = Just <| SubTable getValues { columns = columns, getID = getID, expand = expand }
@@ -195,6 +200,9 @@ withStickyHeader (Config c) = Config { c | stickyHeader = True }
 
 withRowClickHandler : (a -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withRowClickHandler h (Config c) = Config { c | onRowClick = Just h }
+
+withRowHoverHandler : (a -> { x: Int, y: Int } -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
+withRowHoverHandler h (Config c) = Config { c | onRowHover = Just h }
 
 -- errorView : String -> Html msg
 -- errorView msg =
