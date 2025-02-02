@@ -35,11 +35,9 @@ Big thanks to [UAParser.js](https://github.com/faisalman/ua-parser-js) for their
 
 ## Roadmap
 
-- [fix] [ui] thead sticky top rem
 - [feat] [func] Case insensitive search
 - [feat] [ui] tooltips for buttons and toolbar
 - [feat] [func] better search filters, and search by column
-- [feat] [ui] indicator for copied row (animate row? tooltip? (slow, with many OnMouseEnter events))
 - [code] refactor button component + css
 - [ui] Fancy (switchable?) theme
 - [fix] [ui] better sorting icons and switch the arrows for asc/desc
