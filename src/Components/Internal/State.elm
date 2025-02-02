@@ -73,7 +73,7 @@ next : Sort -> Sort
 next status =
     case status of
         StandBy ->
-            Descending
+            Ascending
 
         Descending ->
             Ascending
