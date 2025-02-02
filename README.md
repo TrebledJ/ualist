@@ -40,7 +40,6 @@ Big thanks to [UAParser.js](https://github.com/faisalman/ua-parser-js) for their
 - [feat] [func] better search filters, and search by column
 - [code] refactor button component + css
 - [ui] Fancy (switchable?) theme
-- [fix] [ui] better sorting icons and switch the arrows for asc/desc
 - [code] [perf] Elm optimisations
 - [perf] efficient table rendering and scrolling for large datasets
 - [code] sync README sections by copying sections between README.md and about.md
