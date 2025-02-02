@@ -128,7 +128,7 @@ view config toolbarState ((Model m) as model) =
 
             Rows (Loaded { total, rows }) ->
                 [ tableHeader config toolbarState pipeExt pipeInt m.state
-                , tableContent config pipeExt pipeInt m.state rows
+                , tableContent config toolbarState pipeExt pipeInt m.state rows
                 , tableFooter config pipeExt pipeInt m.state total
                 ]
 
@@ -146,14 +146,13 @@ tableHeader : Config a b tbstate msg -> tbstate -> Pipe msg -> Pipe msg -> State
 tableHeader ((Config cfg) as config) toolbarState pipeExt pipeInt state =
     let
         stickyStyles =
-            if cfg.stickyHeader then
-                [ Tw.sticky
-                , Tw.top_0
-                , Tw.z_10 -- In case thead is sticky, we want the extra header to be on top.
-                ]
-
-            else
-                []
+            case cfg.stickyHeader of
+                Just _ ->
+                    [ Tw.sticky
+                    , Tw.top_0
+                    , Tw.z_10 -- In case thead is sticky, we want the extra header to be on top.
+                    ]
+                Nothing -> []
 
         toolbarContainerStyles =
             [ {- Tw.h_16, -} Tw.p_4, Tw.bg_color Tw.gray_100 ]
@@ -275,8 +274,8 @@ filterRows ((Config cfg) as config) state rows =
     prows
 
 
-tableContent : Config a b tbstate msg -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
-tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
+tableContent : Config a b tbstate msg -> tbstate -> Pipe msg -> Pipe msg -> State -> List (Row a) -> Html msg
+tableContent ((Config cfg) as config) toolbarState pipeExt pipeInt state rows =
     let
         expandColumn =
             ifMaybe (cfg.table.expand /= Nothing) (expand pipeInt lensTable cfg.table.getID)
@@ -308,28 +307,27 @@ tableContent ((Config cfg) as config) pipeExt pipeInt state rows =
     in
     div []
         [ table [ css [ Tw.w_full, Tw.bg_color Tw.white, Tw.border_collapse ] ]
-            [ tableContentHead cfg.stickyHeader (cfg.selection /= Disable) pipeExt pipeInt columns state
+            [ tableContentHead cfg.stickyHeader toolbarState (cfg.selection /= Disable) pipeExt pipeInt columns state
             , tableContentBody config pipeExt pipeInt columns state prows
             ]
         ]
 
 
 tableContentHead :
-    Bool
+    Maybe (tbstate -> Css.Style)
+    -> tbstate
     -> Bool
     -> Pipe msg
     -> Pipe msg
     -> List (Column a msg)
     -> State
     -> Html msg
-tableContentHead stickyHeader hasSelection pipeExt pipeInt columns state =
+tableContentHead stickyHeader toolbarState hasSelection pipeExt pipeInt columns state =
     thead
         [ css <|
-            if stickyHeader then
-                [ Tw.sticky, Tw.top_16 ]
-
-            else
-                []
+            case stickyHeader of
+                Just calc -> [ Tw.sticky, calc toolbarState ]
+                Nothing -> []
         ]
         [ tr [] <|
             List.indexedMap
@@ -487,10 +485,11 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
                 |> prependMaybe selectColumn
     in
     div [ class "subtable-content" ]
-        [ table []
-            [ tableContentHead False (cfg.selection /= Disable) pipeInt pipeExt columns state
+        [ {- table []
+            [ tableContentHead Nothing (cfg.selection /= Disable) pipeInt pipeExt columns state
             , subtableContentBody pipeExt subConfig columns state rows
-            ]
+            ] -}
+            text "Not Implemented"
         ]
 
 

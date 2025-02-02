@@ -36,7 +36,7 @@ type alias ConfigInternal a b tbstate msg =
     -- , errorView : String -> Html msg
     , toolbar : List (tbstate -> Html msg)
     , toolbarContainer : List (List Css.Style -> tbstate -> Html msg)
-    , stickyHeader : Bool
+    , stickyHeader : Maybe (tbstate -> Css.Style)
     }
 
 
@@ -62,7 +62,7 @@ config t s oe oi c =
         -- , errorView = errorView
         , toolbar = []
         , toolbarContainer = []
-        , stickyHeader = False
+        , stickyHeader = Nothing
         }
 
 
@@ -81,7 +81,7 @@ static onChange getID columns =
         -- , errorView = errorView
         , toolbar = []
         , toolbarContainer = []
-        , stickyHeader = False
+        , stickyHeader = Nothing
         }
 
 
@@ -100,7 +100,7 @@ dynamic onChangeExt onChangeInt getID columns =
         -- , errorView = errorView
         , toolbar = []
         , toolbarContainer = []
-        , stickyHeader = False
+        , stickyHeader = Nothing
         }
 
 
@@ -192,11 +192,11 @@ withSubtable getValues getID columns expand (Config c) =
         -- , errorView = c.errorView
         , toolbar = c.toolbar
         , toolbarContainer = c.toolbarContainer
-        , stickyHeader = False
+        , stickyHeader = Nothing
         }
 
-withStickyHeader : Config a b tbstate msg -> Config a b tbstate msg
-withStickyHeader (Config c) = Config { c | stickyHeader = True }
+withStickyHeader : (tbstate -> Css.Style) -> Config a b tbstate msg -> Config a b tbstate msg
+withStickyHeader f (Config c) = Config { c | stickyHeader = Just f }
 
 withRowClickHandler : (a -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withRowClickHandler h (Config c) = Config { c | onRowClick = Just h }

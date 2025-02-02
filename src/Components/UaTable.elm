@@ -1,9 +1,9 @@
 port module Components.UaTable exposing (..)
 
 import Components.Clipboard as Clipboard
-import Components.Table.Table as Table
 import Components.Table.Column as Column
 import Components.Table.Config as Config
+import Components.Table.Table as Table
 import Components.UaDropdown as UaDropdown
 import Css
 import FontAwesome.Solid as Icon
@@ -52,7 +52,8 @@ init width =
                 UaDropdown.init [ "Spray & Pray", "Browsers", "Mobile", "Devices", "Tools", "Uncommon", "Custom" ]
                     |> UaDropdown.withHint "Select Preset"
             , ddBrowser =
-                UaDropdown.init [ "Any", "Chrome", "Firefox" ] -- TODO: add "Other" option.
+                UaDropdown.init [ "Any", "Chrome", "Firefox" ]
+                    -- TODO: add "Other" option.
                     |> UaDropdown.withDefault "Any"
             , ddOsDevice =
                 UaDropdown.init [ "Any", "Linux", "Windows", "macOS", "iOS", "Android" ]
@@ -90,7 +91,7 @@ config smallScreen =
         , Column.string .deviceVendor "Vendor" "" |> applyIfT smallScreen (Column.withDefault False)
         , Column.string .osName "OS" "" |> applyIfT smallScreen (Column.withDefault False)
         ]
-        |> Config.withStickyHeader
+        |> Config.withStickyHeader calculateHeaderOffset
         |> Config.withRowClickHandler OnRowClick
         |> Config.withRowHoverHandler OnRowHover
         |> Config.withRowLimits [ "10", "20", "50", "100", "All" ] "All"
@@ -117,7 +118,7 @@ port jsAnalyseUserAgentBatch : List String -> Cmd msg
 port jsGenerateUserAgents : { preset : String, browser : String, osDevice : String, count : Int } -> Cmd msg
 
 
-port jsTooltipHover : { ua: String, x: Int, y: Int } -> Cmd msg
+port jsTooltipHover : { ua : String, x : Int, y : Int } -> Cmd msg
 
 
 port recvUserAgentBatch : (String -> msg) -> Sub msg
@@ -162,7 +163,7 @@ uaDecoder =
 type Msg
     = OnTable TableModel
     | OnRowClick UserAgent
-    | OnRowHover UserAgent { x: Int, y: Int }
+    | OnRowHover UserAgent { x : Int, y : Int }
     | RecvUserAgentBatch String
     | OnFetchUserAgentsClicked
     | OnFetchUserAgentsCompleted (Result Error String)
@@ -176,6 +177,7 @@ type Msg
 -- run : msg -> Cmd msg
 -- run m =
 --     Task.perform (always m) (Task.succeed ())
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ toolbarState } as model) =
@@ -192,7 +194,7 @@ update msg ({ toolbarState } as model) =
             ( model, Cmd.map ClipboardRowMsg cmd )
 
         OnRowHover rec { x, y } ->
-            ( model, jsTooltipHover { ua=rec.ua, x=x, y=y } )
+            ( model, jsTooltipHover { ua = rec.ua, x = x, y = y } )
 
         RecvUserAgentBatch val ->
             let
@@ -380,6 +382,21 @@ toggleGenerateContainerButton toolbarState =
         ]
 
 
+calculateHeaderOffset : ToolbarState -> Css.Style
+calculateHeaderOffset toolbarState =
+    let
+        isActive =
+            toolbarState.generateConfigState.showGenerateContainer
+    in
+    Css.property "top"
+        (if isActive then
+            "9rem"
+
+         else
+            "4.5rem"
+        )
+
+
 generateUaContainer : List Css.Style -> ToolbarState -> Html Msg
 generateUaContainer xs toolbarState =
     let
@@ -497,18 +514,18 @@ generateUaContainer xs toolbarState =
                 [ button
                     [ onClick <| OnGenerateClicked
                     , css <|
-                            [ Tw.flex
-                            , Tw.justify_center
-                            , Tw.items_center
-                            , Css.property "width" "fit-content"
-                            , Tw.p_2
-                            , Tw.h_10
-                            , Tw.cursor_pointer
-                            , Tw.bg_color Tw.white
-                            , Css.hover
-                                [ Tw.bg_color Tw.gray_100
-                                ]
+                        [ Tw.flex
+                        , Tw.justify_center
+                        , Tw.items_center
+                        , Css.property "width" "fit-content"
+                        , Tw.p_2
+                        , Tw.h_10
+                        , Tw.cursor_pointer
+                        , Tw.bg_color Tw.white
+                        , Css.hover
+                            [ Tw.bg_color Tw.gray_100
                             ]
+                        ]
                             ++ TwUtil.border
                     , disabled <| toolbarState.generateConfigState.ddPreset.selected == Nothing
                     ]

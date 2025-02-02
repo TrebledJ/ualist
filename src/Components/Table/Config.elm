@@ -157,7 +157,7 @@ withSubtable =
 
 {-| Enable sticky headers.
 -}
-withStickyHeader : Config a b tbstate msg -> Config a b tbstate msg
+withStickyHeader : (tbstate -> Css.Style) -> Config a b tbstate msg -> Config a b tbstate msg
 withStickyHeader =
     Components.Internal.Config.withStickyHeader
 
