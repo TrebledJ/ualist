@@ -46,5 +46,4 @@ Honorable mentions:
 - [code] [perf] Elm optimisations
 - [fix] [ui] push sidebar buttons outward when open
 - [perf] efficient table rendering and scrolling for large datasets
-- [code] sync README sections by copying sections between README.md and about.md
 - [feat] save settings through URL fragment, so that users can come back to the same settings when sharing a link or bookmarking

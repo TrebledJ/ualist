@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import fs from 'fs';
 
 
-function syncMd(fromFile, toFile) {
+function syncMd(prefix, fromFile, toFile) {
     const inFile = fs.readFileSync(fromFile).toString();
     const outFile = fs.readFileSync(toFile).toString();
 
@@ -30,12 +30,12 @@ function syncMd(fromFile, toFile) {
             if (tag === h) {
                 const [_, outno] = headings[hno + 1];
                 // Skip heading -> inno+1
-                // console.log(`grabbing content for [${h}]: L${inno+1}-${outno}`);
+                console.log(`grabbing content for [${h}]: L${inno+1}-${outno}`);
                 const content = inLines.slice(inno+1, outno).join('\n');
                 return content;
             }
         }
-        // console.log(`could not find heading for [${tag}] in src file`);
+        console.log(`could not find heading for [${tag}] in src file`);
         return undefined;
     };
     
@@ -43,7 +43,8 @@ function syncMd(fromFile, toFile) {
     const lines = [];
     let prevInTag = false;
     for (const l of outLines) {
-        const match = /<!--\s*#\s*(.*?)\s*#\s*-->/g.exec(l.trim());
+        const re = new RegExp('<!--\\s*' + prefix + '#+\\s*(.*?)\\s*#\\s*-->', 'g');
+        const match = re.exec(l.trim());
         if (match && match.length > 1) {
             lines.push(l);
             prevInTag = true;
@@ -73,9 +74,16 @@ function syncHtml(fromFile, toFile) {
 
     const inLines = inFile.split('\n');
     const outLines = outFile.split('\n');
+
+    const spChars = '.?*+\\^$()[]{}'
+    const escape = s => {
+        for (const c of spChars)
+            s = s.replace(c, '\\' + c);
+        return s;
+    };
     
     const get_content_from_src = (tag) => {
-        const re = new RegExp('<!--\\s*#\\s*' + tag + '\\s*#\\s*-->', 'ig');
+        const re = new RegExp('<!--\\s*#\\s*' + escape(tag) + '\\s*#\\s*-->', 'ig');
         const match = re.exec(inFile.trim());
         if (match) {
             const ss = inFile.substring(match.index);
@@ -91,7 +99,8 @@ function syncHtml(fromFile, toFile) {
     const lines = [];
     let prevInTag = false;
     for (const l of outLines) {
-        const match = /<!--\s*#\s*(.*?)\s*#\s*-->/g.exec(l.trim());
+        const re = new RegExp('<!--\\s*' + prefix + '#+\\s*(.*?)\\s*#\\s*-->', 'g');
+        const match = re.exec(l.trim());
         if (match && match.length > 1) {
             lines.push(l);
             prevInTag = true;
@@ -123,13 +132,15 @@ async function main() {
         .description('Markdown Docs Sync')
         .requiredOption('-f, --from <filename>', 'Specify source filenames')
         .requiredOption('-t, --target <filename>', 'Specify filenames to insert content into')
+        .option('-p, --prefix <prefix>', 'Specify a prefix to match in the tag')
         .action(async (options) => {
             const fromFile = options.from;
             const toFile = options.target;
+            const prefix = options.prefix ?? '';
             if (fromFile.endsWith('.md') && toFile.endsWith('.md')) {
-                syncMd(fromFile, toFile);
+                syncMd(prefix, fromFile, toFile);
             } else if (fromFile.endsWith('.html') && toFile.endsWith('.html')) {
-                syncHtml(fromFile, toFile);
+                syncHtml(prefix, fromFile, toFile);
             } else {
                 console.log(chalk.red('Unknown file extensions.'));
             }

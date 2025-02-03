@@ -1,7 +1,7 @@
 ## User Agent Generator and Viewer
 
 ### What is this?
-<!-- # What is this? # -->
+<!-- readme# What is this? # -->
 
 This tool is used to **generate and browse random user agents**. This is useful for web developers, (ethical) hackers, and security researchers.
 
@@ -58,7 +58,7 @@ To copy a user agent, simply click on the row.
 </div>
 
 ### Why?
-<!-- # Why? # -->
+<!-- readme# Why? # -->
 
 Quite simply, I wanted a down-to-earth, feature-first, no-ads tool for generating and browsing user agents. During my pentesting engagements, I've encountered websites which offer no response to a minimal HTTP request, but return a full web page when provided a user agent. Sometimes any agent is fine, but sometimes a specific one is needed (e.g. Safari on iOS). This explains the need for enumerating sites with different agents.
 
@@ -77,7 +77,7 @@ Elm, however, has built-in minification capabilities thanks to Elm's guarantees 
 This not only applies to CSS, but also to [icons](https://package.elm-lang.org/packages/lattyware/elm-fontawesome/latest/)!
 
 ### Credits
-<!-- # Credits # -->
+<!-- readme# Credits # -->
 
 Big thanks to [UAParser.js](https://github.com/faisalman/ua-parser-js) for their awesome library and tests.
 

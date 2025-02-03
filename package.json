@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "elm-live src/View.elm -d ./site -- --output site/assets/uagen.elm.js",
-    "sync": "node scripts/sync -f README.md -t site/about.md && node scripts/sync -f site/index.html -t site/test.html",
+    "sync": "node scripts/sync -p readme -f README.md -t site/about.md && node scripts/sync --prefix index.html -f site/index.html -t site/test.html",
     "build": "elm make src/View.elm --output site/assets/uagen.elm.js --optimize"
   },
   "repository": {
