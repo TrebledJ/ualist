@@ -30,12 +30,12 @@ function syncMd(prefix, fromFile, toFile) {
             if (tag === h) {
                 const [_, outno] = headings[hno + 1];
                 // Skip heading -> inno+1
-                console.log(`grabbing content for [${h}]: L${inno+1}-${outno}`);
                 const content = inLines.slice(inno+1, outno).join('\n');
+                console.log(chalk.green(`Found content for [${prefix}:${h}]: L${inno+1}-${outno}`));
                 return content;
             }
         }
-        console.log(`could not find heading for [${tag}] in src file`);
+        console.log(chalk.red(`Could not find heading for [${prefix}:${tag}] in src file.`));
         return undefined;
     };
     
@@ -68,7 +68,7 @@ function syncMd(prefix, fromFile, toFile) {
     fs.writeFileSync(toFile, output);
 }
 
-function syncHtml(fromFile, toFile) {
+function syncHtml(prefix, fromFile, toFile) {
     const inFile = fs.readFileSync(fromFile).toString();
     const outFile = fs.readFileSync(toFile).toString();
 
@@ -83,15 +83,16 @@ function syncHtml(fromFile, toFile) {
     };
     
     const get_content_from_src = (tag) => {
-        const re = new RegExp('<!--\\s*#\\s*' + escape(tag) + '\\s*#\\s*-->', 'ig');
+        const re = new RegExp('<!--\\s*' + prefix + '#\\s*' + escape(tag) + '\\s*#\\s*-->', 'ig');
         const match = re.exec(inFile.trim());
         if (match) {
             const ss = inFile.substring(match.index);
             const match_end = /<!--\s*end\s*-->/g.exec(ss);
             const content = ss.substring(match[0].length, match_end.index);
+            console.log(chalk.green(`Found content for [${prefix}:${tag}] in src file (${content.length} chars).`));
             return content;
         }
-        console.log(`could not find heading for [${tag}] in src file`);
+        console.log(chalk.red(`Could not find heading for [${prefix}:${tag}] in src file.`));
         return undefined;
     };
     
