@@ -6,7 +6,7 @@ This tool is used to **generate and browse random user agents**. This is useful 
 
 Servers may respond differently depending on the user agent. A mobile device may be served smaller assets. An unsupported browser may be given an error. A scripting tool may be flagged as a bot and served status code 418. Fishing out such responses is useful during penetration tests.
 
-Due to the nature of the generation algorithm, synthesised agents may not necessarily reflect actual agents, mostly mimicing in appearance. This means this tool may generate non-existent version numbers, build numbers, etc.
+Due to the nature of the generation algorithm, synthesised agents may not necessarily reflect actual agents, only mimicing in appearance. This means this tool may generate non-existent version numbers, build numbers, etc.
 
 
 ### Usage
@@ -22,6 +22,9 @@ To copy a user agent, simply click on the row.
 }
 {% endcss %}
 
+{%- set iconGear -%}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"/></svg>
+{%- endset -%}
 {%- set iconData -%}
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128l-368 0zm79-167l80 80c9.4 9.4 24.6 9.4 33.9 0l80-80c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-39 39L344 184c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 134.1-39-39c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9z"/></svg>
 {%- endset -%}
@@ -43,6 +46,7 @@ To copy a user agent, simply click on the row.
 
 <div class="drawer-content">
 
+* **Settings** {{ iconGear | safe }}: Configure miscellaneous settings, such as UI and search-related parameters.
 * **Fetch Data** {{ iconData | safe }}: Summons a pre-defined collection of diverse user agents for browsing.
 * **Generate** {{ iconGenerate | safe }}: Open the Generator toolbar to begin generating user agents. From here, you can choose from various presets {{ iconRocket | safe }}, or choose to generate specific browsers and devices with the `Custom` preset.
 * **Copy** {{ iconClipboard | safe }}: Copy all the user agents currently shown on the table.
@@ -59,9 +63,23 @@ Most other online solutions didn't work for me, were too simplistic, or full of 
 
 But truthfully, I also wanted to scratch my early 2025 programming itch by picking up technologies such as the [Elm Programming Language](https://elm-lang.org/) and [TailwindCSS](https://tailwindcss.com/). And this project was simple enough to give it a go.
 
+### Built-In Minification is Pretty Cool
+
+Interestingly, some folks have introduced [Elm Tailwind libraries](https://package.elm-lang.org/packages/matheus23/elm-default-tailwind-modules/latest/), but they operate differently from regular Tailwind. TailwindCSS, unlike Bootstrap, predefines a ton of CSS classes, then strips unused classes by scouring HTML when the `tailwindcss` CLI command is called.
+
+Elm, however, has built-in minification capabilities thanks to Elm's guarantees and pure functional nature. This allows library authors to simply pre-define TailwindCSS classes as Elm symbols; when compiling, any unused symbol will be yeeted out. What this means is: minification is seamlessly unified into Elm's optimiser. There's no need for "yet another tool".
+
+This not only applies to CSS, but also to [icons](https://package.elm-lang.org/packages/lattyware/elm-fontawesome/latest/)!
+
 ### Credits
 
 Big thanks to [UAParser.js](https://github.com/faisalman/ua-parser-js) for their awesome library and tests.
+
+Honorable mentions:
+- [The Elm Project](https://github.com/elm) - Awesome compiler messages and sufficient tooling
+- [gribouille/elm-table](https://github.com/gribouille/elm-table) - Examplar `table` component in Elm
+- [circuithub/elm-dropdown](https://github.com/circuithub/elm-dropdown) - Examplar `dropdown` component in Elm
+- [floating-ui: popper.js](https://github.com/floating-ui/floating-ui) - Tooltips
 
 ### Source
 

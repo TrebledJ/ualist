@@ -9,7 +9,7 @@ This tool is used to **generate and browse random user agents**. This is useful 
 
 Servers may respond differently depending on the user agent. A mobile device may be served smaller assets. An unsupported browser may be given an error. A scripting tool may be flagged as a bot and served status code 418. Fishing out such responses is useful during penetration tests.
 
-Due to the nature of the generation algorithm, synthesised agents may not necessarily reflect actual agents, mostly mimicing in appearance. This means this tool may generate non-existent version numbers, build numbers, etc.
+Due to the nature of the generation algorithm, synthesised agents may not necessarily reflect actual agents, only mimicing in appearance. This means this tool may generate non-existent version numbers, build numbers, etc.
 
 ### Run Locally
 
@@ -35,12 +35,10 @@ Big thanks to [UAParser.js](https://github.com/faisalman/ua-parser-js) for their
 
 ## Roadmap
 
-- [feat] [func] Case insensitive search
-- [feat] [ui] tooltips for buttons and toolbar
-- [feat] [func] better search filters, and search by column
 - [code] refactor button component + css
 - [ui] Fancy (switchable?) theme
 - [code] [perf] Elm optimisations
+- [fix] [ui] push sidebar buttons outward when open
 - [perf] efficient table rendering and scrolling for large datasets
 - [code] sync README sections by copying sections between README.md and about.md
 - [feat] save settings through URL fragment, so that users can come back to the same settings when sharing a link or bookmarking
