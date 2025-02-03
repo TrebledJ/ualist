@@ -29,11 +29,17 @@ uaDataFile =
     "/assets/uagen-data.txt"
 
 
+
+-- Pipe Pattern(?): Create a pipe, which is used to create a function- to create a message.
+-- The resultant lambda (UaPipe model msg) can then be passed a "model transform" function
+-- which will modify the model and overwrite the old model in the `update` function.
+
+
 type alias UaPipe model msg =
-    (model -> model) -> msg
+    (model -> ( model, Cmd msg )) -> msg
 
 
-mkPipe : (model -> msg) -> model -> UaPipe model msg
+mkPipe : (( model, Cmd msg ) -> msg) -> model -> UaPipe model msg
 mkPipe fmsg model transform =
     fmsg <| transform model
 
@@ -75,6 +81,18 @@ init width =
     }
 
 
+optTooltipOnHoverIndex =
+    0
+
+
+optSearchCaseSensitiveIndex =
+    1
+
+
+optSearchIncludeUaIndex =
+    2
+
+
 optTooltipOnHoverDefault =
     True
 
@@ -111,17 +129,17 @@ nth n xs =
 
 optTooltipOnHover : Seddings -> Bool
 optTooltipOnHover s =
-    s.selecteds |> nth 0 |> Maybe.withDefault optTooltipOnHoverDefault
+    s.selecteds |> nth optTooltipOnHoverIndex |> Maybe.withDefault optTooltipOnHoverDefault
 
 
 optSearchCaseSensitive : Seddings -> Bool
 optSearchCaseSensitive s =
-    s.selecteds |> nth 1 |> Maybe.withDefault optSearchCaseSensitiveDefault
+    s.selecteds |> nth optSearchCaseSensitiveIndex |> Maybe.withDefault optSearchCaseSensitiveDefault
 
 
 optSearchIncludeUa : Seddings -> Bool
 optSearchIncludeUa s =
-    s.selecteds |> nth 2 |> Maybe.withDefault optSearchIncludeUaDefault
+    s.selecteds |> nth optSearchIncludeUaIndex |> Maybe.withDefault optSearchIncludeUaDefault
 
 
 type alias ToolbarState =
@@ -144,6 +162,7 @@ defaultConfig =
     , searchIncludeUa = optSearchIncludeUaDefault
     , searchCaseSensitive = optSearchCaseSensitiveDefault
     }
+
 
 config : ConfigBuilder -> Config
 config { smallScreen, searchIncludeUa, searchCaseSensitive } =
@@ -189,6 +208,9 @@ port jsGenerateUserAgents : { preset : String, browser : String, osDevice : Stri
 
 
 port jsTooltipHover : { ua : String, x : Int, y : Int } -> Cmd msg
+
+
+port jsTooltipToggle : Bool -> Cmd msg
 
 
 port recvUserAgentBatch : (String -> msg) -> Sub msg
@@ -237,7 +259,7 @@ type Msg
     | RecvUserAgentBatch String
     | OnFetchUserAgentsClicked
     | OnFetchUserAgentsCompleted (Result Error String)
-    | UpdateToolbarState ToolbarState
+    | UpdateToolbarState ( ToolbarState, Cmd Msg )
     | OnGenerateClicked
     | ClipboardMsg (Clipboard.Msg TableModel)
     | ClipboardRowMsg (Clipboard.Msg UserAgent)
@@ -264,7 +286,13 @@ update msg ({ toolbarState } as model) =
             ( model, Cmd.map ClipboardRowMsg cmd )
 
         OnRowHover rec { x, y } ->
-            ( model, jsTooltipHover { ua = rec.ua, x = x, y = y } )
+            ( model
+            , if toolbarState.settings |> optTooltipOnHover then
+                jsTooltipHover { ua = rec.ua, x = x, y = y }
+
+              else
+                Cmd.none
+            )
 
         RecvUserAgentBatch val ->
             let
@@ -291,8 +319,8 @@ update msg ({ toolbarState } as model) =
         OnFetchUserAgentsCompleted (Err e) ->
             ( { model | table = Table.failed model.table <| errorToString e }, Cmd.none )
 
-        UpdateToolbarState tbs ->
-            ( { model | toolbarState = tbs }, Cmd.none )
+        UpdateToolbarState ( tbs, cmd ) ->
+            ( { model | toolbarState = tbs }, cmd )
 
         OnGenerateClicked ->
             let
@@ -363,7 +391,7 @@ setRowsToModel x model =
 subscriptions : Model -> Sub Msg
 subscriptions { smallScreen, table } =
     Sub.batch
-        [ Table.subscriptions (defaultConfig |> withSmallScreen smallScreen |> config) table
+        [ Table.subscriptions (config { defaultConfig | smallScreen = smallScreen }) table
         , recvUserAgentBatch RecvUserAgentBatch
 
         -- , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
@@ -375,7 +403,6 @@ subscriptions { smallScreen, table } =
 view : Model -> Html Msg
 view model =
     let
-        _ = Debug.log "elm" (model.toolbarState.settings |> optSearchCaseSensitive)
         conf =
             config
                 { smallScreen = model.smallScreen
@@ -390,7 +417,27 @@ settingsDropdown : ToolbarState -> Html Msg
 settingsDropdown toolbarState =
     let
         pipe fUpdateState =
-            mkPipe UpdateToolbarState toolbarState (\({ settings } as s) -> { s | settings = fUpdateState settings })
+            mkPipe UpdateToolbarState
+                toolbarState
+                (\({ settings } as s) ->
+                    let
+                        newSettings =
+                            fUpdateState settings
+
+                        prevTt =
+                            settings |> optTooltipOnHover
+
+                        currTt =
+                            newSettings |> optTooltipOnHover
+                    in
+                    ( { s | settings = newSettings }
+                    , if prevTt /= currTt then
+                        jsTooltipToggle currTt
+
+                      else
+                        Cmd.none
+                    )
+                )
     in
     UaDropdownMS.view
         { identifier = "dd-settings"
@@ -428,10 +475,11 @@ copyAllButton : Bool -> ToolbarState -> Html Msg
 copyAllButton smallScreen { copyAllState, settings } =
     let
         conf =
-            config { defaultConfig
-                | smallScreen = smallScreen
+            config
+                { smallScreen = smallScreen
+                , searchCaseSensitive = settings |> optSearchCaseSensitive
                 , searchIncludeUa = settings |> optSearchIncludeUa
-            }
+                }
     in
     button
         [ onClick <|
@@ -462,7 +510,13 @@ toggleGenerateContainerButton : ToolbarState -> Html Msg
 toggleGenerateContainerButton toolbarState =
     let
         pipe fUpdateState =
-            mkPipe UpdateToolbarState toolbarState (\({ generateConfigState } as s) -> { s | generateConfigState = fUpdateState generateConfigState })
+            mkPipe UpdateToolbarState
+                toolbarState
+                (\({ generateConfigState } as s) ->
+                    ( { s | generateConfigState = fUpdateState generateConfigState }
+                    , Cmd.none
+                    )
+                )
     in
     button
         [ onClick <| pipe <| \({ showGenerateContainer } as s) -> { s | showGenerateContainer = not showGenerateContainer }
@@ -503,7 +557,13 @@ generateUaContainer : List Css.Style -> ToolbarState -> Html Msg
 generateUaContainer xs toolbarState =
     let
         pipe fUpdateState =
-            mkPipe UpdateToolbarState toolbarState (\({ generateConfigState } as s) -> { s | generateConfigState = fUpdateState generateConfigState })
+            mkPipe UpdateToolbarState
+                toolbarState
+                (\({ generateConfigState } as s) ->
+                    ( { s | generateConfigState = fUpdateState generateConfigState }
+                    , Cmd.none
+                    )
+                )
 
         resetLastAction generateConfigState =
             { generateConfigState | generateLastAction = False }

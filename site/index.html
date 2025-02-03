@@ -151,10 +151,22 @@ layout: app
         tooltipText.innerText = text;
         instance.update();
     }
+    function toggleTooltip(show) {
+        // tooltipText.innerText = text;
+        // instance.update();
+        tooltip.style.display = (show ? 'block' : 'none');
+    }
 
     app.ports.jsTooltipHover && app.ports.jsTooltipHover.subscribe(function ({ ua, x, y }) {
         setTooltipText(ua);
         virtualElement.getBoundingClientRect = generateGetBoundingClientRect(x, y);
+    });
+
+    app.ports.jsTooltipToggle && app.ports.jsTooltipToggle.subscribe(function (show) {
+        console.log("tooltip off!")
+        toggleTooltip(show);
+        // setTooltipText("");
+        // virtualElement.getBoundingClientRect = generateGetBoundingClientRect(x, y);
     });
 </script>
 
