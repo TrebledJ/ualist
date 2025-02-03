@@ -606,11 +606,12 @@ layout: app
         copyTextToClipboard({
             text,
             success() {
-                // TODO: could this potentially cause security issues?
-                const x = app.ports[port]; x && x.send(true);
+                const x = app.ports[port];
+                x && x.send(true);
             },
             error() {
-                const x = app.ports[port]; x && x.send(false);
+                const x = app.ports[port];
+                x && x.send(false);
             }
         });
 
