@@ -183,7 +183,7 @@ headerSearch pipeExt pipeInt =
             , Tw.inline_flex
             , Tw.text_base
             , Tw.pl_2
-            , Tw.pr_20
+            , Tw.pr_10
             , Tw.w_full
             , Tw.h_10
             ]
