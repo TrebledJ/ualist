@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "Generate lists of user agents.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "elm-live src/View.elm -d ./site -- --output site/assets/uagen.elm.js",
+    "sync": "node scripts/sync -f README.md -t site/about.md",
     "build": "elm make src/View.elm --output site/assets/uagen.elm.js --optimize"
   },
   "repository": {
@@ -27,6 +29,8 @@
     "ua-parser-js": "^2.0.0"
   },
   "devDependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
     "elm-live": "^4.0.2"
   }
 }

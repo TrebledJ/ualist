@@ -33,6 +33,12 @@ But truthfully, I also wanted to scratch my early 2025 programming itch by picki
 
 Big thanks to [UAParser.js](https://github.com/faisalman/ua-parser-js) for their awesome library and tests.
 
+Honorable mentions:
+- [The Elm Project](https://github.com/elm) - Awesome compiler messages and sufficient tooling
+- [gribouille/elm-table](https://github.com/gribouille/elm-table) - Examplar `table` component in Elm
+- [circuithub/elm-dropdown](https://github.com/circuithub/elm-dropdown) - Examplar `dropdown` component in Elm
+- [floating-ui: popper.js](https://github.com/floating-ui/floating-ui) - Tooltips
+
 ## Roadmap
 
 - [code] refactor button component + css
