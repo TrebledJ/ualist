@@ -45,7 +45,7 @@ init width =
             width < 640
 
         conf =
-            configBuilder |> withSmallScreen smallScreen |> config
+            config { defaultConfig | smallScreen = smallScreen }
     in
     { table = Table.init conf |> Table.withStatus "Load / Generate Data"
     , smallScreen = smallScreen
@@ -67,12 +67,24 @@ init width =
             }
         , settings =
             UaDropdownMS.initByPair
-                [ ( "Tooltip on Hover", True )
-                , ( "Case Sensitive Search", False )
-                , ( "Include UA in Search", False )
+                [ ( "Tooltip on Hover", optTooltipOnHoverDefault )
+                , ( "Case Sensitive Search", optSearchCaseSensitiveDefault )
+                , ( "Include UA in Search", optSearchIncludeUaDefault )
                 ]
         }
     }
+
+
+optTooltipOnHoverDefault =
+    True
+
+
+optSearchCaseSensitiveDefault =
+    False
+
+
+optSearchIncludeUaDefault =
+    False
 
 
 type alias Config =
@@ -97,19 +109,19 @@ nth n xs =
     xs |> List.drop n |> List.head
 
 
-optTtOnHover : Seddings -> Bool
-optTtOnHover s =
-    s.selecteds |> nth 0 |> Maybe.withDefault True
+optTooltipOnHover : Seddings -> Bool
+optTooltipOnHover s =
+    s.selecteds |> nth 0 |> Maybe.withDefault optTooltipOnHoverDefault
 
 
 optSearchCaseSensitive : Seddings -> Bool
 optSearchCaseSensitive s =
-    s.selecteds |> nth 1 |> Maybe.withDefault False
+    s.selecteds |> nth 1 |> Maybe.withDefault optSearchCaseSensitiveDefault
 
 
 optSearchIncludeUa : Seddings -> Bool
 optSearchIncludeUa s =
-    s.selecteds |> nth 2 |> Maybe.withDefault False
+    s.selecteds |> nth 2 |> Maybe.withDefault optSearchIncludeUaDefault
 
 
 type alias ToolbarState =
@@ -120,33 +132,28 @@ type alias ToolbarState =
 
 
 type alias ConfigBuilder =
-    { smallScreen : Bool, searchUaColumn : Bool }
+    { smallScreen : Bool
+    , searchIncludeUa : Bool
+    , searchCaseSensitive : Bool
+    }
 
 
-configBuilder : ConfigBuilder
-configBuilder =
-    { smallScreen = False, searchUaColumn = False }
-
-
-withSmallScreen : Bool -> ConfigBuilder -> ConfigBuilder
-withSmallScreen s cfg =
-    { cfg | smallScreen = s }
-
-
-withSearchUaColumn : Bool -> ConfigBuilder -> ConfigBuilder
-withSearchUaColumn s cfg =
-    { cfg | searchUaColumn = s }
-
+defaultConfig : ConfigBuilder
+defaultConfig =
+    { smallScreen = False
+    , searchIncludeUa = optSearchIncludeUaDefault
+    , searchCaseSensitive = optSearchCaseSensitiveDefault
+    }
 
 config : ConfigBuilder -> Config
-config { smallScreen, searchUaColumn } =
+config { smallScreen, searchIncludeUa, searchCaseSensitive } =
     Table.static
         OnTable
         .ua
         [ Column.string .ua "User Agent" ""
             |> Column.withCss [ Css.property "word-break" "break-word" ]
             |> Column.withLineClamp (Just 3)
-            |> applyIfT (not searchUaColumn) (Column.withSearchable Nothing)
+            |> applyIfT (not searchIncludeUa) (Column.withSearchable Nothing)
         , Column.string .browserName "Browser" "" |> applyIfT smallScreen (Column.withDefault False)
         , Column.string .deviceModel "Model" "" |> applyIfT smallScreen (Column.withDefault False)
         , Column.string .deviceVendor "Vendor" "" |> applyIfT smallScreen (Column.withDefault False)
@@ -155,6 +162,7 @@ config { smallScreen, searchUaColumn } =
         |> Config.withStickyHeader calculateHeaderOffset
         |> Config.withRowClickHandler OnRowClick
         |> Config.withRowHoverHandler OnRowHover
+        |> Config.withSearchCaseSensitive searchCaseSensitive
         |> Config.withRowLimits [ "10", "20", "50", "100", "All" ] "All"
         |> Config.withToolbar
             [ settingsDropdown
@@ -355,7 +363,7 @@ setRowsToModel x model =
 subscriptions : Model -> Sub Msg
 subscriptions { smallScreen, table } =
     Sub.batch
-        [ Table.subscriptions (configBuilder |> withSmallScreen smallScreen |> config) table
+        [ Table.subscriptions (defaultConfig |> withSmallScreen smallScreen |> config) table
         , recvUserAgentBatch RecvUserAgentBatch
 
         -- , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
@@ -367,10 +375,12 @@ subscriptions { smallScreen, table } =
 view : Model -> Html Msg
 view model =
     let
+        _ = Debug.log "elm" (model.toolbarState.settings |> optSearchCaseSensitive)
         conf =
             config
                 { smallScreen = model.smallScreen
-                , searchUaColumn = model.toolbarState.settings |> optSearchIncludeUa
+                , searchCaseSensitive = model.toolbarState.settings |> optSearchCaseSensitive
+                , searchIncludeUa = model.toolbarState.settings |> optSearchIncludeUa
                 }
     in
     Table.view conf model.toolbarState model.table
@@ -384,11 +394,8 @@ settingsDropdown toolbarState =
     in
     UaDropdownMS.view
         { identifier = "dd-settings"
-        , onSelect =
-            \item ->
-                pipe <| UaDropdownMS.select item
-        , onToggle =
-            \on -> pipe <| UaDropdownMS.toggle on
+        , onSelect = pipe << UaDropdownMS.select
+        , onToggle = pipe << UaDropdownMS.toggle
         , icon = TwUtil.icon Icon.gear
         , align = TwUtil.Left
         }
@@ -418,14 +425,21 @@ fetchUaButton _ =
 
 
 copyAllButton : Bool -> ToolbarState -> Html Msg
-copyAllButton smallScreen { copyAllState } =
+copyAllButton smallScreen { copyAllState, settings } =
+    let
+        conf =
+            config { defaultConfig
+                | smallScreen = smallScreen
+                , searchIncludeUa = settings |> optSearchIncludeUa
+            }
+    in
     button
         [ onClick <|
             ClipboardMsg <|
                 Clipboard.CopyAction <|
                     String.join "\n"
                         << List.map .ua
-                        << Table.getFiltered (configBuilder |> withSmallScreen smallScreen |> config)
+                        << Table.getFiltered conf
         , css <|
             [ Tw.flex
             , Tw.justify_center

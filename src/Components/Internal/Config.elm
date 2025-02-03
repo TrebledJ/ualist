@@ -37,6 +37,7 @@ type alias ConfigInternal a b tbstate msg =
     , toolbar : List (tbstate -> Html msg)
     , toolbarContainer : List (List Css.Style -> tbstate -> Html msg)
     , stickyHeader : Maybe (tbstate -> Css.Style)
+    , searchCaseSensitive : Bool
     }
 
 
@@ -63,6 +64,7 @@ config t s oe oi c =
         , toolbar = []
         , toolbarContainer = []
         , stickyHeader = Nothing
+        , searchCaseSensitive = False
         }
 
 
@@ -82,6 +84,7 @@ static onChange getID columns =
         , toolbar = []
         , toolbarContainer = []
         , stickyHeader = Nothing
+        , searchCaseSensitive = False
         }
 
 
@@ -101,6 +104,7 @@ dynamic onChangeExt onChangeInt getID columns =
         , toolbar = []
         , toolbarContainer = []
         , stickyHeader = Nothing
+        , searchCaseSensitive = False
         }
 
 
@@ -184,8 +188,8 @@ withSubtable getValues getID columns expand (Config c) =
         , selection = c.selection
         , onChangeExt = c.onChangeExt
         , onChangeInt = c.onChangeInt
-        , onRowClick = Nothing
-        , onRowHover = Nothing
+        , onRowClick = c.onRowClick
+        , onRowHover = c.onRowHover
         , table = c.table
         , pagination = c.pagination
         , subtable = Just <| SubTable getValues { columns = columns, getID = getID, expand = expand }
@@ -193,6 +197,7 @@ withSubtable getValues getID columns expand (Config c) =
         , toolbar = c.toolbar
         , toolbarContainer = c.toolbarContainer
         , stickyHeader = Nothing
+        , searchCaseSensitive = c.searchCaseSensitive
         }
 
 withStickyHeader : (tbstate -> Css.Style) -> Config a b tbstate msg -> Config a b tbstate msg
@@ -203,6 +208,9 @@ withRowClickHandler h (Config c) = Config { c | onRowClick = Just h }
 
 withRowHoverHandler : (a -> { x: Int, y: Int } -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withRowHoverHandler h (Config c) = Config { c | onRowHover = Just h }
+
+withSearchCaseSensitive : Bool -> Config a b tbstate msg -> Config a b tbstate msg
+withSearchCaseSensitive b (Config c) = Config { c | searchCaseSensitive = b }
 
 -- errorView : String -> Html msg
 -- errorView msg =

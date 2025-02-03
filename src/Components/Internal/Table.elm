@@ -152,7 +152,9 @@ tableHeader ((Config cfg) as config) toolbarState pipeExt pipeInt state =
                     , Tw.top_0
                     , Tw.z_10 -- In case thead is sticky, we want the extra header to be on top.
                     ]
-                Nothing -> []
+
+                Nothing ->
+                    []
 
         toolbarContainerStyles =
             [ {- Tw.h_16, -} Tw.p_4, Tw.bg_color Tw.gray_100 ]
@@ -243,7 +245,11 @@ filterRows ((Config cfg) as config) state rows =
                                             False
 
                                         Just fn ->
-                                            String.contains state.search (fn a)
+                                            if cfg.searchCaseSensitive then
+                                                String.contains state.search (fn a)
+
+                                            else
+                                                String.contains (String.toLower state.search) (String.toLower <| fn a)
                                 )
                                 cfg.table.columns
                         )
@@ -326,8 +332,11 @@ tableContentHead stickyHeader toolbarState hasSelection pipeExt pipeInt columns 
     thead
         [ css <|
             case stickyHeader of
-                Just calc -> [ Tw.sticky, calc toolbarState ]
-                Nothing -> []
+                Just calc ->
+                    [ Tw.sticky, calc toolbarState ]
+
+                Nothing ->
+                    []
         ]
         [ tr [] <|
             List.indexedMap
@@ -486,10 +495,11 @@ subtableContent ((Config cfg) as config) pipeExt pipeInt parent subConfig state 
     in
     div [ class "subtable-content" ]
         [ {- table []
-            [ tableContentHead Nothing (cfg.selection /= Disable) pipeInt pipeExt columns state
-            , subtableContentBody pipeExt subConfig columns state rows
-            ] -}
-            text "Not Implemented"
+             [ tableContentHead Nothing (cfg.selection /= Disable) pipeInt pipeExt columns state
+             , subtableContentBody pipeExt subConfig columns state rows
+             ]
+          -}
+          text "Not Implemented"
         ]
 
 

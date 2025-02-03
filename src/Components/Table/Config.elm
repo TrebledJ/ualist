@@ -3,9 +3,11 @@ module Components.Table.Config exposing
     , static, dynamic
     , withExpand, withSelection, withSelectionFree, withSelectionLinked
     , withSelectionLinkedStrict, withSelectionExclusive
-    , withSelectionExclusiveStrict, withPagination, withRowLimits, withProgressiveLoading
-    , withToolbar, withToolbarContainer, {- withErrorView, -} withSubtable
-    , withStickyHeader, withRowClickHandler, withRowHoverHandler
+    , withSelectionExclusiveStrict, withPagination, withProgressiveLoading
+    , withToolbar, withSubtable
+    , withRowClickHandler, withRowHoverHandler, withRowLimits, withStickyHeader, withToolbarContainer
+    , withSearchCaseSensitive
+    {- withErrorView, -}
     )
 
 {-| Configuration of the table.
@@ -141,6 +143,7 @@ withToolbarContainer =
     Components.Internal.Config.withToolbarContainer
 
 
+
 -- {-| Define a specific error message.
 -- -}
 -- withErrorView : (String -> Html msg) -> Config a b tbstate msg -> Config a b tbstate msg
@@ -161,14 +164,23 @@ withStickyHeader : (tbstate -> Css.Style) -> Config a b tbstate msg -> Config a 
 withStickyHeader =
     Components.Internal.Config.withStickyHeader
 
+
 {-| Handle clicks on individual rows.
 -}
 withRowClickHandler : (a -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withRowClickHandler =
     Components.Internal.Config.withRowClickHandler
 
+
 {-| Handle hover events on individual rows.
 -}
-withRowHoverHandler : (a -> { x: Int, y: Int } -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
+withRowHoverHandler : (a -> { x : Int, y : Int } -> msg) -> Config a b tbstate msg -> Config a b tbstate msg
 withRowHoverHandler =
     Components.Internal.Config.withRowHoverHandler
+
+
+{-| Toggle case sensitivity in search.
+-}
+withSearchCaseSensitive : Bool -> Config a b tbstate msg -> Config a b tbstate msg
+withSearchCaseSensitive =
+    Components.Internal.Config.withSearchCaseSensitive
