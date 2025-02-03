@@ -1,4 +1,4 @@
-module Components.UaDropdownMultiSelect exposing (State, select, getSelected, init, init2, toggle, view)
+module Components.UaDropdownMultiSelect exposing (State, getSelected, init, initByPair, select, toggle, view)
 
 import Components.Dropdown as Dropdown exposing (dropdown)
 import Css
@@ -21,6 +21,15 @@ init2 items selecteds =
     , selecteds = selecteds
     , isOpen = False
     }
+
+
+initByPair : List ( String, Bool ) -> State
+initByPair itemsAndSelected =
+    let
+        ( items, selected ) =
+            List.unzip itemsAndSelected
+    in
+    init2 items selected
 
 
 type alias State =
@@ -80,11 +89,16 @@ select idx st =
 
 type alias ViewOptions msg =
     { identifier : String -- An unique identifier to handle focusing mechanics.
-    , onSelect : Int -> msg -- What message to fire when an item is selected.
-    , onToggle : Bool -> msg -- What message to fire when an item is toggled.
+    , onSelect :
+        Int
+        -> msg -- What message to fire when an item is selected.
+    , onToggle :
+        Bool
+        -> msg -- What message to fire when the dropdown is toggled.
     , icon : Html msg -- An icon to display on the button.
     , align : TwUtil.Align -- Whether the dropdown menu is aligned left or right.
     }
+
 
 view :
     ViewOptions msg

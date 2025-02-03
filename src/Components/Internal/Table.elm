@@ -60,8 +60,8 @@ init (Config cfg) =
         fnNameSelected =
             \(Column { name, default }) -> ( name, default )
 
-        ( colNames, colSelecteds ) =
-            cfg.table.columns |> List.map fnNameSelected |> List.unzip
+        colNameAndSelected =
+            cfg.table.columns |> List.map fnNameSelected
 
         ( ddPaginationOptions, ddPaginationInitial ) =
             case cfg.pagination of
@@ -83,7 +83,7 @@ init (Config cfg) =
             , ddPagination =
                 UaDropdown.init ddPaginationOptions
                     |> UaDropdown.withDefault ddPaginationInitial
-            , ddColumns = UaDropdownMS.init2 colNames colSelecteds
+            , ddColumns = UaDropdownMS.initByPair colNameAndSelected
             , ddSubColumns = UaDropdownMS.init visibleSubColumns -- TODO: list all columns, and mark visible columns as selected
             , table = StateTable {- visibleColumns -} [] [] []
             , subtable = StateTable {- visibleSubColumns -} [] [] []

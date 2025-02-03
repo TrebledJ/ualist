@@ -5,6 +5,7 @@ import Components.Table.Column as Column
 import Components.Table.Config as Config
 import Components.Table.Table as Table
 import Components.UaDropdown as UaDropdown
+import Components.UaDropdownMultiSelect as UaDropdownMS
 import Css
 import FontAwesome.Solid as Icon
 import Html.Styled exposing (..)
@@ -42,8 +43,11 @@ init width =
     let
         smallScreen =
             width < 640
+
+        conf =
+            configBuilder |> withSmallScreen smallScreen |> config
     in
-    { table = Table.init (config smallScreen) |> Table.withStatus "Load / Generate Data"
+    { table = Table.init conf |> Table.withStatus "Load / Generate Data"
     , smallScreen = smallScreen
     , toolbarState =
         { copyAllState = Clipboard.Idle
@@ -61,8 +65,18 @@ init width =
             , generateLastAction = False
             , showGenerateContainer = False
             }
+        , settings =
+            UaDropdownMS.initByPair
+                [ ( "Tooltip on Hover", True )
+                , ( "Case Sensitive Search", False )
+                , ( "Include UA in Search", False )
+                ]
         }
     }
+
+
+type alias Config =
+    Table.Config UserAgent () ToolbarState Msg
 
 
 type alias GeneratorTotalEclipseState =
@@ -74,18 +88,65 @@ type alias GeneratorTotalEclipseState =
     }
 
 
+type alias Seddings =
+    UaDropdownMS.State
+
+
+nth : Int -> List a -> Maybe a
+nth n xs =
+    xs |> List.drop n |> List.head
+
+
+optTtOnHover : Seddings -> Bool
+optTtOnHover s =
+    s.selecteds |> nth 0 |> Maybe.withDefault True
+
+
+optSearchCaseSensitive : Seddings -> Bool
+optSearchCaseSensitive s =
+    s.selecteds |> nth 1 |> Maybe.withDefault False
+
+
+optSearchIncludeUa : Seddings -> Bool
+optSearchIncludeUa s =
+    s.selecteds |> nth 2 |> Maybe.withDefault False
+
+
 type alias ToolbarState =
     { copyAllState : Clipboard.ViewState
     , generateConfigState : GeneratorTotalEclipseState
+    , settings : Seddings
     }
 
 
-config : Bool -> Table.Config UserAgent () ToolbarState Msg
-config smallScreen =
+type alias ConfigBuilder =
+    { smallScreen : Bool, searchUaColumn : Bool }
+
+
+configBuilder : ConfigBuilder
+configBuilder =
+    { smallScreen = False, searchUaColumn = False }
+
+
+withSmallScreen : Bool -> ConfigBuilder -> ConfigBuilder
+withSmallScreen s cfg =
+    { cfg | smallScreen = s }
+
+
+withSearchUaColumn : Bool -> ConfigBuilder -> ConfigBuilder
+withSearchUaColumn s cfg =
+    { cfg | searchUaColumn = s }
+
+
+config : ConfigBuilder -> Config
+config { smallScreen, searchUaColumn } =
     Table.static
         OnTable
         .ua
-        [ Column.string .ua "User Agent" "" |> Column.withCss [ Css.property "word-break" "break-word" ] |> Column.withLineClamp (Just 3)
+        [ Column.string .ua "User Agent" ""
+            |> Column.withCss [ Css.property "word-break" "break-word" ]
+            |> Column.withLineClamp (Just 3)
+            |> applyIfT (not searchUaColumn) (Column.withSearchable Nothing)
         , Column.string .browserName "Browser" "" |> applyIfT smallScreen (Column.withDefault False)
         , Column.string .deviceModel "Model" "" |> applyIfT smallScreen (Column.withDefault False)
         , Column.string .deviceVendor "Vendor" "" |> applyIfT smallScreen (Column.withDefault False)
@@ -96,7 +157,8 @@ config smallScreen =
         |> Config.withRowHoverHandler OnRowHover
         |> Config.withRowLimits [ "10", "20", "50", "100", "All" ] "All"
         |> Config.withToolbar
-            [ fetchUaButton
+            [ settingsDropdown
+            , fetchUaButton
             , toggleGenerateContainerButton
             , copyAllButton smallScreen
             ]
@@ -291,9 +353,9 @@ setRowsToModel x model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions { smallScreen, table } =
     Sub.batch
-        [ Table.subscriptions (config model.smallScreen) model.table
+        [ Table.subscriptions (configBuilder |> withSmallScreen smallScreen |> config) table
         , recvUserAgentBatch RecvUserAgentBatch
 
         -- , Sub.map ClipboardMsg <| Clipboard.subscriptions ()
@@ -304,7 +366,33 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    Table.view (config model.smallScreen) model.toolbarState model.table
+    let
+        conf =
+            config
+                { smallScreen = model.smallScreen
+                , searchUaColumn = model.toolbarState.settings |> optSearchIncludeUa
+                }
+    in
+    Table.view conf model.toolbarState model.table
+
+
+settingsDropdown : ToolbarState -> Html Msg
+settingsDropdown toolbarState =
+    let
+        pipe fUpdateState =
+            mkPipe UpdateToolbarState toolbarState (\({ settings } as s) -> { s | settings = fUpdateState settings })
+    in
+    UaDropdownMS.view
+        { identifier = "dd-settings"
+        , onSelect =
+            \item ->
+                pipe <| UaDropdownMS.select item
+        , onToggle =
+            \on -> pipe <| UaDropdownMS.toggle on
+        , icon = TwUtil.icon Icon.gear
+        , align = TwUtil.Left
+        }
+        toolbarState.settings
 
 
 fetchUaButton : ToolbarState -> Html Msg
@@ -337,7 +425,7 @@ copyAllButton smallScreen { copyAllState } =
                 Clipboard.CopyAction <|
                     String.join "\n"
                         << List.map .ua
-                        << Table.getFiltered (config smallScreen)
+                        << Table.getFiltered (configBuilder |> withSmallScreen smallScreen |> config)
         , css <|
             [ Tw.flex
             , Tw.justify_center
